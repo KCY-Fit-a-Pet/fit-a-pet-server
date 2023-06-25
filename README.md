@@ -1,6 +1,10 @@
 # Fit a Pet
 김최양 사이드 프로젝트 FitaPet 백엔드 Repository 입니다.
 
+- 기획&디자인: [김유빈](https://github.com/youvebeen09)
+- [프론트엔드](https://github.com/heejinnn/fit-a-pet-frontend): [최희진](https://github.com/heejinnn)
+- 백엔드: [양재서](https://github.com/psychology50)
+
 ## Dev Environment
 - IntelliJ 2023.1.2
 - Postman
