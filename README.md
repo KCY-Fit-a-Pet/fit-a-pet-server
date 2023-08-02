@@ -5,6 +5,13 @@
 - [프론트엔드](https://github.com/heejinnn/fit-a-pet-frontend): [최희진](https://github.com/heejinnn)
 - 백엔드: [양재서](https://github.com/psychology50)
 
+
+## Version Control
+
+| Version | Date | Description | Author |
+| --- | --- | --- | --- |
+| v0.0.1 | 2021.07.01 | 프로젝트 초기화 | 양재서 |
+
 ## Dev Environment
 - IntelliJ 2023.1.2
 - Postman
@@ -122,8 +129,5 @@ main ── develop ── feature
         ```
 </div>
 </details>
-
-## Version Control
-    
 
 
