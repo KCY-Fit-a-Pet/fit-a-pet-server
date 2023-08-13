@@ -3,7 +3,7 @@ name: BE CI
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   build-and-notify:
