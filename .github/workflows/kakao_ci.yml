@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - develop
 
 jobs:
   build-and-notify:
@@ -21,5 +22,5 @@ jobs:
         with:
           kakao_access_token: ${{ secrets.KAKAO_ACCESS_TOKEN }}
           function_name: send_to_me_custom
-          template_id: "93112"
+          template_id: "97231"
           template_args: '{"title": "BE push", "desc": "확인해주세요!"}'
