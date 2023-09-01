@@ -17,10 +17,4 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Send KakaoTalk notification
-        uses: Alfex4936/kakaotalk-ci-action@main
-        # if: failure()
-        with:
-          kakao_access_token: ${{ secrets.KAKAO_ACCESS_TOKEN }}
-          function_name: send_to_me_custom
-          template_id: "97232"
-          template_args: '{"title": "BE push", "desc": "확인해주세요!"}'
+        uses: psychology50/kakao-chat-ci@main
