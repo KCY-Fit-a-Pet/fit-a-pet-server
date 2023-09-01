@@ -1,12 +1,14 @@
 name: BE CI
 
-on:
-  workflow_dispatch:
-  
-  push:
-    branches:
-      - main
-      - develop
+on: 
+    push: 
+        branches: 
+            - main
+            - develop
+    pull_request:
+        types: [review_requested, opened, reopened, ready_for_review]
+    pull_request_review:
+        types: [submitted]
 
 jobs:
   build-and-notify:
@@ -18,3 +20,10 @@ jobs:
 
       - name: Send KakaoTalk notification
         uses: psychology50/kakao-chat-ci@main
+        with:
+          KAKAO_CLIENT: ${{ secrets.KAKAO_CLIENT }}
+          KAKAO_EMAIL: ${{ secrets.KAKAO_EMAIL }}
+          KAKAO_PASSWORD: ${{ secrets.KAKAO_PASSWORD }}
+          KAKAO_TEMPLATE_ID: 97232
+          KAKAO_SENDER_TEMPLATE_ID: 97280
+          KAKAO_REDIRECT_URL: http://localhost:3000/oauth/kakao/callback
