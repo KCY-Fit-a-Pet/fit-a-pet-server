@@ -1,26 +1,50 @@
 name: BE CI
+run-name: Deploy by @${{ github.actor }} 
 
-on:
-  workflow_dispatch:
-  
-  push:
-    branches:
-      - main
-      - develop
+on: 
+    push: 
+        branches: 
+            - main
+            - develop
+    pull_request:
+        types: [review_requested, opened, reopened, ready_for_review]
+    pull_request_review:
+        types: [submitted]
 
 jobs:
-  build-and-notify:
-    runs-on: ubuntu-latest
+    build-and-notify:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+            - name: Determine event type and trigger action at macOS
+              if: runner.os == 'macOS' 
+              run: |
+                if [ ${{github.event_name}} == 'push' ]; then
+                  echo "TITLE=[${{github.actor}}]_${{ github.event_name }}" >> $GITHUB_OUTPUT
+                  echo "DESC='$(echo '${{ github.event.head_commit.message }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
+                elif [ ${{github.event_name}} == 'pull_request' ]; then
+                  echo "TITLE='[${{github.actor}}]_${{ github.event_name }}'" >> $GITHUB_OUTPUT
+                  echo "DESC='$(echo '${{ github.event.pull_request.title }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
+                elif [ ${{github.event_name}} == 'pull_request_review' ]; then
+                  echo "TITLE='[${{github.actor}}]_${{ github.event_name }}'" >> $GITHUB_OUTPUT
+                  echo "DESC='$(echo '${{ github.event.pull_request.title }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
+                fi
+              id: determine_event_type_mac
 
-      - name: Send KakaoTalk notification
-        uses: Alfex4936/kakaotalk-ci-action@main
-        # if: failure()
-        with:
-          kakao_access_token: ${{ secrets.KAKAO_ACCESS_TOKEN }}
-          function_name: send_to_me_custom
-          template_id: "97232"
-          template_args: '{"title": "BE push", "desc": "확인해주세요!"}'
+            - name: run kakao-chat
+              if: runner.os == 'macOS'
+              uses: psychology50/kakao-chat-ci@main
+              env:
+                KAKAO_CLIENT: ${{ secrets.KAKAO_CLIENT }}
+                KAKAO_EMAIL: ${{ secrets.KAKAO_EMAIL }}
+                KAKAO_PASSWORD: ${{ secrets.KAKAO_PASSWORD }}
+                KAKAO_TEMPLATE_ID: 97232
+                KAKAO_SENDER_TEMPLATE_ID: 97280
+                KAKAO_REDIRECT_URL: http://localhost:3000/oauth/kakao/callback
+                TITLE: ${{ steps.determine_event_type_mac.outputs.TITLE }}
+                DESC: ${{ steps.determine_event_type_mac.outputs.DESC }}
+
+                
+
