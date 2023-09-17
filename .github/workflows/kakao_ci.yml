@@ -18,6 +18,27 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
+            - name: Determine event type and trigger action at Windows
+              if: runner.os == 'Windows'
+              run: |
+                if ( "${{github.event_name}}" -eq "push" ) {
+                  $TITLE="[${{github.actor}}]_${{ github.event_name }}"
+                  $DESC="${{ github.event.head_commit.message }}".split("`n")[0]
+                  echo "TITLE=$TITLE" >> $env:GITHUB_OUTPUT
+                  echo "DESC=$DESC" >> $env:GITHUB_OUTPUT
+                } elseif ( "${{github.event_name}}" -eq "pull_request" ) {
+                  $TITLE="[${{github.actor}}]_${{ github.event_name }}" 
+                  $DESC="${{ github.event.pull_request.title }}".split("`n")[0]
+                  echo "TITLE=$TITLE" >> $env:GITHUB_OUTPUT
+                  echo "DESC=$DESC" >> $env:GITHUB_OUTPUT
+                } elseif ( "${{github.event_name}}" -eq "pull_request_review" ) {
+                  $TITLE="${{github.actor}}]_${{ github.event_name }}"
+                  $DESC="${{ github.event.pull_request.title }}".split("`n")[0]
+                  echo "TITLE=$TITLE" >> $env:GITHUB_OUTPUT
+                  echo "DESC=$DESC" >> $env:GITHUB_OUTPUT
+                }
+              id: determine_event_type_windows
+
             - name: Determine event type and trigger action at macOS
               if: runner.os == 'macOS' 
               run: |
@@ -32,6 +53,19 @@ jobs:
                   echo "DESC='$(echo '${{ github.event.pull_request.title }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
                 fi
               id: determine_event_type_mac
+
+            - name: run kakao-chat
+              if: runner.os == 'Windows'
+              uses: psychology50/kakao-chat-ci@main
+              env:
+                KAKAO_CLIENT: ${{ secrets.KAKAO_CLIENT }}
+                KAKAO_EMAIL: ${{ secrets.KAKAO_EMAIL }}
+                KAKAO_PASSWORD: ${{ secrets.KAKAO_PASSWORD }}
+                KAKAO_TEMPLATE_ID: 97232
+                KAKAO_SENDER_TEMPLATE_ID: 97280
+                KAKAO_REDIRECT_URL: http://localhost:3000/oauth/kakao/callback
+                TITLE: ${{ steps.determine_event_type_mac.outputs.TITLE }}
+                DESC: ${{ steps.determine_event_type_mac.outputs.DESC }}
 
             - name: run kakao-chat
               if: runner.os == 'macOS'
