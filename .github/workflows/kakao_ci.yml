@@ -64,8 +64,8 @@ jobs:
                 KAKAO_TEMPLATE_ID: 97232
                 KAKAO_SENDER_TEMPLATE_ID: 97280
                 KAKAO_REDIRECT_URL: http://localhost:3000/oauth/kakao/callback
-                TITLE: ${{ steps.determine_event_type_mac.outputs.TITLE }}
-                DESC: ${{ steps.determine_event_type_mac.outputs.DESC }}
+                TITLE: ${{ steps.determine_event_type_windows.outputs.TITLE }}
+                DESC: ${{ steps.determine_event_type_windows.outputs.DESC }}
 
             - name: run kakao-chat
               if: runner.os == 'macOS'
