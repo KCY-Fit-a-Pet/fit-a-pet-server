@@ -18,6 +18,9 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
+            - name: Setup Chrome
+              uses: browser-actions/setup-chrome@v1
+
             - name: Determine event type and trigger action at Windows
               if: runner.os == 'Windows'
               run: |
@@ -37,6 +40,8 @@ jobs:
                   echo "TITLE=$TITLE" >> $env:GITHUB_OUTPUT
                   echo "DESC=$DESC" >> $env:GITHUB_OUTPUT
                 }
+                $CHROME_PATH = (Join-Path (Join-Path (Split-Path (Split-Path "${{github.workspace}}") -Parent) "_tool\chromium\latest\x64") "chrome.exe")
+                echo "CHROME_PATH=$CHROME_PATH" >> $env:GITHUB_OUTPUT
               id: determine_event_type_windows
 
             - name: Determine event type and trigger action at macOS
@@ -52,9 +57,10 @@ jobs:
                   echo "TITLE='[${{github.actor}}]_${{ github.event_name }}'" >> $GITHUB_OUTPUT
                   echo "DESC='$(echo '${{ github.event.pull_request.title }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
                 fi
+                echo "CHROME_PATH='$(echo "$(dirname "$(dirname "${GITHUB_WORKSPACE}")")/_tool/chromium/latest/x64/Chromium.app/Contents/MacOS/Chromium")'" >> $GITHUB_OUTPUT
               id: determine_event_type_mac
 
-            - name: run kakao-chat
+            - name: run kakao-chat at Windows
               if: runner.os == 'Windows'
               uses: psychology50/kakao-chat-ci@main
               env:
@@ -66,8 +72,9 @@ jobs:
                 KAKAO_REDIRECT_URL: http://localhost:3000/oauth/kakao/callback
                 TITLE: ${{ steps.determine_event_type_windows.outputs.TITLE }}
                 DESC: ${{ steps.determine_event_type_windows.outputs.DESC }}
+                CHROME_PATH: ${{ steps.determine_event_type_windows.outputs.CHROME_PATH }}
 
-            - name: run kakao-chat
+            - name: run kakao-chat at macOS
               if: runner.os == 'macOS'
               uses: psychology50/kakao-chat-ci@main
               env:
@@ -79,6 +86,4 @@ jobs:
                 KAKAO_REDIRECT_URL: http://localhost:3000/oauth/kakao/callback
                 TITLE: ${{ steps.determine_event_type_mac.outputs.TITLE }}
                 DESC: ${{ steps.determine_event_type_mac.outputs.DESC }}
-
-                
-
+                CHROME_PATH: ${{ steps.determine_event_type_mac.outputs.CHROME_PATH }}
