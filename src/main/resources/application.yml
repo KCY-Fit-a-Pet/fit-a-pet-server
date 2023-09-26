@@ -1,1 +1,55 @@
+server:
+  port: 8082
 
+spring:
+  profiles:
+    default: local
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: MySQL
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.hibernate.sql: debug
+    org.hibernate.type: trace
+
+---
+server:
+  port: 8080
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: MySQL
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+  main:
+    allow-bean-definition-overriding: true

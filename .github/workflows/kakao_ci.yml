@@ -18,6 +18,21 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
 
+            - name: Determine event type and trigger action at Windows
+              if: runner.os == 'Windows'
+              run: |
+                if ( ${{github.event_name}} -eq 'push' ) {
+                  echo "TITLE=[${{github.actor}}]_${{ github.event_name }}" >> $env:GITHUB_OUTPUT
+                  echo "DESC='$(echo '${{ github.event.head_commit.message }}' >> $env:GITHUB_OUTPUT
+                } elseif ( ${{github.event_name}} == 'pull_request' ) {
+                  echo "TITLE='[${{github.actor}}]_${{ github.event_name }}'" >> $env:GITHUB_OUTPUT
+                  echo "DESC='$(echo '${{ github.event.pull_request.title }}' | awk '{printf "%s", $0}')'" >> $env:GITHUB_OUTPUT
+                } elseif ( ${{github.event_name}} == 'pull_request_review' ) {
+                  echo "TITLE='[${{github.actor}}]_${{ github.event_name }}'" >> $GITHUB_OUTPUT
+                  echo "DESC='$(echo '${{ github.event.pull_request.title }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
+                }
+              id: determine_event_type_windows
+
             - name: Determine event type and trigger action at macOS
               if: runner.os == 'macOS' 
               run: |
