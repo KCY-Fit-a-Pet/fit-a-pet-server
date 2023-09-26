@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  app:
+    image: jaeseo/fitapet:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=${DB_URL}
+      - DB_USER_NAME=${DB_USER_NAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    name: fitapet
+    external: true
