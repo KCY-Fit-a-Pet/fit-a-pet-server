@@ -20,8 +20,25 @@ spring:
       ddl-auto: none
     show-sql: true
 
+
   main:
     allow-bean-definition-overriding: true
+
+  data.redis:
+    host: localhost
+    port: 6379
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true
 
 logging:
   level:
@@ -53,3 +70,19 @@ spring:
 
   main:
     allow-bean-definition-overriding: true
+
+  data.redis:
+    host: redisc-9cikc.vpc-cdb.ntruss.com # Redis Cluster Endpoint (NCP 구축후 변경 필요)
+    port: 6379
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true
