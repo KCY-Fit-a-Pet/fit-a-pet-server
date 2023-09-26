@@ -24,19 +24,17 @@ public class Notification extends Auditable {
     private Member member;
 
     @Builder
-    private Notification(String title, String content, NotificationType ctype, Member member) {
+    private Notification(String title, String content, NotificationType ctype) {
         this.title = title;
         this.content = content;
         this.ctype = ctype;
-        this.member = member;
     }
 
-    public static Notification of(String title, String content, NotificationType ctype, Member member) {
+    public static Notification of(String title, String content, NotificationType ctype) {
         return Notification.builder()
                 .title(title)
                 .content(content)
                 .ctype(ctype)
-                .member(member)
                 .build();
     }
 }

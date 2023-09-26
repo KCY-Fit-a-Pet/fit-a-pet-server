@@ -25,19 +25,17 @@ public class NotificationSetting extends Auditable {
     private Member member;
 
     @Builder
-    private NotificationSetting(boolean isCare, boolean isMemo, boolean isSchedule, Member member) {
+    private NotificationSetting(boolean isCare, boolean isMemo, boolean isSchedule) {
         this.isCare = isCare;
         this.isMemo = isMemo;
         this.isSchedule = isSchedule;
-        this.member = member;
     }
 
-    public static NotificationSetting of(boolean isCare, boolean isMemo, boolean isSchedule, Member member) {
+    public static NotificationSetting of(boolean isCare, boolean isMemo, boolean isSchedule) {
         return NotificationSetting.builder()
                 .isCare(isCare)
                 .isMemo(isMemo)
                 .isSchedule(isSchedule)
-                .member(member)
                 .build();
     }
 }

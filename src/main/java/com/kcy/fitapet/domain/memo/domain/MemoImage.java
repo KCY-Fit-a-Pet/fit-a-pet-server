@@ -21,13 +21,12 @@ public class MemoImage extends Auditable {
     private Memo memo;
 
     @Builder
-    private MemoImage(String imgUrl, Memo memo) {
+    private MemoImage(String imgUrl) {
         this.imgUrl = imgUrl;
-        this.memo = memo;
     }
 
-    public static MemoImage of(String imgUrl, Memo memo) {
+    public static MemoImage of(String imgUrl) {
         return MemoImage.builder()
-                .imgUrl(imgUrl).memo(memo).build();
+                .imgUrl(imgUrl).build();
     }
 }

@@ -34,21 +34,15 @@ public class Care extends Auditable {
     private List<CareDetail> careDetails = new ArrayList<>();
 
     @Builder
-    private Care(String careName, CareType dtype, Member author, Member lastEditor, List<CareDetail> careDetails) {
+    private Care(String careName, CareType dtype) {
         this.careName = careName;
         this.dtype = dtype;
-        this.author = author;
-        this.lastEditor = lastEditor;
-        this.careDetails = careDetails;
     }
 
-    public static Care of(String careName, CareType dtype, Member author, Member lastEditor, List<CareDetail> careDetails) {
+    public static Care of(String careName, CareType dtype) {
         return Care.builder()
                 .careName(careName)
                 .dtype(dtype)
-                .author(author)
-                .lastEditor(lastEditor)
-                .careDetails(careDetails)
                 .build();
     }
 }

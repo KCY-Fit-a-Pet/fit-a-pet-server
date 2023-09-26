@@ -32,16 +32,11 @@ public class Master {
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
-    @Builder
-    private Master(Member member, Pet pet) {
-        this.member = member;
-        this.pet = pet;
+    public void hide() {
+        this.hidden = true;
     }
 
-    public static Master of(Member member, Pet pet) {
-        return Master.builder()
-                .member(member)
-                .pet(pet)
-                .build();
+    public void show() {
+        this.hidden = false;
     }
 }

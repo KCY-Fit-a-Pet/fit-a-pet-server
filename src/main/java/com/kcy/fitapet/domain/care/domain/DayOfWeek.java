@@ -33,7 +33,7 @@ public class DayOfWeek extends Auditable {
     private CareDetail careDetail;
 
     @Builder
-    private DayOfWeek(boolean mon, boolean tue, boolean wed, boolean thu, boolean fri, boolean sat, boolean sun, CareDetail careDetail) {
+    private DayOfWeek(boolean mon, boolean tue, boolean wed, boolean thu, boolean fri, boolean sat, boolean sun) {
         this.mon = mon;
         this.tue = tue;
         this.wed = wed;
@@ -41,11 +41,10 @@ public class DayOfWeek extends Auditable {
         this.fri = fri;
         this.sat = sat;
         this.sun = sun;
-        this.careDetail = careDetail;
     }
 
-    public static DayOfWeek of(boolean mon, boolean tue, boolean wed, boolean thu, boolean fri, boolean sat, boolean sun, CareDetail careDetail) {
+    public static DayOfWeek of(boolean mon, boolean tue, boolean wed, boolean thu, boolean fri, boolean sat, boolean sun) {
         return DayOfWeek.builder()
-                .mon(mon).tue(tue).wed(wed).thu(thu).fri(fri).sat(sat).sun(sun).careDetail(careDetail).build();
+                .mon(mon).tue(tue).wed(wed).thu(thu).fri(fri).sat(sat).sun(sun).build();
     }
 }

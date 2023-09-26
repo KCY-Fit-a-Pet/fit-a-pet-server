@@ -22,17 +22,13 @@ public class MemberNickname extends Auditable {
     private Member to;
 
     @Builder
-    private MemberNickname(String nickname, Member from, Member to) {
+    private MemberNickname(String nickname) {
         this.nickname = nickname;
-        this.from = from;
-        this.to = to;
     }
 
-    public static MemberNickname of(String nickname, Member from, Member to) {
+    public static MemberNickname of(String nickname) {
         return MemberNickname.builder()
                 .nickname(nickname)
-                .from(from)
-                .to(to)
                 .build();
     }
 }

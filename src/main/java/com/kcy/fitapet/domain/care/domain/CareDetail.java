@@ -27,7 +27,7 @@ public class CareDetail extends Auditable {
     @Column(name = "limit_time")
     private LocalTime limitTime;
     @Column(name = "is_done") @ColumnDefault("false")
-    private boolean isDone;
+    private Boolean isDone;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "cleared_at")
     private LocalDateTime clearedAt;
@@ -39,25 +39,31 @@ public class CareDetail extends Auditable {
     private DayOfWeek dayOfWeek;
 
     @Builder
-    private CareDetail(String careDetailName, LocalTime careTime, LocalTime limitTime, boolean isDone, LocalDateTime clearedAt, Care care, DayOfWeek dayOfWeek) {
+    private CareDetail(String careDetailName, LocalTime careTime, LocalTime limitTime, Boolean isDone, LocalDateTime clearedAt) {
         this.careDetailName = careDetailName;
         this.careTime = careTime;
         this.limitTime = limitTime;
         this.isDone = isDone;
         this.clearedAt = clearedAt;
-        this.care = care;
-        this.dayOfWeek = dayOfWeek;
     }
 
-    public static CareDetail of(String careDetailName, LocalTime careTime, LocalTime limitTime, boolean isDone, LocalDateTime clearedAt, Care care, DayOfWeek dayOfWeek) {
+    public static CareDetail of(String careDetailName, LocalTime careTime, LocalTime limitTime, Boolean isDone, LocalDateTime clearedAt) {
         return CareDetail.builder()
                 .careDetailName(careDetailName)
                 .careTime(careTime)
                 .limitTime(limitTime)
                 .isDone(isDone)
                 .clearedAt(clearedAt)
-                .care(care)
-                .dayOfWeek(dayOfWeek)
                 .build();
+    }
+
+    public void isDone() {
+        this.isDone = Boolean.TRUE;
+        this.clearedAt = LocalDateTime.now();
+    }
+
+    public void cancelDone() {
+        this.isDone = Boolean.FALSE;
+        this.clearedAt = null;
     }
 }

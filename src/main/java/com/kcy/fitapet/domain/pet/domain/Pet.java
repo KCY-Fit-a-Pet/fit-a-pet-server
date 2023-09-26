@@ -51,8 +51,7 @@ public class Pet extends Auditable {
 
     @Builder
     private Pet(String petName, boolean gender, String petProfileImg, boolean neutered, LocalDateTime birth,
-                Integer age, String species, String feed, List<Master> masters, List<Schedule> schedules,
-                List<Care> cares, List<Memo> memos) {
+                Integer age, String species, String feed) {
         this.petName = petName;
         this.gender = gender;
         this.petProfileImg = petProfileImg;
@@ -61,15 +60,10 @@ public class Pet extends Auditable {
         this.age = age;
         this.species = species;
         this.feed = feed;
-        this.masters = masters;
-        this.schedules = schedules;
-        this.cares = cares;
-        this.memos = memos;
     }
 
     public static Pet of(String petName, boolean gender, String petProfileImg, boolean neutered, LocalDateTime birth,
-                         Integer age, String species, String feed, List<Master> masters, List<Schedule> schedules,
-                         List<Care> cares, List<Memo> memos) {
+                         Integer age, String species, String feed) {
         return Pet.builder()
                 .petName(petName)
                 .gender(gender)
@@ -78,10 +72,6 @@ public class Pet extends Auditable {
                 .birth(birth)
                 .age(age)
                 .species(species)
-                .feed(feed)
-                .masters(masters)
-                .schedules(schedules)
-                .cares(cares)
-                .memos(memos).build();
+                .feed(feed).build();
     }
 }

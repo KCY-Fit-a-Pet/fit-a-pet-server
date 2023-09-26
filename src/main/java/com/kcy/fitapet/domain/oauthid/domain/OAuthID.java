@@ -3,10 +3,7 @@ package com.kcy.fitapet.domain.oauthid.domain;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Table(name = "OAUTH_ID")
@@ -25,4 +22,19 @@ public class OAuthID extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @Builder
+    private OAuthID(String accessToken, String provider, Long expired_time) {
+        this.accessToken = accessToken;
+        this.provider = provider;
+        this.expired_time = expired_time;
+    }
+
+    public static OAuthID of(String accessToken, String provider, Long expired_time) {
+        return OAuthID.builder()
+                .accessToken(accessToken)
+                .provider(provider)
+                .expired_time(expired_time)
+                .build();
+    }
 }

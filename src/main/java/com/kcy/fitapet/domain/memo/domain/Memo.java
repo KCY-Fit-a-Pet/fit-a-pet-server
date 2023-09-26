@@ -4,20 +4,19 @@ import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Table(name = "MEMO")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Memo extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title;
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,23 +35,15 @@ public class Memo extends Auditable {
     private Category category;
 
     @Builder
-    private Memo(String content, Pet pet, Member author, Member lastEditor, List<MemoImage> memoImages, Category category) {
+    private Memo(String title, String content) {
+        this.title = title;
         this.content = content;
-        this.pet = pet;
-        this.author = author;
-        this.lastEditor = lastEditor;
-        this.memoImages = memoImages;
-        this.category = category;
     }
 
-    public static Memo of(String content, Pet pet, Member author, Member lastEditor, List<MemoImage> memoImages, Category category) {
+    public static Memo of(String title, String content) {
         return Memo.builder()
+                .title(title)
                 .content(content)
-                .pet(pet)
-                .author(author)
-                .lastEditor(lastEditor)
-                .memoImages(memoImages)
-                .category(category)
                 .build();
     }
 }
