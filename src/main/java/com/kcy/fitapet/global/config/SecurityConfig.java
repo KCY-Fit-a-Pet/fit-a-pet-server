@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +32,7 @@ public class SecurityConfig {
             "/api-docs/**",
             "/test/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
-            "/api/v1/users/login", "/api/v1/users/refresh"
+            "/api/v1/members/register", "/api/v1/members/login", "/api/v1/members/refresh"
     };
 
     private final UserDetailServiceImpl userDetailServiceImpl;
@@ -61,6 +62,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(

@@ -82,9 +82,8 @@ public class Member extends Auditable {
      * @param passwordEncoder : 비밀번호 암호화 객체
      * @return 변경된 유저 객체
      */
-    public Member encodePassword(PasswordEncoder passwordEncoder) {
+    public void encodePassword(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);
-        return this;
     }
 
     /**
@@ -94,6 +93,6 @@ public class Member extends Auditable {
      * @return true or false
      */
     public boolean checkPassword(String plainPassword, PasswordEncoder passwordEncoder) {
-        return passwordEncoder.matches(plainPassword, this.password);
+        return passwordEncoder.matches(passwordEncoder.encode(plainPassword), this.password);
     }
 }

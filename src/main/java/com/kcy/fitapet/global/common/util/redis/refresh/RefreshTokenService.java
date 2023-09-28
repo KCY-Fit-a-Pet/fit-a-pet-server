@@ -1,7 +1,6 @@
 package com.kcy.fitapet.global.common.util.redis.refresh;
 
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorException;
-import org.springframework.stereotype.Service;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 
 public interface RefreshTokenService {
     /**

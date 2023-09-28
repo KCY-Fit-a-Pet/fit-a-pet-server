@@ -1,7 +1,7 @@
 package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorException;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 
 import java.util.Date;
 

@@ -2,14 +2,15 @@ package com.kcy.fitapet.domain.member.dto;
 
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.domain.RoleType;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
-public record SignUpDto(
+public record SignUpReq(
         @NotNull(message = "Id is is required") String uid,
         @NotNull(message = "Password is required") String password,
         @NotNull(message = "Nickname is required") String name,
         @NotNull(message = "Phone number is required") String phone,
-        @NotNull(message = "Email is required") String email,
+        @NotNull(message = "Email is required") @Email(message = "Invalid Email Format") String email,
         String profileImg
 ) {
     public Member toEntity() {

@@ -1,8 +1,8 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.SignInDto;
-import com.kcy.fitapet.domain.member.dto.SignUpDto;
+import com.kcy.fitapet.domain.member.dto.SignInReq;
+import com.kcy.fitapet.domain.member.dto.SignUpReq;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
@@ -34,7 +34,7 @@ public class MemberAuthService {
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Map<String, String> register(SignUpDto dto) {
+    public Map<String, String> register(SignUpReq dto) {
         Member requestMember = dto.toEntity();
         requestMember.encodePassword(bCryptPasswordEncoder);
         log.info("회원가입 요청: {}", requestMember);
@@ -48,7 +48,7 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public Map<String, String> login(SignInDto dto) {
+    public Map<String, String> login(SignInReq dto) {
         Member member = memberSearchService.getMemberByUid(dto.uid());
         if (member.checkPassword(dto.password(), bCryptPasswordEncoder))
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");

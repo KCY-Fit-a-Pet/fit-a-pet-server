@@ -1,13 +1,14 @@
 package com.kcy.fitapet.domain.member.api;
 
-import com.kcy.fitapet.domain.member.dto.SignInDto;
-import com.kcy.fitapet.domain.member.dto.SignUpDto;
+import com.kcy.fitapet.domain.member.dto.SignInReq;
+import com.kcy.fitapet.domain.member.dto.SignUpReq;
 import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -30,21 +31,25 @@ public class MemberApi {
     private final CookieUtil cookieUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerTest(@RequestBody SignUpDto dto) {
+    public ResponseEntity<?> register(@RequestBody @Valid SignUpReq dto) {
         Map<String, String> tokens = memberAuthService.register(dto);
         return getResponseEntity(tokens);
     }
 
+    @GetMapping("/sms")
+    public ResponseEntity<?> smsTest(@RequestParam String phoneNumber, @RequestParam String code) {
 
+        return ResponseEntity.noContent().build();
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginTest(@RequestBody SignInDto dto) {
+    public ResponseEntity<?> login(@RequestBody @Valid SignInReq dto) {
         Map<String, String> tokens = memberAuthService.login(dto);
         return getResponseEntity(tokens);
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logoutTest(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logout(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         memberAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
         ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠키입니다."));
@@ -53,7 +58,7 @@ public class MemberApi {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<?> refreshTest(@CookieValue("refreshToken") String refreshToken) {
+    public ResponseEntity<?> refresh(@CookieValue("refreshToken") String refreshToken) {
         if (refreshToken == null) {
             throw new IllegalArgumentException("존재하지 않는 쿠키입니다."); // TODO : 공통 예외로 변경
         }

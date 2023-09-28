@@ -2,8 +2,8 @@ package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.domain.member.domain.RoleType;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorCode;
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorException;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +25,6 @@ import java.util.Map;
 public class JwtUtilImpl implements JwtUtil {
     private static final String USER_ID = "userId";
     private static final String ROLE = "role";
-    private static final String GITHUB_ID = "githubId";
 
     private final String jwtSecretKey;
     private final Duration accessTokenExpirationTime;

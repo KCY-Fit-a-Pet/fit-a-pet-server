@@ -9,6 +9,7 @@ services:
       - DB_URL=${DB_URL}
       - DB_USER_NAME=${DB_USER_NAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
     networks:
       - app-net
 

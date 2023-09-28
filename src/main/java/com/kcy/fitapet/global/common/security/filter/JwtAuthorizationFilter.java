@@ -4,8 +4,8 @@ import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceIm
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorCode;
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorException;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
@@ -27,6 +27,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.*;
 
@@ -44,9 +45,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final CookieUtil cookieUtil;
 
     private final List<String> jwtIgnoreUrls = List.of(
-            "/test",
-            "/api/v1/users/login",
-            "/api/v1/users/refresh"
+            "/api/v1/members/register",
+            "/api/v1/members/login",
+            "/api/v1/members/refresh"
     );
 
     @Override
@@ -67,7 +68,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private boolean shouldIgnoreRequest(HttpServletRequest request) {
         String uri = request.getRequestURI();
         String method = request.getMethod();
-        return jwtIgnoreUrls.contains(uri) || "OPTIONS".equals(method);
+
+        boolean isIgnored = jwtIgnoreUrls.stream()
+                .anyMatch(pattern -> matchesPattern(uri, pattern));
+
+        return isIgnored || "OPTIONS".equals(method);
+    }
+
+    private boolean matchesPattern(String uri, String pattern) {
+        return Pattern.matches(pattern.replace("**", ".*"), uri) ||
+                Pattern.matches(pattern.replace("/**", ""), uri);
     }
 
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
@@ -86,16 +96,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 return handleExpiredToken(request, response);
             }
             log.warn("Invalid JWT access token: {}", e.getMessage());
-
-            ServletException se = new ServletException();
-            se.initCause(e);
-            throw se;
+            throw new ServletException();
         }
     }
 
     private String handleExpiredToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
-                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found"));
+        ResponseCookie cookie;
+        try {
+            cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
+                    .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found"));
+        } catch (AuthErrorException e) {
+            throw new ServletException(e);
+        }
+
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return reissueAccessToken(request, response);
     }
@@ -115,9 +128,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             response.addHeader(ACCESS_TOKEN.getValue(), reissuedAccessToken);
             return reissuedAccessToken;
         } catch (AuthErrorException e) {
-            ServletException se = new ServletException();
-            se.initCause(e);
-            throw se;
+            throw new ServletException();
         }
     }
 

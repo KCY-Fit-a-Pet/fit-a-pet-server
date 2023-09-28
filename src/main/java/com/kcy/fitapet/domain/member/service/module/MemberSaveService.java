@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class MemberSaveService {
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
     public Member saveMember(Member member) {
         return memberRepository.save(member);

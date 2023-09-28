@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.jwt.exception.auth;
+package com.kcy.fitapet.global.common.util.jwt.exception;
 
 import io.jsonwebtoken.JwtException;
 import lombok.Getter;

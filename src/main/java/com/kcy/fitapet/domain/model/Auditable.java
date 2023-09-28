@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public abstract class Auditable {
     @CreatedDate
-    @Column(name = "create_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "update_at", nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 }

@@ -1,8 +1,8 @@
 package com.kcy.fitapet.global.common.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorException;
-import com.kcy.fitapet.global.common.util.jwt.exception.auth.AuthErrorResponse;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
