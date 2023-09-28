@@ -24,6 +24,12 @@ public enum ErrorCode implements StateCode {
     MISSING_REQUEST_HEADER_ERROR(BAD_REQUEST, "요청 헤더가 전달되지 않았습니다."),
     MISSING_REQUEST_BODY_ERROR(BAD_REQUEST, "요청 바디가 전달되지 않았습니다."),
 
+    DUPLICATE_NICKNAME_ERROR(BAD_REQUEST, "중복된 닉네임이 존재합니다."),
+    DUPLICATE_EMAIL_ERROR(BAD_REQUEST, "중복된 이메일이 존재합니다."),
+    DUPLICATE_PHONE_ERROR(BAD_REQUEST, "중복된 전화번호가 존재합니다."),
+
+    NOT_MATCH_PASSWORD_ERROR(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+
     /**
      * 403 FORBIDDEN: 서버에서 요청을 거부한 경우
      */

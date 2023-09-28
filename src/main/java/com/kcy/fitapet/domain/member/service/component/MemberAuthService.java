@@ -5,6 +5,8 @@ import com.kcy.fitapet.domain.member.dto.SignInReq;
 import com.kcy.fitapet.domain.member.dto.SignUpReq;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
+import com.kcy.fitapet.global.common.response.code.ErrorCode;
+import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
@@ -13,6 +15,7 @@ import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +54,7 @@ public class MemberAuthService {
     public Map<String, String> login(SignInReq dto) {
         Member member = memberSearchService.getMemberByUid(dto.uid());
         if (member.checkPassword(dto.password(), bCryptPasswordEncoder))
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new GlobalErrorException(ErrorCode.NOT_MATCH_PASSWORD_ERROR);
 
         JwtUserInfo jwtUserInfo = JwtUserInfo.from(member);
 
@@ -80,13 +83,13 @@ public class MemberAuthService {
 
     private void validateMember(Member member) {
         if (memberSearchService.isExistMemberByUid(member.getUid()))
-            throw new IllegalArgumentException("사용 중인 아이디입니다.");
+            throw new GlobalErrorException(ErrorCode.DUPLICATE_NICKNAME_ERROR);
 
         if (memberSearchService.isExistMemberByEmail(member.getEmail()))
-            throw new IllegalArgumentException("이미 등록된 이메일입니다.");
+            throw new GlobalErrorException(ErrorCode.DUPLICATE_EMAIL_ERROR);
 
         if (memberSearchService.isExistMemberByPhone(member.getPhone()))
-            throw new IllegalArgumentException("이미 등록된 전화번호입니다.");
+            throw new GlobalErrorException(ErrorCode.DUPLICATE_PHONE_ERROR);
     }
 
     private Map<String, String> generateToken(JwtUserInfo jwtUserInfo) {

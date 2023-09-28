@@ -22,21 +22,12 @@ public class SuccessResponse<T> {
     }
 
     /**
-     * 전송할 데이터가 존재하는 경우
+     * 전송할 Application Level Data를 설정한다.
      * @param data : 전송할 데이터
      */
     public static <T> SuccessResponse<T> from(T data) {
         return SuccessResponse.<T>builder()
                 .data(data)
-                .build();
-    }
-
-    /**
-     * 전송할 데이터가 존재하지 않는 경우
-     */
-    public static <T> SuccessResponse<T> empty() {
-        return SuccessResponse.<T>builder()
-                .data(null)
                 .build();
     }
 }
