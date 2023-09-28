@@ -1,9 +1,13 @@
 package com.kcy.fitapet.domain.member.api;
 
-import com.kcy.fitapet.domain.member.dto.SignInReq;
-import com.kcy.fitapet.domain.member.dto.SignUpReq;
+import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
+import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
+import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
+import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
+import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
+import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
@@ -38,9 +42,17 @@ public class MemberApi {
     }
 
     @GetMapping("/sms")
-    public ResponseEntity<?> smsTest(@RequestParam String phoneNumber, @RequestParam String code) {
+    public ResponseEntity<?> smsTest(
+            @RequestParam(value = "phone") String phoneNumber,
+            @RequestParam(value = "code", required = false) String code) {
+        if (code == null) {
+            SmsRes smsRes = memberAuthService.sendCertificationNumber(new SmsReq(phoneNumber));
+            return ResponseEntity.ok(SuccessResponse.from(smsRes));
+        }
 
-        return ResponseEntity.noContent().build();
+        return (!memberAuthService.checkCertificationNumber(phoneNumber, code))
+                ? ResponseEntity.ok(FailureResponse.of("code", ErrorCode.INVALID_AUTH_CODE.getMessage()))
+                : ResponseEntity.ok(SuccessResponse.from(Map.of("code", "인증 성공")));
     }
 
     @PostMapping("/login")

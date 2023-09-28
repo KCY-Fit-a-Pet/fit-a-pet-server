@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * API Response의 success, fail에 대한 공통적인 응답을 정의한다.
+ * API Response의 success에 대한 공통적인 응답을 정의한다.
  * @param <T>
  */
 @BasicResponse

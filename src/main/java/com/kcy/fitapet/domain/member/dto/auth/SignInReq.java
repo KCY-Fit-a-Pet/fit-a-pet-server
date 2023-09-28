@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.member.dto;
+package com.kcy.fitapet.domain.member.dto.auth;
 
 import jakarta.validation.constraints.NotNull;
 

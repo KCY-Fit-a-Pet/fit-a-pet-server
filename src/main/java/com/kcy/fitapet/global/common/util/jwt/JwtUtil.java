@@ -16,14 +16,14 @@ public interface JwtUtil {
 
     /**
      * 사용자 정보 기반으로 액세스 토큰을 생성하는 메서드
-     * @param user UserDto : 사용자 정보
+     * @param user JwtUserInfo : 사용자 정보
      * @return String : 토큰
      */
     String generateAccessToken(JwtUserInfo user);
 
     /**
      * 사용자 정보 기반으로 리프레시 토큰을 생성하는 메서드
-     * @param user UserDto : 사용자 정보
+     * @param user JwtUserInfo : 사용자 정보
      * @return String : 토큰
      */
     String generateRefreshToken(JwtUserInfo user);

@@ -30,6 +30,10 @@ public enum ErrorCode implements StateCode {
 
     NOT_MATCH_PASSWORD_ERROR(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 
+    EXPIRED_AUTH_CODE(BAD_REQUEST, "인증 코드가 만료되었습니다"),
+    INVALID_AUTH_CODE(BAD_REQUEST, "유효하지 않은 인증 코드입니다"),
+    INVALID_RECEIVER(BAD_REQUEST, "유효하지 않은 수신자입니다"),
+
     /**
      * 403 FORBIDDEN: 서버에서 요청을 거부한 경우
      */
@@ -47,6 +51,7 @@ public enum ErrorCode implements StateCode {
      * 500 INTERNAL_SERVER_ERROR: 서버에서 에러가 발생한 경우
      */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"Internal Server Error Exception"),
+    SMS_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SMS 전송에 실패하였습니다"),
 
     INSERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"Insert Transaction Error Exception"),
     UPDATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"Update Transaction Error Exception"),

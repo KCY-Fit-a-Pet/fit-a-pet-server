@@ -1,10 +1,16 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.SignInReq;
-import com.kcy.fitapet.domain.member.dto.SignUpReq;
+import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
+import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
+import com.kcy.fitapet.domain.member.dto.sms.SensRes;
+import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
+import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
+import com.kcy.fitapet.domain.member.service.module.SmsService;
+import com.kcy.fitapet.global.common.response.BasicResponse;
+import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
@@ -12,13 +18,16 @@ import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
+import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.ACCESS_TOKEN;
@@ -28,10 +37,13 @@ import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.REFRESH_TOKEN
 @Service
 @RequiredArgsConstructor
 public class MemberAuthService {
-    private final RefreshTokenService refreshTokenService;
-    private final ForbiddenTokenService forbiddenTokenService;
     private final MemberSearchService memberSearchService;
     private final MemberSaveService memberSaveService;
+    private final SmsService smsService;
+
+    private final RefreshTokenService refreshTokenService;
+    private final ForbiddenTokenService forbiddenTokenService;
+    private final SmsCertificationService smsCertificationService;
     private final JwtUtil jwtUtil;
 
     private final PasswordEncoder bCryptPasswordEncoder;
@@ -40,11 +52,11 @@ public class MemberAuthService {
     public Map<String, String> register(SignUpReq dto) {
         Member requestMember = dto.toEntity();
         requestMember.encodePassword(bCryptPasswordEncoder);
-        log.info("회원가입 요청: {}", requestMember);
+        log.debug("회원가입 요청: {}", requestMember);
         validateMember(requestMember);
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
-        log.info("회원가입 완료: {}", registeredMember);
+        log.debug("회원가입 완료: {}", registeredMember);
         JwtUserInfo jwtUserInfo = JwtUserInfo.from(registeredMember);
 
         return generateToken(jwtUserInfo);
@@ -79,6 +91,48 @@ public class MemberAuthService {
         String accessToken = jwtUtil.generateAccessToken(dto);
 
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken.getToken());
+    }
+
+    @Transactional
+    public SmsRes sendCertificationNumber(SmsReq dto) {
+        String certificationNumber = smsCertificationService.issueCertificationNumber(dto.to());
+
+        SensRes sensRes;
+        try {
+            sensRes = smsService.sendCertificationNumber(dto, certificationNumber);
+        } catch (Exception e) {
+            log.error("SMS 발송 실패: {}", e.getMessage());
+            smsCertificationService.removeCertificationNumber(dto.to());
+            throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
+        }
+
+        checkSmsStatus(dto.to(), sensRes);
+
+        LocalDateTime expireTime = smsCertificationService.getExpiredTime(dto.to());
+        log.info("인증번호 만료 시간: {}", expireTime);
+        return SmsRes.of(dto.to(), sensRes.requestTime(), expireTime, certificationNumber);
+    }
+
+    @Transactional
+    public boolean checkCertificationNumber(String requestPhone, String certificationNumber) {
+        boolean flag = smsCertificationService.isCorrectCertificationNumber(requestPhone, certificationNumber);
+
+        if (flag)
+            smsCertificationService.removeCertificationNumber(requestPhone);
+        return flag;
+    }
+
+    private void checkSmsStatus(String requestPhone, SensRes sensRes) {
+        if (sensRes.statusCode().equals("404")) {
+            log.error("존재하지 않는 수신자: {}", requestPhone);
+            smsCertificationService.removeCertificationNumber(requestPhone);
+            throw new GlobalErrorException(ErrorCode.INVALID_RECEIVER);
+        } else if (sensRes.statusName().equals("fail")) {
+            log.error("SMS API 응답 실패: {}", sensRes);
+            smsCertificationService.removeCertificationNumber(requestPhone);
+            throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
+        }
+        log.info("SMS 발송 성공");
     }
 
     private void validateMember(Member member) {

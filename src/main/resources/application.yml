@@ -20,13 +20,12 @@ spring:
       ddl-auto: none
     show-sql: true
 
-
   main:
     allow-bean-definition-overriding: true
 
   data.redis:
-    host: localhost
-    port: 6379
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -51,6 +50,14 @@ logging:
   level:
     org.hibernate.sql: debug
     org.hibernate.type: trace
+
+ncp:
+  api-key: ${NCP_API_ACCESS_KEY}
+  secret-key: ${NCP_SECRET_KEY}
+  sms:
+    service-key: ${NCP_SMS_KEY}
+    sender-phone: ${SENDER_PHONE}
+
 
 ---
 server:
@@ -79,8 +86,8 @@ spring:
     allow-bean-definition-overriding: true
 
   data.redis:
-    host: redisc-9cikc.vpc-cdb.ntruss.com # Redis Cluster Endpoint (NCP 구축후 변경 필요)
-    port: 6379
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -98,5 +105,5 @@ jwt:
   secret: ${JWT_SECRET}
   token:
     # milliseconds 단위
-    access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
+    access-expiration-time: 1800 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
