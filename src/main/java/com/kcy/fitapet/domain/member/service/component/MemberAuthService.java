@@ -9,8 +9,6 @@ import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.service.module.SmsService;
-import com.kcy.fitapet.global.common.response.BasicResponse;
-import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
@@ -22,8 +20,6 @@ import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,8 +45,15 @@ public class MemberAuthService {
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Map<String, String> register(SignUpReq dto) {
-        Member requestMember = dto.toEntity();
+    public Map<String, String> register(String authHeader, SignUpReq dto) {
+        String parsedToken = jwtUtil.resolveToken(authHeader);
+        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(parsedToken);
+
+        if (!smsCertificationService.isCorrectCertificationNumber(authenticatedPhone, parsedToken))
+            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
+        smsCertificationService.removeCertificationNumber(authenticatedPhone);
+
+        Member requestMember = dto.toEntity(authenticatedPhone);
         requestMember.encodePassword(bCryptPasswordEncoder);
         log.debug("회원가입 요청: {}", requestMember);
         validateMember(requestMember);
@@ -95,6 +98,8 @@ public class MemberAuthService {
 
     @Transactional
     public SmsRes sendCertificationNumber(SmsReq dto) {
+        if (memberSearchService.isExistMemberByPhone(dto.to()))
+            throw new GlobalErrorException(ErrorCode.DUPLICATE_PHONE_ERROR);
         String certificationNumber = smsCertificationService.issueCertificationNumber(dto.to());
 
         SensRes sensRes;
@@ -110,16 +115,18 @@ public class MemberAuthService {
 
         LocalDateTime expireTime = smsCertificationService.getExpiredTime(dto.to());
         log.info("인증번호 만료 시간: {}", expireTime);
-        return SmsRes.of(dto.to(), sensRes.requestTime(), expireTime, certificationNumber);
+        return SmsRes.of(dto.to(), sensRes.requestTime(), expireTime);
     }
 
     @Transactional
-    public boolean checkCertificationNumber(String requestPhone, String certificationNumber) {
-        boolean flag = smsCertificationService.isCorrectCertificationNumber(requestPhone, certificationNumber);
+    public String checkCertificationNumber(String requestPhone, String requestCertificationNumber) {
+        String token = null;
+        if (smsCertificationService.isCorrectCertificationNumber(requestPhone, requestCertificationNumber)) {
+            log.info("인증번호 일치");
+            token = smsCertificationService.issueSmsAuthToken(requestPhone);
+        }
 
-        if (flag)
-            smsCertificationService.removeCertificationNumber(requestPhone);
-        return flag;
+        return (token != null) ? token : "";
     }
 
     private void checkSmsStatus(String requestPhone, SensRes sensRes) {
@@ -135,6 +142,7 @@ public class MemberAuthService {
         log.info("SMS 발송 성공");
     }
 
+    // TODO: Query문 하나로 압축
     private void validateMember(Member member) {
         if (memberSearchService.isExistMemberByUid(member.getUid()))
             throw new GlobalErrorException(ErrorCode.DUPLICATE_NICKNAME_ERROR);

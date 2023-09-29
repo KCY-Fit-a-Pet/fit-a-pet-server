@@ -2,6 +2,7 @@ package com.kcy.fitapet.global.common.util.redis.sms;
 
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,6 +17,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SmsCertificationServiceImpl implements SmsCertificationService {
     private final SmsCertificationRepository smsCertificationRepository;
     private final RedisTemplate<String, SmsCertification> redisTemplate;
+
+    private final JwtUtil jwtUtil;
 
     @Override
     public String issueCertificationNumber(String phoneNumber) {
@@ -33,11 +36,18 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
     }
 
     @Override
-    public boolean isCorrectCertificationNumber(String phoneNumber, String certificationNumber) {
+    public String issueSmsAuthToken(String phoneNumber) {
+        String token = jwtUtil.generateSmsAuthToken(phoneNumber);
+        smsCertificationRepository.save(SmsCertification.of(phoneNumber, token));
+        return token;
+    }
+
+    @Override
+    public boolean isCorrectCertificationNumber(String phoneNumber, String requestCertificationNumber) {
         SmsCertification smsCertification = smsCertificationRepository.findById(phoneNumber)
                 .orElseThrow(() -> new GlobalErrorException(ErrorCode.EXPIRED_AUTH_CODE));
 
-        return smsCertification.getCertificationNumber().equals(certificationNumber);
+        return smsCertification.getCertificationNumber().equals(requestCertificationNumber);
     }
 
     @Override

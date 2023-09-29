@@ -24,7 +24,8 @@ public class ForbiddenTokenService {
         final Date now = new Date();
         final Date expireDate = jwtUtil.getExpiryDate(accessToken);
 
-        final long expireTime = expireDate.getTime() - now.getTime();
+        final long expireTime = (expireDate.getTime() - now.getTime()) / 1000;
+        log.info("expire time : {}", expireTime);
 
         ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken, userId, expireTime);
 

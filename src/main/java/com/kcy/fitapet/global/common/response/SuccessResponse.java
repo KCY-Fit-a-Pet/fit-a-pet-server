@@ -30,4 +30,11 @@ public class SuccessResponse<T> {
                 .data(data)
                 .build();
     }
+
+    /**
+     * 전송할 Application Level Data가 없는 경우 사용한다.
+     */
+    public static SuccessResponse<?> noContent() {
+        return SuccessResponse.builder().build();
+    }
 }

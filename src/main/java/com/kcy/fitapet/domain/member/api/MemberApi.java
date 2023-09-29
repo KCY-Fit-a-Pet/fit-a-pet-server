@@ -11,6 +11,8 @@ import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -36,13 +38,13 @@ public class MemberApi {
     private final CookieUtil cookieUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid SignUpReq dto) {
-        Map<String, String> tokens = memberAuthService.register(dto);
+    public ResponseEntity<?> register(@RequestHeader String accessToken, @RequestBody @Valid SignUpReq dto) {
+        Map<String, String> tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
     }
 
     @GetMapping("/sms")
-    public ResponseEntity<?> smsTest(
+    public ResponseEntity<?> smsAuthorization(
             @RequestParam(value = "phone") String phoneNumber,
             @RequestParam(value = "code", required = false) String code) {
         if (code == null) {
@@ -50,9 +52,13 @@ public class MemberApi {
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        return (!memberAuthService.checkCertificationNumber(phoneNumber, code))
+        String token = memberAuthService.checkCertificationNumber(phoneNumber, code);
+
+        return (token.equals(""))
                 ? ResponseEntity.ok(FailureResponse.of("code", ErrorCode.INVALID_AUTH_CODE.getMessage()))
-                : ResponseEntity.ok(SuccessResponse.from(Map.of("code", "인증 성공")));
+                : ResponseEntity.ok()
+                    .header(ACCESS_TOKEN.getValue(), token)
+                    .body(SuccessResponse.from(Map.of("code", "인증 성공")));
     }
 
     @PostMapping("/login")
@@ -62,26 +68,22 @@ public class MemberApi {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue("refreshToken") String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logout(@CookieValue("refreshToken") @Valid String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         memberAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
         ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 쿠키입니다."));
+                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));
 
-        return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(SuccessResponse.noContent());
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue("refreshToken") String refreshToken) {
+    public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
         if (refreshToken == null) {
-            throw new IllegalArgumentException("존재하지 않는 쿠키입니다."); // TODO : 공통 예외로 변경
+            throw new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다.");
         }
         Map<String, String> tokens = memberAuthService.refresh(refreshToken);
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                .build();
+        return getResponseEntity(tokens);
     }
 
     @GetMapping("/authentication")
@@ -98,9 +100,9 @@ public class MemberApi {
         log.debug("refresh token: {}", tokens.get(REFRESH_TOKEN.getValue()));
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
-        return ResponseEntity.noContent()
+        return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
-                .build();
+                .body(SuccessResponse.noContent());
     }
 }

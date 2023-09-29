@@ -11,6 +11,13 @@ public interface SmsCertificationService {
     String issueCertificationNumber(String phoneNumber);
 
     /**
+     * SMS 인증 완료 후 계정 생성을 위한 토큰 발행
+     * @param phoneNumber : String
+     * @return String : 토큰
+     */
+    String issueSmsAuthToken(String phoneNumber);
+
+    /**
      * 인증번호 확인
      * @param phoneNumber : String
      * @param certificationNumber : String

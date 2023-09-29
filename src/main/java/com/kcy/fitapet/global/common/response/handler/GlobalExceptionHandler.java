@@ -4,6 +4,7 @@ import com.kcy.fitapet.global.common.response.ErrorResponse;
 import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     /**
-     * API 호출 시 서버에서 발생시킨 예외를 처리하는 메소드
+     * API 호출 시 서버에서 발생시킨 전역 예외를 처리하는 메서드
      * @param e GlobalErrorException
      * @return ResponseEntity<ErrorResponse>
      */
@@ -31,6 +32,18 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleGlobalErrorException(GlobalErrorException e) {
         log.error("handleGlobalErrorException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(e.getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    }
+
+    /**
+     * API 호출 시 인증 관련 예외를 처리하는 메서드
+     * @param e AuthErrorException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(AuthErrorException.class)
+    protected ResponseEntity<ErrorResponse> handleAuthErrorException(AuthErrorException e) {
+        log.error("handleAuthErrorException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(e.getErrorCode().getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }
 

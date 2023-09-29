@@ -9,17 +9,16 @@ public record SignUpReq(
         @NotNull(message = "Id is is required") String uid,
         @NotNull(message = "Password is required") String password,
         @NotNull(message = "Nickname is required") String name,
-        @NotNull(message = "Phone number is required") String phone,
-        @NotNull(message = "Email is required") @Email(message = "Invalid Email Format") String email,
+        @Email(message = "Invalid Email Format") String email,
         String profileImg
 ) {
-    public Member toEntity() {
+    public Member toEntity(String phone) {
         return Member.builder()
                 .uid(uid)
                 .password(password)
                 .name(name)
-                .phone(phone)
                 .email(email)
+                .phone(phone)
                 .profileImg(profileImg)
                 .accountLocked(Boolean.FALSE)
                 .role(RoleType.USER)

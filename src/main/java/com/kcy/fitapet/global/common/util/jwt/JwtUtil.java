@@ -29,6 +29,13 @@ public interface JwtUtil {
     String generateRefreshToken(JwtUserInfo user);
 
     /**
+     * 사용자 정보 기반으로 SMS 인증 토큰을 생성하는 메서드
+     * @param phoneNumber String : 수신자 번호
+     * @return String : 토큰
+     */
+    String generateSmsAuthToken(String phoneNumber);
+
+    /**
      * token으로 부터 사용자 정보를 추출하는 메서드
      * @param token String : 토큰
      * @return UserAuthenticateReq : 사용자 정보
@@ -43,6 +50,15 @@ public interface JwtUtil {
      * @throws AuthErrorException : 토큰이 유효하지 않을 경우
      */
     Long getUserIdFromToken(String token) throws AuthErrorException;
+
+    /**
+     * 토큰으로 부터 유저의 전화번호를 추출하는 메서드
+     * [WARNING] : 오직 회원가입 시 발급되는 토큰에서만 사용 가능
+     * @param token String : 토큰
+     * @return String : 유저 전화번호
+     * @throws AuthErrorException : 토큰이 유효하지 않을 경우
+     */
+    String getPhoneNumberFromToken(String token) throws AuthErrorException;
 
     /**
      * 토큰의 만료일을 추출하는 메서드

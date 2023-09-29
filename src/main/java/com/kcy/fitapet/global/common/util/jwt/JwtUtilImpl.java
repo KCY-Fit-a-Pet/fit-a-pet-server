@@ -25,6 +25,7 @@ import java.util.Map;
 public class JwtUtilImpl implements JwtUtil {
     private static final String USER_ID = "userId";
     private static final String ROLE = "role";
+    private static final String PHONE_NUMBER = "phoneNumber";
 
     private final String jwtSecretKey;
     private final Duration accessTokenExpirationTime;
@@ -48,8 +49,9 @@ public class JwtUtilImpl implements JwtUtil {
         throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
     }
 
-    @SuppressWarnings("deprecation")
+
     @Override
+    @SuppressWarnings("deprecation")
     public String generateAccessToken(JwtUserInfo user) {
         final Date now = new Date();
 
@@ -62,6 +64,7 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public String generateRefreshToken(JwtUserInfo user) {
         final Date now = new Date();
 
@@ -70,6 +73,19 @@ public class JwtUtilImpl implements JwtUtil {
                 .setClaims(createClaims(user))
                 .signWith(SignatureAlgorithm.HS256, createSignature())
                 .setExpiration(createExpireDate(now, refreshTokenExpirationTime.toMillis()))
+                .compact();
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public String generateSmsAuthToken(String phoneNumber) {
+        final Date now = new Date();
+
+        return Jwts.builder()
+                .setHeader(createHeader())
+                .setClaims(Map.of(PHONE_NUMBER, phoneNumber))
+                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .setExpiration(createExpireDate(now, 1000 * 60 * 3))
                 .compact();
     }
 
@@ -89,6 +105,12 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     @Override
+    public String getPhoneNumberFromToken(String token) throws AuthErrorException {
+        Claims claims = verifyAndGetClaims(token);
+        return claims.get(PHONE_NUMBER, String.class);
+    }
+
+    @Override
     public Date getExpiryDate(String token) {
         Claims claims = verifyAndGetClaims(token);
         return claims.getExpiration();
@@ -99,8 +121,10 @@ public class JwtUtilImpl implements JwtUtil {
             return getClaimsFromToken(accessToken);
         } catch (JwtException e) {
             handleJwtException(e);
+        } catch (Exception e) {
+            log.error("토큰 검증에 실패했습니다. : {}", e.getMessage());
         }
-        throw new IllegalStateException("Unreachable code reached.");
+        throw new AuthErrorException(AuthErrorCode.WRONG_JWT_TOKEN, "토큰 검증에 실패했습니다.");
     }
 
     private void handleJwtException(JwtException e) {

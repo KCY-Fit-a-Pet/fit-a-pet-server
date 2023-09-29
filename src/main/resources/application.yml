@@ -105,5 +105,5 @@ jwt:
   secret: ${JWT_SECRET}
   token:
     # milliseconds 단위
-    access-expiration-time: 1800 # 30m (30 * 60 * 1000)
+    access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)

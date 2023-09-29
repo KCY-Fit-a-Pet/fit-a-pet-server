@@ -96,6 +96,6 @@ public class SmsService {
     }
 
     private String createAuthCodeMessage(String code) {
-        return "[Fit a Pet] 인증번호[" + code + "]를 입력해주세요.";
+        return "[Fit a Pet] 인증번호 [" + code + "]를 입력해주세요.";
     }
 }

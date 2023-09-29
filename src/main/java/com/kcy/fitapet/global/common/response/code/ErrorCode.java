@@ -30,7 +30,7 @@ public enum ErrorCode implements StateCode {
 
     NOT_MATCH_PASSWORD_ERROR(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 
-    EXPIRED_AUTH_CODE(BAD_REQUEST, "인증 코드가 만료되었습니다"),
+    EXPIRED_AUTH_CODE(BAD_REQUEST, "인증 시간이 만료되었습니다"),
     INVALID_AUTH_CODE(BAD_REQUEST, "유효하지 않은 인증 코드입니다"),
     INVALID_RECEIVER(BAD_REQUEST, "유효하지 않은 수신자입니다"),
 
