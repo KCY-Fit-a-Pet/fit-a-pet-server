@@ -10,6 +10,12 @@ services:
       - DB_USER_NAME=${DB_USER_NAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - NCP_API_ACCESS_KEY=${NCP_API_ACCESS_KEY}
+      - NCP_SECRET_KEY=${NCP_SECRET_KEY}
+      - NCP_SMS_KEY=${NCP_SMS_KEY}
+      - SENDER_PHONE=${SENDER_PHONE}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     networks:
       - app-net
 
