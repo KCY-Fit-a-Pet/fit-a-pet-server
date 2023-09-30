@@ -5,6 +5,7 @@ import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
 import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
 import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
+import com.kcy.fitapet.global.common.response.ErrorResponse;
 import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
@@ -13,6 +14,15 @@ import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -29,6 +39,7 @@ import java.util.Map;
 
 import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.*;
 
+@Tag(name = "유저 관리 API", description = "유저 인증과 관련된 API")
 @RestController
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
@@ -37,8 +48,18 @@ public class MemberApi {
     private final MemberAuthService memberAuthService;
     private final CookieUtil cookieUtil;
 
+    @Operation(summary = "회원가입", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "회원가입 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @Parameters({
+            @Parameter(name = "Authorization", description = "전화번호 인증 후 받은 토큰", in = ParameterIn.HEADER),
+            @Parameter(name = "dto", description = "회원가입 정보", schema = @Schema(implementation = SignUpReq.class))
+    })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestHeader String accessToken, @RequestBody @Valid SignUpReq dto) {
+    public ResponseEntity<?> register(@RequestHeader("Authorization") String accessToken, @RequestBody @Valid SignUpReq dto) {
         Map<String, String> tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
     }

@@ -1,5 +1,6 @@
 package com.kcy.fitapet.global.common.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.validation.BindingResult;
@@ -12,8 +13,11 @@ import java.util.Map;
 
 @BasicResponse
 @Getter
+@Schema(description = "API 응답 - 실패")
 public class FailureResponse {
+    @Schema(description = "응답 상태", defaultValue = "fail")
     private final String status = "fail";
+    @Schema(description = "응답 데이터", example = "{\"field\":\"reason\"}")
     private final Object data;
 
     @Builder

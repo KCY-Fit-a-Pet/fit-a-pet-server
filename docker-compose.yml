@@ -1,15 +1,19 @@
 version: '3.7'
 services:
-  nginx:
+  proxy:
     image: jaeseo/nginx:latest
     restart: always
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./proxy/proxy.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - was-net
     depends_on:
       - api
 
-  api:
+  fitapet-api:
     image: jaeseo/fitapet:latest
     restart: unless-stopped
     ports:
@@ -17,9 +21,9 @@ services:
     env_file:
       - .env
     networks:
-      - app-net
+      - was-net
 
 networks:
-  app-net:
+  was-net:
     name: fitapet
     external: true

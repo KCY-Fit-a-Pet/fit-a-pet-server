@@ -1,3 +1,3 @@
 FROM nginx
 
-ADD kcy.conf /etc/nginx/conf.d/default.conf
+ADD proxy.conf /etc/nginx/conf.d/default.conf
