@@ -1,21 +1,21 @@
 version: '3.7'
 services:
-  app:
+  nginx:
+    image: jaeseo/nginx:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+
+  api:
     image: jaeseo/fitapet:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
-    environment:
-      - DB_URL=${DB_URL}
-      - DB_USER_NAME=${DB_USER_NAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - NCP_API_ACCESS_KEY=${NCP_API_ACCESS_KEY}
-      - NCP_SECRET_KEY=${NCP_SECRET_KEY}
-      - NCP_SMS_KEY=${NCP_SMS_KEY}
-      - SENDER_PHONE=${SENDER_PHONE}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
+    env_file:
+      - .env
     networks:
       - app-net
 
