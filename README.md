@@ -5,6 +5,21 @@
 - [프론트엔드](https://github.com/KCY-Fit-a-Pet/fit-a-pet-client): [최희진](https://github.com/heejinnn)
 - 백엔드: [양재서](https://github.com/psychology50)
 
+## [ Contents ]
+- [Project Summary](#project-summary)
+- [Version Control](#version-control)
+- [Dev Environment](#dev-environment)
+- [Tech Stack](#tech-stack)
+    - [Framework & Library](#framework--library)
+    - [Build tool](#build-tool)
+    - [Database](#database)
+    - [Infra](#infra)
+- [Project Check List](#project-check-list)
+- [System Architecture](#system-architecture)
+- [WAS Architecture](#was-architecture)
+- [ERD](#erd)
+- [Branch Convention](#branch-convention)
+
 ## Version Control
 | Version # | Revision Date | Description         | Author |
 |:---------:|:-------------:|:--------------------|:------:|
@@ -73,9 +88,6 @@
 <div align="center"><img src="https://github.com/KCY-Fit-a-Pet/fit-a-pet-client/assets/96044622/25596514-4b67-4ccb-9186-4197f0facb3d"></img></div>
 
 - 현재 많은 부분이 수정되었고, 앞으로도 계속 수정될 예정입니다.
-
-## Projcet Board
-
 
 ## Branch Convention
 
