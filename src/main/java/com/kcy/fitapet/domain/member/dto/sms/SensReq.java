@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.member.dto.sms;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.util.List;

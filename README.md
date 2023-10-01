@@ -2,40 +2,52 @@
 김최양 사이드 프로젝트 FitaPet 백엔드 Repository 입니다.
 
 - 기획&디자인: [김유빈](https://github.com/youvebeen09)
-- [프론트엔드](https://github.com/heejinnn/fit-a-pet-frontend): [최희진](https://github.com/heejinnn)
+- [프론트엔드](https://github.com/KCY-Fit-a-Pet/fit-a-pet-client): [최희진](https://github.com/heejinnn)
 - 백엔드: [양재서](https://github.com/psychology50)
+
+## Version Control
+| Version # | Revision Date | Description         | Author |
+|:---------:|:-------------:|:--------------------|:------:|
+|  v0.0.1   |   2023.10.1   | 프로젝트 기본 기능 구현 및 배포  | 양재서 |
 
 ## Dev Environment
 - IntelliJ 2023.1.2
-- Postman
-- GitHub
-- Virtual Machine (Linux)
+- Postman 10.18.9
+- GitHub 
+- Windows 11
 - Notion
 
 ## Tech Stack
 ### Framework & Library
-- Java (버전 미정)
-- SpringBoot 3.0.1
+- JDK 11
+- SpringBoot 3.1.0
 - SpringBoot Security
 - Spring Data JPA
-- Swagger
-- Lombok
+- Spring Doc Open API  
+- Lombok 
+- JUnit5
+- jjwt 0.11.5
+- httpclient 4.5.14 & httpclient5 5.1.4 
 
 ### Build tool
 - Gradle
 
 ### Database
-- Maria DB
+- MySQL8
 - Redis
 
 ### Infra
-- AWS EC2
-- AWS S3
-- AWS CodeDeploy
-- AWS Route53
-- Docker & Kubernetes
+- AWS EC2 (for Build Server)
+- Docker & Docker-compose
 - Jenkins
-- Github Todo bot
+- GitHub Todo bot
+- GitHub Action
+- Kakao Talk
+- Naver Cloud Platform Server (for WAS)
+- Naver Cloud Platform Cloud DB for Redis
+- Naver Cloud Platform Object Storage
+- Naver Cloud Platform Simple & Easy Notification Service
+- Goorm IDE (for DB Server)
 
 ## Project Check List
 - [ ]  실제 서비스를 공개적으로 배포하고 운영하는 경험을 해보았다.
@@ -50,13 +62,17 @@
 - [ ]  타인과의 협업을 효율적으로 하기 위한 고민을 해보았다.
 
 ## System Architecture
-
+<div align="center"><img src="https://github.com/KCY-Fit-a-Pet/fit-a-pet-client/assets/96044622/08a48299-460b-46c9-ac83-ac7aec15d73c"></img></div>
 
 ## WAS Architecture
+<div align="center"><img src="https://github.com/KCY-Fit-a-Pet/fit-a-pet-client/assets/96044622/81ec4e4b-8a15-4a26-a8ff-96022dfde03f"></img></div>
 
+- WAS Server 내부에 Nginx를 통해 Reverse Proxy를 구현했습니다.
 
 ## ERD
+<div align="center"><img src="https://github.com/KCY-Fit-a-Pet/fit-a-pet-client/assets/96044622/25596514-4b67-4ccb-9186-4197f0facb3d"></img></div>
 
+- 현재 많은 부분이 수정되었고, 앞으로도 계속 수정될 예정입니다.
 
 ## Projcet Board
 
@@ -68,22 +84,12 @@ main ── develop ── feature
 └── hotfix
 ```
 
-| Brach name | description |
-| --- | --- |
-| main | 배포 중인 서비스 브랜치
-• 실제 서비스가 이루어지는 브랜치입니다.
-• 해당 브랜치를 기준으로 develop 브랜치가 분기됩니다.
-• 긴급 수정 안건에 대해서는 hotfix 브랜치에서 처리합니다. |
-| develop | 작업 브랜치
-• 개발, 테스트, 릴리즈 등 배포 전 단계의 기준이 되는 브랜치입니다.
-• 프로젝트의 default 브랜치입니다.
-• 해당 브랜치에서 feature 브랜치가 분기됩니다. |
-| feature | 기능 단위 구현
-• 개별 개발자가 맡은 작업을 개발하는 브랜치입니다.
-• feature/(feature-name)처럼 머릿말-꼬릿말(개발하는 기능)으로 명명합니다.
-• kebab-case 네이밍 규칙을 준수합니다. |
-| hotfix | 서비스 중 긴급 수정 사항 처리
-• main에서 분기합니다. |
+| Brach name | description                                                                                                                               |
+| --- |-------------------------------------------------------------------------------------------------------------------------------------------|
+| main | 배포 중인 서비스 브랜치 <br/> • 실제 서비스가 이루어지는 브랜치입니다. <br/> • 해당 브랜치를 기준으로 develop 브랜치가 분기됩니다.<br/> • 긴급 수정 안건에 대해서는 hotfix 브랜치에서 처리합니다.            |
+| develop | 작업 브랜치 <br/> • 개발, 테스트, 릴리즈 등 배포 전 단계의 기준이 되는 브랜치입니다. <br/> • 프로젝트의 default 브랜치입니다. <br/> • 해당 브랜치에서 feature 브랜치가 분기됩니다.                  |
+| feature | 기능 단위 구현 <br/> • 개별 개발자가 맡은 작업을 개발하는 브랜치입니다. <br/> • feature/(feature-name)처럼 머릿말-꼬릿말(개발하는 기능)으로 명명합니다. <br/> • kebab-case 네이밍 규칙을 준수합니다. |
+| hotfix | 서비스 중 긴급 수정 사항 처리 <br/> • main에서 분기합니다. |
 
 ## Commit Convention
 
@@ -122,8 +128,3 @@ main ── develop ── feature
         ```
 </div>
 </details>
-
-## Version Control
-    
-
-

@@ -49,14 +49,14 @@ public class MemberApi {
     private final CookieUtil cookieUtil;
 
     @Operation(summary = "회원가입", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
+    @Parameters({
+            @Parameter(name = "Authorization", description = "전화번호 인증 후 받은 토큰", in = ParameterIn.HEADER),
+            @Parameter(name = "dto", description = "회원가입 정보", schema = @Schema(implementation = SignUpReq.class))
+    })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "회원가입 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-    })
-    @Parameters({
-            @Parameter(name = "Authorization", description = "전화번호 인증 후 받은 토큰", in = ParameterIn.HEADER),
-            @Parameter(name = "dto", description = "회원가입 정보", schema = @Schema(implementation = SignUpReq.class))
     })
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestHeader("Authorization") String accessToken, @RequestBody @Valid SignUpReq dto) {
@@ -64,6 +64,16 @@ public class MemberApi {
         return getResponseEntity(tokens);
     }
 
+    @Operation(summary = "전화번호 인증", description = "전화번호를 입력받고 인증번호를 전송합니다.")
+    @Parameters({
+            @Parameter(name = "phone", description = "전화번호", in = ParameterIn.QUERY, required = true),
+            @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "인증번호 전송 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "인증번호 전송 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @GetMapping("/sms")
     public ResponseEntity<?> smsAuthorization(
             @RequestParam(value = "phone") String phoneNumber,
@@ -82,12 +92,31 @@ public class MemberApi {
                     .body(SuccessResponse.from(Map.of("code", "인증 성공")));
     }
 
+    @Operation(summary = "로그인", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
+    @Parameters({
+            @Parameter(name = "dto", description = "로그인 정보", schema = @Schema(implementation = SignInReq.class))
+    })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "로그인 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid SignInReq dto) {
         Map<String, String> tokens = memberAuthService.login(dto);
         return getResponseEntity(tokens);
     }
 
+    @Operation(summary = "로그아웃", description = "액세스 토큰과 리프레시 토큰을 만료시킵니다.")
+    @Parameters({
+            @Parameter(name = "Authorization", description = "액세스 토큰", in = ParameterIn.HEADER),
+            @Parameter(name = "refreshToken", description = "리프레시 토큰", in = ParameterIn.COOKIE)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "로그아웃 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @GetMapping("/logout")
     public ResponseEntity<?> logout(@CookieValue("refreshToken") @Valid String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         memberAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
@@ -97,6 +126,13 @@ public class MemberApi {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(SuccessResponse.noContent());
     }
 
+    @Operation(summary = "토큰 갱신", description = "리프레시 토큰을 이용해 액세스 토큰과 리프레시 토큰을 갱신합니다.")
+    @Parameter(name = "refreshToken", description = "리프레시 토큰", in = ParameterIn.COOKIE)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "토큰 갱신 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "토큰 갱신 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @GetMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
         if (refreshToken == null) {
@@ -107,6 +143,13 @@ public class MemberApi {
         return getResponseEntity(tokens);
     }
 
+    @Operation(summary = "인증 테스트", description = "인증 테스트")
+    @Parameter(name = "Authorization", description = "액세스 토큰", in = ParameterIn.HEADER)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "인증 테스트 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "400", description = "인증 테스트 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
     @GetMapping("/authentication")
     public ResponseEntity<?> authenticationTest(@AuthenticationPrincipal CustomUserDetails securityUser, Authentication authentication) {
         log.info("type: {}", authentication.getPrincipal());
@@ -116,6 +159,11 @@ public class MemberApi {
         return ResponseEntity.ok(user);
     }
 
+    /**
+     * 액세스 토큰과 리프레시 토큰을 반환합니다.
+     * @param tokens : 액세스 토큰과 리프레시 토큰
+     * @return ResponseEntity<?>
+     */
     private ResponseEntity<?> getResponseEntity(Map<String, String> tokens) {
         log.debug("access token: {}", tokens.get(ACCESS_TOKEN.getValue()));
         log.debug("refresh token: {}", tokens.get(REFRESH_TOKEN.getValue()));
