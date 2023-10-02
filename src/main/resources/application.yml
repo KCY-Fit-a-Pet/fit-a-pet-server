@@ -1,0 +1,116 @@
+server:
+  port: 8082
+
+spring:
+  profiles:
+    default: local
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: MySQL
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  main:
+    allow-bean-definition-overriding: true
+
+  data.redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  token:
+    # milliseconds 단위
+    access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
+    refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
+
+logging:
+  level:
+    org.hibernate.sql: debug
+    org.hibernate.type: trace
+
+ncp:
+  api-key: ${NCP_API_ACCESS_KEY}
+  secret-key: ${NCP_SECRET_KEY}
+  sms:
+    service-key: ${NCP_SMS_KEY}
+    sender-phone: ${SENDER_PHONE}
+
+
+---
+server:
+  port: 8080
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: MySQL
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+
+  main:
+    allow-bean-definition-overriding: true
+
+  data.redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  token:
+    # milliseconds 단위
+    access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
+    refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
+
+ncp:
+  api-key: ${NCP_API_ACCESS_KEY}
+  secret-key: ${NCP_SECRET_KEY}
+  sms:
+    service-key: ${NCP_SMS_KEY}
+    sender-phone: ${SENDER_PHONE}
