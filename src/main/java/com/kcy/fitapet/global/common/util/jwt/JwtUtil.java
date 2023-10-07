@@ -67,4 +67,10 @@ public interface JwtUtil {
      * @throws AuthErrorException : 토큰이 유효하지 않을 경우
      */
     Date getExpiryDate(String token) throws AuthErrorException;
+
+    /**
+     * 토큰의 만료 여부를 검사하는 메서드
+     * @param token String : 토큰
+     */
+    boolean isTokenExpired(String token);
 }

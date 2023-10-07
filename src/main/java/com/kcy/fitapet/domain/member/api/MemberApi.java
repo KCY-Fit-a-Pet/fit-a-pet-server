@@ -9,6 +9,7 @@ import com.kcy.fitapet.global.common.response.ErrorResponse;
 import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
+import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
@@ -76,14 +77,14 @@ public class MemberApi {
     })
     @GetMapping("/sms")
     public ResponseEntity<?> smsAuthorization(
-            @RequestParam(value = "phone") String phoneNumber,
-            @RequestParam(value = "code", required = false) String code) {
+            @RequestParam(value = "code", required = false) String code,
+            @RequestBody @Valid SmsReq dto) {
         if (code == null) {
-            SmsRes smsRes = memberAuthService.sendCertificationNumber(new SmsReq(phoneNumber));
+            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        String token = memberAuthService.checkCertificationNumber(phoneNumber, code);
+        String token = memberAuthService.checkCertificationNumber(dto, code);
 
         return (token.equals(""))
                 ? ResponseEntity.ok(FailureResponse.of("code", ErrorCode.INVALID_AUTH_CODE.getMessage()))
@@ -102,7 +103,9 @@ public class MemberApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid SignInReq dto) {
+    public ResponseEntity<?> login(@RequestHeader(value = "Authorization", required = false) String accessToken, @RequestBody @Valid SignInReq dto) {
+        if (accessToken != null)
+            throw new GlobalErrorException(ErrorCode.ALREADY_LOGIN_USER);
         Map<String, String> tokens = memberAuthService.login(dto);
         return getResponseEntity(tokens);
     }
@@ -156,7 +159,7 @@ public class MemberApi {
         JwtUserInfo user = securityUser.toJwtUserInfo();
         log.info("user: {}", user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(SuccessResponse.from(Map.of("user", user)));
     }
 
     /**

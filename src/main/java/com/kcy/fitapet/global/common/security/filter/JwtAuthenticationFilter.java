@@ -36,7 +36,7 @@ import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.*;
  */
 @RequiredArgsConstructor
 @Slf4j
-public class JwtAuthorizationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailServiceImpl userDetailServiceImpl;
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
@@ -74,7 +74,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         boolean isIgnored = jwtIgnoreUrls.stream()
                 .anyMatch(pattern -> matchesPattern(uri, pattern));
-
         return isIgnored || "OPTIONS".equals(method);
     }
 
@@ -88,32 +87,34 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         try {
             String token = jwtUtil.resolveToken(authHeader);
 
-            if (forbiddenTokenService.isForbidden(token))
+            if (forbiddenTokenService.isForbidden(token)) {
+                log.warn("Forbidden JWT access token: {}", token);
                 throw new AuthErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "더 이상 사용할 수 없는 토큰입니다.");
+            }
 
-            Date expiryDate =  jwtUtil.getExpiryDate(token);
-            return token;
-        } catch (AuthErrorException e) {
-            if (e.getErrorCode() == AuthErrorCode.EXPIRED_ACCESS_TOKEN) {
-                log.warn("Expired JWT access token: {}", e.getMessage());
+            if (jwtUtil.isTokenExpired(token)) {
+                log.warn("Expired JWT access token: {}", token);
                 return handleExpiredToken(request, response);
             }
+
+            return token;
+        } catch (AuthErrorException e) {
             log.warn("Invalid JWT access token: {}", e.getMessage());
-            throw new ServletException();
+            throw new ServletException(e);
         }
     }
 
     private String handleExpiredToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        ResponseCookie cookie;
         try {
-            cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
+            ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
                     .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found"));
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            return reissueAccessToken(request, response);
         } catch (AuthErrorException e) {
+            log.error("Failed to handle expired token: {}", e.getMessage());
             throw new ServletException(e);
         }
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return reissueAccessToken(request, response);
     }
 
     private String reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
@@ -131,6 +132,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             response.addHeader(ACCESS_TOKEN.getValue(), reissuedAccessToken);
             return reissuedAccessToken;
         } catch (AuthErrorException e) {
+            log.error("Failed to reissue access token: {}", e.getMessage());
             throw new ServletException();
         }
     }

@@ -17,6 +17,7 @@ import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
 import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
+import com.nimbusds.oauth2.sdk.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,9 @@ public class MemberAuthService {
         Member requestMember = dto.toEntity(authenticatedPhone);
         requestMember.encodePassword(bCryptPasswordEncoder);
         log.debug("회원가입 요청: {}", requestMember);
-        validateMember(requestMember);
+
+        if (memberSearchService.isExistMemberByUidOrEmailOrPhone(requestMember.getUid(), requestMember.getEmail(), requestMember.getPhone()))
+            throw new GlobalErrorException(ErrorCode.DUPLICATE_USER_INFO_ERROR);
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
         log.debug("회원가입 완료: {}", registeredMember);
@@ -119,11 +122,11 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public String checkCertificationNumber(String requestPhone, String requestCertificationNumber) {
+    public String checkCertificationNumber(SmsReq smsReq, String requestCertificationNumber) {
         String token = null;
-        if (smsCertificationService.isCorrectCertificationNumber(requestPhone, requestCertificationNumber)) {
+        if (smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber)) {
             log.info("인증번호 일치");
-            token = smsCertificationService.issueSmsAuthToken(requestPhone);
+            token = smsCertificationService.issueSmsAuthToken(smsReq.to());
         }
 
         return (token != null) ? token : "";
@@ -142,16 +145,9 @@ public class MemberAuthService {
         log.info("SMS 발송 성공");
     }
 
-    // TODO: Query문 하나로 압축
     private void validateMember(Member member) {
-        if (memberSearchService.isExistMemberByUid(member.getUid()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_NICKNAME_ERROR);
-
-        if (memberSearchService.isExistMemberByEmail(member.getEmail()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_EMAIL_ERROR);
-
-        if (memberSearchService.isExistMemberByPhone(member.getPhone()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_PHONE_ERROR);
+        if (memberSearchService.isExistMemberByUidOrEmailOrPhone(member.getUid(), member.getEmail(), member.getPhone()))
+            throw new GlobalErrorException(ErrorCode.DUPLICATE_USER_INFO_ERROR);
     }
 
     private Map<String, String> generateToken(JwtUserInfo jwtUserInfo) {

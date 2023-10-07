@@ -22,12 +22,8 @@ public class MemberSearchService {
         );
     }
 
-    public boolean isExistMemberByUid(String uid) {
-        return memberRepository.existsByUid(uid);
-    }
-
-    public boolean isExistMemberByEmail(String email) {
-        return memberRepository.existsByEmail(email);
+    public boolean isExistMemberByUidOrEmailOrPhone(String uid, String email, String phone) {
+        return memberRepository.existsByUidOrEmailOrPhone(uid, email, phone);
     }
 
     public boolean isExistMemberByPhone(String phone) {

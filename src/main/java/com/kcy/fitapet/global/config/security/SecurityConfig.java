@@ -1,12 +1,7 @@
-package com.kcy.fitapet.global.config;
+package com.kcy.fitapet.global.config.security;
 
-import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
 import com.kcy.fitapet.global.common.security.handler.JwtAccessDeniedHandler;
 import com.kcy.fitapet.global.common.security.handler.JwtAuthenticationEntryPoint;
-import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
-import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -20,28 +15,30 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final String[] webSecurityIgnoring = {
-            "/", "/api/v1/members/test",
+    private final JwtSecurityConfig jwtSecurityConfig;
+
+    private final String[] publicEndpoints = {
             "/favicon.ico",
-            "/api-docs/**",
-            "/test/**",
-            "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
+
+            // Swagger
+            "/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
+
+            // API
             "/api/v1/members/register", "/api/v1/members/login", "/api/v1/members/refresh",
             "/api/v1/members/sms/**"
     };
-
-    private final UserDetailServiceImpl userDetailServiceImpl;
-    private final RefreshTokenService refreshTokenService;
-    private final ForbiddenTokenService forbiddenTokenService;
-
-    private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
+    private static final String[] publicReadOnlyPublicEndpoints = {
+    };
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -62,28 +59,35 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
-                        auth -> {
-                            try {
-                                auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        auth -> auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                                         .requestMatchers(HttpMethod.OPTIONS, "*").permitAll()
-                                        .requestMatchers(this.webSecurityIgnoring).permitAll()
-                                        .anyRequest().authenticated();
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
+                                        .requestMatchers(publicEndpoints).permitAll()
+                                        .requestMatchers(HttpMethod.GET, publicReadOnlyPublicEndpoints).permitAll()
+                                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(
                         exception -> exception
                                 .accessDeniedHandler(accessDeniedHandler())
                                 .authenticationEntryPoint(authenticationEntryPoint())
                 );
-        http.apply(new JwtSecurityConfig(userDetailServiceImpl, refreshTokenService, forbiddenTokenService, jwtUtil, cookieUtil));
+        http.apply(jwtSecurityConfig);
         return http.build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() { // Localhost 환경 cors
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         log.error("handleMethodArgumentNotValidException: {}", e.getMessage());
         BindingResult bindingResult = e.getBindingResult();
         final FailureResponse response = FailureResponse.from(bindingResult);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.unprocessableEntity().body(response);
     }
 
     /**
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<FailureResponse> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
         log.error("handleMissingRequestHeaderException : {}", e.getMessage());
         final FailureResponse response = FailureResponse.of("causedBy", e.getMessage());
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.unprocessableEntity().body(response);
     }
 
     /**
