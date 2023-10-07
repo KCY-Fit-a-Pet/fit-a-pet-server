@@ -2,7 +2,9 @@ package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.domain.member.domain.RoleType;
 import com.kcy.fitapet.global.common.util.exception.JwtErrorCodeUtil;
+import com.kcy.fitapet.global.common.util.jwt.entity.JwtDto;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import io.jsonwebtoken.*;
@@ -82,12 +84,12 @@ public class JwtUtilImpl implements JwtUtil {
 
     @Override
     @SuppressWarnings("deprecation")
-    public String generateSmsAuthToken(String phoneNumber) {
+    public String generateSmsAuthToken(SmsAuthInfo user) {
         final Date now = new Date();
 
         return Jwts.builder()
                 .setHeader(createHeader())
-                .setClaims(Map.of(PHONE_NUMBER, phoneNumber))
+                .setClaims(Map.of(PHONE_NUMBER, user.phoneNumber()))
                 .signWith(SignatureAlgorithm.HS256, createSignature())
                 .setExpiration(createExpireDate(now, smsAuthExpirationTime.toMillis()))
                 .compact();

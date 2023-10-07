@@ -9,15 +9,16 @@ import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.service.module.SmsService;
+import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
 import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
-import com.nimbusds.oauth2.sdk.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,26 +47,19 @@ public class MemberAuthService {
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Map<String, String> register(String authHeader, SignUpReq dto) {
-        String parsedToken = jwtUtil.resolveToken(authHeader);
-        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(parsedToken);
-
-        if (!smsCertificationService.isCorrectCertificationNumber(authenticatedPhone, parsedToken))
-            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
+    public Map<String, String> register(AccessToken accessToken, SignUpReq dto) {
+        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken.accessToken());
         smsCertificationService.removeCertificationNumber(authenticatedPhone);
 
         Member requestMember = dto.toEntity(authenticatedPhone);
         requestMember.encodePassword(bCryptPasswordEncoder);
+        validateMember(requestMember);
         log.debug("회원가입 요청: {}", requestMember);
-
-        if (memberSearchService.isExistMemberByUidOrEmailOrPhone(requestMember.getUid(), requestMember.getEmail(), requestMember.getPhone()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_USER_INFO_ERROR);
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
         log.debug("회원가입 완료: {}", registeredMember);
-        JwtUserInfo jwtUserInfo = JwtUserInfo.from(registeredMember);
 
-        return generateToken(jwtUserInfo);
+        return generateToken(JwtUserInfo.from(registeredMember));
     }
 
     @Transactional
@@ -74,9 +68,7 @@ public class MemberAuthService {
         if (member.checkPassword(dto.password(), bCryptPasswordEncoder))
             throw new GlobalErrorException(ErrorCode.NOT_MATCH_PASSWORD_ERROR);
 
-        JwtUserInfo jwtUserInfo = JwtUserInfo.from(member);
-
-        return generateToken(jwtUserInfo);
+        return generateToken(JwtUserInfo.from(member));
     }
 
     @Transactional
@@ -123,13 +115,15 @@ public class MemberAuthService {
 
     @Transactional
     public String checkCertificationNumber(SmsReq smsReq, String requestCertificationNumber) {
-        String token = null;
-        if (smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber)) {
-            log.info("인증번호 일치");
-            token = smsCertificationService.issueSmsAuthToken(smsReq.to());
+        if (!smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber)) {
+            log.warn("인증번호 불일치");
+            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
         }
 
-        return (token != null) ? token : "";
+        String token = jwtUtil.generateSmsAuthToken(SmsAuthInfo.of(1L, smsReq.to()));
+        smsCertificationService.saveSmsAuthToken(smsReq.to(), token);
+
+        return token;
     }
 
     private void checkSmsStatus(String requestPhone, SensRes sensRes) {

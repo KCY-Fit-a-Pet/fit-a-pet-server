@@ -5,6 +5,8 @@ import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
 import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
 import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
+import com.kcy.fitapet.global.common.resolver.access.AccessToken;
+import com.kcy.fitapet.global.common.resolver.access.AccessTokenInfo;
 import com.kcy.fitapet.global.common.response.ErrorResponse;
 import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
@@ -60,7 +62,7 @@ public class MemberApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestHeader("Authorization") String accessToken, @RequestBody @Valid SignUpReq dto) {
+    public ResponseEntity<?> register(@AccessTokenInfo AccessToken accessToken, @RequestBody @Valid SignUpReq dto) {
         Map<String, String> tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
     }

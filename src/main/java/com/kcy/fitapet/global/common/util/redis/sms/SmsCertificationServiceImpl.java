@@ -18,8 +18,6 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
     private final SmsCertificationRepository smsCertificationRepository;
     private final RedisTemplate<String, SmsCertification> redisTemplate;
 
-    private final JwtUtil jwtUtil;
-
     @Override
     public String issueCertificationNumber(String phoneNumber) {
         StringBuilder sb = new StringBuilder();
@@ -36,10 +34,8 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
     }
 
     @Override
-    public String issueSmsAuthToken(String phoneNumber) {
-        String token = jwtUtil.generateSmsAuthToken(phoneNumber);
-        smsCertificationRepository.save(SmsCertification.of(phoneNumber, token));
-        return token;
+    public void saveSmsAuthToken(String phoneNumber, String accessToken) {
+        smsCertificationRepository.save(SmsCertification.of(phoneNumber, accessToken));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 
 import java.util.Date;
@@ -30,10 +31,10 @@ public interface JwtUtil {
 
     /**
      * 사용자 정보 기반으로 SMS 인증 토큰을 생성하는 메서드
-     * @param phoneNumber String : 수신자 번호
+     * @param user SmsAuthInfo : 사용자 정보
      * @return String : 토큰
      */
-    String generateSmsAuthToken(String phoneNumber);
+    String generateSmsAuthToken(SmsAuthInfo user);
 
     /**
      * token으로 부터 사용자 정보를 추출하는 메서드

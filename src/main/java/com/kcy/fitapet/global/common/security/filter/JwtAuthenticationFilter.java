@@ -129,7 +129,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             JwtUserInfo userInfo = jwtUtil.getUserInfoFromToken(requestRefreshToken);
             String reissuedAccessToken = jwtUtil.generateAccessToken(userInfo);
-            response.addHeader(ACCESS_TOKEN.getValue(), reissuedAccessToken);
+            response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
             return reissuedAccessToken;
         } catch (AuthErrorException e) {
             log.error("Failed to reissue access token: {}", e.getMessage());

@@ -33,7 +33,12 @@ public enum AuthErrorCode implements StatusCode {
      * 403 FORBIDDEN: 인증된 클라이언트가 권한이 없는 자원에 접근
      */
     FORBIDDEN_ACCESS_TOKEN(FORBIDDEN, "해당 토큰에는 엑세스 권한이 없습니다"),
-    MISMATCHED_REFRESH_TOKEN(FORBIDDEN, "리프레시 토큰의 유저 정보가 일치하지 않습니다");
+    MISMATCHED_REFRESH_TOKEN(FORBIDDEN, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
+
+    /**
+     * 500 INTERNAL_SERVER_ERROR: 서버 내부 에러
+     */
+    INVALID_JWT_DTO_FORMAT(INTERNAL_SERVER_ERROR, "서버 내부 에러가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -11,11 +11,11 @@ public interface SmsCertificationService {
     String issueCertificationNumber(String phoneNumber);
 
     /**
-     * SMS 인증 완료 후 계정 생성을 위한 토큰 발행
+     * SMS 인증 완료 후 계정 생성을 위한 토큰 저장
      * @param phoneNumber : String
-     * @return String : 토큰
+     * @param accessToken : String
      */
-    String issueSmsAuthToken(String phoneNumber);
+    void saveSmsAuthToken(String phoneNumber, String accessToken);
 
     /**
      * 인증번호 확인
