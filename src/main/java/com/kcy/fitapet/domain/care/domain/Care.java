@@ -2,6 +2,7 @@ package com.kcy.fitapet.domain.care.domain;
 
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.pet.domain.PetCare;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -30,6 +31,8 @@ public class Care extends Auditable {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "last_editor_id")
     private Member lastEditor;
+    @OneToMany(mappedBy = "care", cascade = CascadeType.ALL)
+    private List<PetCare> pets = new ArrayList<>();
     @OneToMany(mappedBy = "care", cascade = CascadeType.ALL)
     private List<CareDetail> careDetails = new ArrayList<>();
 

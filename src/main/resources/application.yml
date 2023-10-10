@@ -45,6 +45,7 @@ jwt:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
+    sms-auth-expiration-time: 180000 # 3m (3 * 60 * 1000)
 
 logging:
   level:

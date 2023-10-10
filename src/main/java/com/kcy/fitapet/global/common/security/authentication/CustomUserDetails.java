@@ -49,6 +49,10 @@ public final class CustomUserDetails implements UserDetails {
         return JwtUserInfo.of(userId, role);
     }
 
+    public RoleType getRole() {
+        return role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Arrays.stream(RoleType.values())
