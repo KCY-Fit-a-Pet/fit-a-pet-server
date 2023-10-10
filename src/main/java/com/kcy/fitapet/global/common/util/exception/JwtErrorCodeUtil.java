@@ -1,6 +1,5 @@
 package com.kcy.fitapet.global.common.util.exception;
 
-import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -42,12 +41,12 @@ public class JwtErrorCodeUtil {
 
     /**
      * 예외에 해당하는 오류 코드를 반환하거나 기본 오류 코드를 반환합니다.
-     * 기본 오류 코드는 null입니다.
+     * 기본 오류 코드는 400 UNEXPECTED_ERROR 입니다.
      *
      * @param exception 발생한 예외
      * @return 오류 코드
      */
     public static AuthErrorCode determineErrorCode(Exception exception) {
-        return determineErrorCode(exception, null);
+        return determineErrorCode(exception, AuthErrorCode.UNEXPECTED_ERROR);
     }
 }
