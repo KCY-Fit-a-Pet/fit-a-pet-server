@@ -1,3 +1,8 @@
+fitapet:
+  domain:
+    backend: ${FITAPET_DOMAIN_BACKEND}
+
+---
 server:
   port: 8082
 
