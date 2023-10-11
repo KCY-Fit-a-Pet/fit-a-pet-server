@@ -1,36 +1,34 @@
 package com.kcy.fitapet.global.common.util.redis.forbidden;
 
-import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
+import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Service
 public class ForbiddenTokenService {
     private final ForbiddenTokenRepository forbiddenTokenRepository;
-    private final JwtUtil jwtUtil;
 
     /**
      * 토큰을 블랙 리스트에 등록합니다.
-     * @param accessToken : 블랙 리스트에 등록할 토큰
-     * @param userId : 블랙 리스트에 등록할 사용자 ID
+     * @param accessToken : 블랙 리스트에 등록할 액세스 토큰 객체
      */
-    public void register(String accessToken, Long userId) {
+    public void register(AccessToken accessToken) {
         final Date now = new Date();
-        final Date expireDate = jwtUtil.getExpiryDate(accessToken);
+        final long timeDifferenceMillis = accessToken.expiryDate().getTime() - now.getTime();
+        final long timeToLive = TimeUnit.MILLISECONDS.toSeconds(timeDifferenceMillis);
 
-        final long expireTime = (expireDate.getTime() - now.getTime()) / 1000;
-        log.info("expire time : {}", expireTime);
+        log.info("forbidden token ttl : {}", timeToLive);
 
-        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken, userId, expireTime);
-
+        ForbiddenToken forbiddenToken = ForbiddenToken.of(accessToken.accessToken(), accessToken.userId(), timeToLive);
         forbiddenTokenRepository.save(forbiddenToken);
-        log.info("forbidden token registered. about Token : {}", accessToken);
+        log.info("forbidden token registered. about User : {}", forbiddenToken.getUserId());
     }
 
     /**

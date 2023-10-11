@@ -44,21 +44,9 @@ public class JwtErrorCodeUtil {
     }
 
     /**
-     * 예외에 해당하는 오류 코드를 반환하거나 기본 오류 코드를 반환합니다.
-     * 기본 오류 코드는 400 UNEXPECTED_ERROR 입니다.
-     * 해당 메서드는 {@link #determineErrorCode(Exception, AuthErrorCode)} 메서드를 사용합니다.
-     *
-     * @param exception 발생한 예외
-     * @return 오류 코드
-     */
-    public static AuthErrorCode determineErrorCode(Exception exception) {
-        return determineErrorCode(exception, AuthErrorCode.UNEXPECTED_ERROR);
-    }
-
-    /**
      * 예외에 해당하는 {@link AuthErrorException}을 반환합니다.
      * 기본 오류 코드는 400 UNEXPECTED_ERROR 입니다.
-     * 해당 메서드는 {@link #determineErrorCode(Exception)} 메서드를 사용합니다.
+     * 해당 메서드는 {@link #determineErrorCode(Exception, AuthErrorCode)} 메서드를 사용합니다.
      *
      * @param exception 발생한 예외
      * @return AuthErrorException 오류
@@ -66,7 +54,7 @@ public class JwtErrorCodeUtil {
     public static AuthErrorException determineAuthErrorException(Exception exception) {
         return findAuthErrorException(exception).orElseGet(
                 () -> {
-                    AuthErrorCode authErrorCode = determineErrorCode(exception);
+                    AuthErrorCode authErrorCode = determineErrorCode(exception, AuthErrorCode.UNEXPECTED_ERROR);
                     return new AuthErrorException(authErrorCode, authErrorCode.getMessage());
                 }
         );

@@ -48,14 +48,12 @@ public class JwtUtilImpl implements JwtUtil {
         this.smsAuthExpirationTime = smsAuthExpirationTime;
     }
 
-    // TODO :
     @Override
     public String resolveToken(String authHeader) throws AuthErrorException {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith(AuthConstants.TOKEN_TYPE.getValue())) {
             return authHeader.substring(AuthConstants.TOKEN_TYPE.getValue().length());
         }
         return "";
-//        throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
     }
 
 

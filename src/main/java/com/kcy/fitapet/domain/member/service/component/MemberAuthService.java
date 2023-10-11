@@ -75,17 +75,9 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public void logout(String authHeader, String requestRefreshToken) {
-        String accessToken = jwtUtil.resolveToken(authHeader);
-        if (!StringUtils.hasText(accessToken)) {
-            log.error("Access Token is empty");
-            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "access token is empty");
-        }
-
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
-
+    public void logout(AccessToken accessToken, String requestRefreshToken) {
         refreshTokenService.logout(requestRefreshToken);
-        forbiddenTokenService.register(accessToken, userId);
+        forbiddenTokenService.register(accessToken);
     }
 
     @Transactional

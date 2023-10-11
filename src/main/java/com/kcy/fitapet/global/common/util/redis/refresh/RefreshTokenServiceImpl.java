@@ -72,7 +72,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     private long getExpireTime() {
-        return refreshTokenExpireTime.toMillis() / 1000;
+        return refreshTokenExpireTime.toSeconds();
     }
 
     private RefreshToken findOrThrow(Long userId) {

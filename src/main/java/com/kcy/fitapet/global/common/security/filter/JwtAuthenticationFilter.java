@@ -14,6 +14,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +27,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     );
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         if (shouldIgnoreRequest(request)) {
             log.info("Ignoring request: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
@@ -85,61 +85,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         String authHeader = request.getHeader(AUTH_HEADER.getValue());
-        try {
-            String token = jwtUtil.resolveToken(authHeader);
-            if (StringUtils.hasText(token)) {
-                log.warn("Access Token is empty");
-                throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
-            }
 
-            if (forbiddenTokenService.isForbidden(token)) {
-                log.warn("Forbidden JWT access token: {}", token);
-                throw new AuthErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "더 이상 사용할 수 없는 토큰입니다.");
-            }
+        String token = jwtUtil.resolveToken(authHeader);
+        if (!StringUtils.hasText(token))
+            handleAuthException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
 
-            if (jwtUtil.isTokenExpired(token)) {
-                log.warn("Expired JWT access token: {}", token);
-                return handleExpiredToken(request, response);
-            }
+        if (forbiddenTokenService.isForbidden(token))
+            handleAuthException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "더 이상 사용할 수 없는 토큰입니다.");
 
-            return token;
-        } catch (AuthErrorException e) {
-            log.warn("Invalid JWT access token: {}", e.getMessage());
-            throw new ServletException(e);
-        }
-    }
-
-    private String handleExpiredToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        try {
-            ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
-                    .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found"));
-
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        if (jwtUtil.isTokenExpired(token)) {
+            log.warn("Expired JWT access token: {}", token);
             return reissueAccessToken(request, response);
-        } catch (AuthErrorException e) {
-            log.warn("Failed to handle expired token: {}", e.getMessage());
-            throw new ServletException(e);
         }
+
+        return token;
     }
 
-    private String reissueAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        try {
-            Cookie refreshTokenCookie = cookieUtil.getCookie(request, REFRESH_TOKEN.getValue())
-                    .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found"));
-            String requestRefreshToken = refreshTokenCookie.getValue();
+    private String reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie refreshTokenCookie = cookieUtil.getCookie(request, REFRESH_TOKEN.getValue())
+                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found"));
+        String requestRefreshToken = refreshTokenCookie.getValue();
 
-            RefreshToken reissuedRefreshToken = refreshTokenService.refresh(requestRefreshToken);
-            ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), reissuedRefreshToken.getToken(), refreshTokenCookie.getMaxAge());
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        RefreshToken reissuedRefreshToken = refreshTokenService.refresh(requestRefreshToken);
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), reissuedRefreshToken.getToken(), refreshTokenCookie.getMaxAge());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-            JwtUserInfo userInfo = jwtUtil.getUserInfoFromToken(requestRefreshToken);
-            String reissuedAccessToken = jwtUtil.generateAccessToken(userInfo);
-            response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
-            return reissuedAccessToken;
-        } catch (AuthErrorException e) {
-            log.warn("Failed to reissue access token: {}", e.getMessage());
-            throw new ServletException(e);
-        }
+        JwtUserInfo userInfo = jwtUtil.getUserInfoFromToken(requestRefreshToken);
+        String reissuedAccessToken = jwtUtil.generateAccessToken(userInfo);
+        response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
+        return reissuedAccessToken;
     }
 
     private UserDetails getUserDetails(final String accessToken) {
@@ -155,5 +129,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.info("Authenticated user: {}", userDetails.getUsername());
+    }
+
+    private void handleAuthException(AuthErrorCode errorCode, String errorMessage) throws ServletException {
+        log.warn("AuthErrorException(code={}, message={})", errorCode.name(), errorMessage);
+        AuthErrorException exception = new AuthErrorException(errorCode, errorMessage);
+        throw new ServletException(exception);
     }
 }

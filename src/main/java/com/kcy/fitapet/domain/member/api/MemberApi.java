@@ -124,8 +124,8 @@ public class MemberApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue("refreshToken") @Valid String refreshToken, HttpServletRequest request, HttpServletResponse response) {
-        memberAuthService.logout(request.getHeader(AUTH_HEADER.getValue()), refreshToken);
+    public ResponseEntity<?> logout(@AccessTokenInfo AccessToken accessToken, @CookieValue("refreshToken") @Valid String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        memberAuthService.logout(accessToken, refreshToken);
         ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
                 .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));
 
