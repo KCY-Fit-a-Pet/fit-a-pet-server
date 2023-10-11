@@ -15,6 +15,8 @@ import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -74,6 +77,11 @@ public class MemberAuthService {
     @Transactional
     public void logout(String authHeader, String requestRefreshToken) {
         String accessToken = jwtUtil.resolveToken(authHeader);
+        if (!StringUtils.hasText(accessToken)) {
+            log.error("Access Token is empty");
+            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "access token is empty");
+        }
+
         Long userId = jwtUtil.getUserIdFromToken(accessToken);
 
         refreshTokenService.logout(requestRefreshToken);

@@ -22,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -86,6 +87,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader(AUTH_HEADER.getValue());
         try {
             String token = jwtUtil.resolveToken(authHeader);
+            if (StringUtils.hasText(token)) {
+                log.warn("Access Token is empty");
+                throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
+            }
 
             if (forbiddenTokenService.isForbidden(token)) {
                 log.warn("Forbidden JWT access token: {}", token);
@@ -112,7 +117,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
             return reissueAccessToken(request, response);
         } catch (AuthErrorException e) {
-            log.error("Failed to handle expired token: {}", e.getMessage());
+            log.warn("Failed to handle expired token: {}", e.getMessage());
             throw new ServletException(e);
         }
     }
@@ -132,8 +137,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
             return reissuedAccessToken;
         } catch (AuthErrorException e) {
-            log.error("Failed to reissue access token: {}", e.getMessage());
-            throw new ServletException();
+            log.warn("Failed to reissue access token: {}", e.getMessage());
+            throw new ServletException(e);
         }
     }
 

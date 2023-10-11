@@ -11,7 +11,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+/**
+ * JWT 예외와 오류 코드를 매핑하는 유틸리티 클래스.
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JwtErrorCodeUtil {
     private static final Map<Class<? extends Exception>, AuthErrorCode> ERROR_CODE_MAP = new HashMap<>();
@@ -42,11 +46,38 @@ public class JwtErrorCodeUtil {
     /**
      * 예외에 해당하는 오류 코드를 반환하거나 기본 오류 코드를 반환합니다.
      * 기본 오류 코드는 400 UNEXPECTED_ERROR 입니다.
+     * 해당 메서드는 {@link #determineErrorCode(Exception, AuthErrorCode)} 메서드를 사용합니다.
      *
      * @param exception 발생한 예외
      * @return 오류 코드
      */
     public static AuthErrorCode determineErrorCode(Exception exception) {
         return determineErrorCode(exception, AuthErrorCode.UNEXPECTED_ERROR);
+    }
+
+    /**
+     * 예외에 해당하는 {@link AuthErrorException}을 반환합니다.
+     * 기본 오류 코드는 400 UNEXPECTED_ERROR 입니다.
+     * 해당 메서드는 {@link #determineErrorCode(Exception)} 메서드를 사용합니다.
+     *
+     * @param exception 발생한 예외
+     * @return AuthErrorException 오류
+     */
+    public static AuthErrorException determineAuthErrorException(Exception exception) {
+        return findAuthErrorException(exception).orElseGet(
+                () -> {
+                    AuthErrorCode authErrorCode = determineErrorCode(exception);
+                    return new AuthErrorException(authErrorCode, authErrorCode.getMessage());
+                }
+        );
+    }
+
+    private static Optional<AuthErrorException> findAuthErrorException(Exception exception) {
+        if (exception instanceof AuthErrorException) {
+            return Optional.of((AuthErrorException) exception);
+        } else if (exception.getCause() instanceof AuthErrorException) {
+            return Optional.of((AuthErrorException) exception.getCause());
+        }
+        return Optional.empty();
     }
 }

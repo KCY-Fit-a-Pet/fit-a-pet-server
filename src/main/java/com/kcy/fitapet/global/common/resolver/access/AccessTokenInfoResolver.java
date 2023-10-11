@@ -42,7 +42,7 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
 
         if (!StringUtils.hasText(accessToken)) {
             log.error("Access Token is empty");
-            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "빈 토큰입니다");
+            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "access token is empty");
         }
 
         Long userId = jwtUtil.getUserIdFromToken(accessToken);

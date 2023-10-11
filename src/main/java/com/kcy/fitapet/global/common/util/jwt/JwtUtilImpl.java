@@ -20,6 +20,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
+// TODO : JwtUtilImpl의 모든 예외 발생 제거
 /**
  * JWT 토큰 생성 및 검증을 담당하는 클래스
  */
@@ -47,12 +48,14 @@ public class JwtUtilImpl implements JwtUtil {
         this.smsAuthExpirationTime = smsAuthExpirationTime;
     }
 
+    // TODO :
     @Override
     public String resolveToken(String authHeader) throws AuthErrorException {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith(AuthConstants.TOKEN_TYPE.getValue())) {
             return authHeader.substring(AuthConstants.TOKEN_TYPE.getValue().length());
         }
-        throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
+        return "";
+//        throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
     }
 
 

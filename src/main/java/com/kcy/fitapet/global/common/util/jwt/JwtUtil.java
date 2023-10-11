@@ -10,10 +10,9 @@ public interface JwtUtil {
     /**
      * 헤더로부터 토큰을 추출하고 유효성을 검사하는 메서드
      * @param authHeader : 메시지 헤더
-     * @return String : 토큰
-     * @throws AuthErrorException : 토큰이 유효하지 않을 경우
+     * @return 값이 있다면 토큰, 없다면 빈 문자열
      */
-    String resolveToken(String authHeader) throws AuthErrorException;
+    String resolveToken(String authHeader);
 
     /**
      * 사용자 정보 기반으로 액세스 토큰을 생성하는 메서드
