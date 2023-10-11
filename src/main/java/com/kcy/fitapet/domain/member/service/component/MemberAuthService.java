@@ -76,7 +76,8 @@ public class MemberAuthService {
 
     @Transactional
     public void logout(AccessToken accessToken, String requestRefreshToken) {
-        refreshTokenService.logout(requestRefreshToken);
+        if (requestRefreshToken != null)
+            refreshTokenService.logout(requestRefreshToken);
         forbiddenTokenService.register(accessToken);
     }
 

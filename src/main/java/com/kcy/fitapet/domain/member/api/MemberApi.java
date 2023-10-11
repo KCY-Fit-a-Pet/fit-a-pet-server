@@ -124,11 +124,18 @@ public class MemberApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(@AccessTokenInfo AccessToken accessToken, @CookieValue("refreshToken") @Valid String refreshToken, HttpServletRequest request, HttpServletResponse response) {
-        // TODO: 로그아웃 할 때, 만료된 accessToken이라면?
+    public ResponseEntity<?> logout(
+            @AccessTokenInfo AccessToken accessToken,
+            @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
+            HttpServletRequest request, HttpServletResponse response) {
         memberAuthService.logout(accessToken, refreshToken);
-        ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
+
+        ResponseCookie cookie;
+        if (refreshToken != null)
+            cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
                 .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));
+        else
+            cookie = cookieUtil.emptyCookie(REFRESH_TOKEN.getValue());
 
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(SuccessResponse.noContent());
     }
