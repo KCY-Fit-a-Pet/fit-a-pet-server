@@ -125,6 +125,7 @@ public class MemberApi {
     })
     @GetMapping("/logout")
     public ResponseEntity<?> logout(@AccessTokenInfo AccessToken accessToken, @CookieValue("refreshToken") @Valid String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        // TODO: 로그아웃 할 때, 만료된 accessToken이라면?
         memberAuthService.logout(accessToken, refreshToken);
         ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
                 .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));

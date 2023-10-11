@@ -1,13 +1,16 @@
 package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.domain.member.domain.RoleType;
+import com.kcy.fitapet.global.common.util.DateUtil;
 import com.kcy.fitapet.global.common.util.exception.JwtErrorCodeUtil;
-import com.kcy.fitapet.global.common.util.jwt.entity.JwtDto;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,7 @@ import org.springframework.util.StringUtils;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
@@ -55,7 +59,6 @@ public class JwtUtilImpl implements JwtUtil {
         }
         return "";
     }
-
 
     @Override
     @SuppressWarnings("deprecation")
@@ -118,9 +121,9 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     @Override
-    public Date getExpiryDate(String token) {
+    public LocalDateTime getExpiryDate(String token) {
         Claims claims = verifyAndGetClaims(token);
-        return claims.getExpiration();
+        return DateUtil.toLocalDateTime(claims.getExpiration());
     }
 
     @Override

@@ -56,9 +56,9 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
         Long ttl = redisTemplate.getExpire("smsCertification:" + phoneNumber);
         log.info("ttl: {}", ttl);
 
-        if (ttl == null || ttl < 0) {
+        if (ttl == null || ttl < 0L)
             throw new GlobalErrorException(ErrorCode.EXPIRED_AUTH_CODE);
-        }
+
         return LocalDateTime.now().plusSeconds(ttl);
     }
 }

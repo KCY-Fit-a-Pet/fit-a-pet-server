@@ -44,14 +44,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken refresh(String requestRefreshToken) throws AuthErrorException {
-        final Long userId = jwtUtil.getUserIdFromToken(requestRefreshToken);
-        final RefreshToken refreshToken = findOrThrow(userId);
+        final JwtUserInfo user = jwtUtil.getUserInfoFromToken(requestRefreshToken);
+        final RefreshToken refreshToken = findOrThrow(user.id());
 
         validateToken(requestRefreshToken, refreshToken);
 
-        final var user = jwtUtil.getUserInfoFromToken(requestRefreshToken);
         refreshToken.rotation(makeRefreshToken(user));
-        // TODO: TTL이 유지가 안 될 가능성 존재. TTL 필드 말고, Redis Template의 expire 메서드 사용하는 게 정확할 듯
         refreshTokenRepository.save(refreshToken);
 
         log.debug("refresh token reissued. : {}", refreshToken);

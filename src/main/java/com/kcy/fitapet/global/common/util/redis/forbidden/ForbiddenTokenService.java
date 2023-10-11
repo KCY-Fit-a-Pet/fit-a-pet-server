@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,9 +20,8 @@ public class ForbiddenTokenService {
      * @param accessToken : 블랙 리스트에 등록할 액세스 토큰 객체
      */
     public void register(AccessToken accessToken) {
-        final Date now = new Date();
-        final long timeDifferenceMillis = accessToken.expiryDate().getTime() - now.getTime();
-        final long timeToLive = TimeUnit.MILLISECONDS.toSeconds(timeDifferenceMillis);
+        final LocalDateTime now = LocalDateTime.now();
+        final long timeToLive = Duration.between(now, accessToken.expiryDate()).toSeconds();
 
         log.info("forbidden token ttl : {}", timeToLive);
 

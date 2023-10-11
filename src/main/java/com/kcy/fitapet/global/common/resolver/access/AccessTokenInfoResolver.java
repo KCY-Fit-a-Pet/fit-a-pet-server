@@ -17,6 +17,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -46,7 +47,7 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
         }
 
         Long userId = jwtUtil.getUserIdFromToken(accessToken);
-        Date expiryDate = jwtUtil.getExpiryDate(accessToken);
+        LocalDateTime expiryDate = jwtUtil.getExpiryDate(accessToken);
 
         return new AccessToken(accessToken, userId, expiryDate);
     }

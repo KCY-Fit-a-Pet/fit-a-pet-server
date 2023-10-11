@@ -4,6 +4,7 @@ import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface JwtUtil {
@@ -63,10 +64,10 @@ public interface JwtUtil {
     /**
      * 토큰의 만료일을 추출하는 메서드
      * @param token String : 토큰
-     * @return Date : 만료일
+     * @return LocalDateTime : 만료일
      * @throws AuthErrorException : 토큰이 유효하지 않을 경우
      */
-    Date getExpiryDate(String token) throws AuthErrorException;
+    LocalDateTime getExpiryDate(String token) throws AuthErrorException;
 
     /**
      * 토큰의 만료 여부를 검사하는 메서드
