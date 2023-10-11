@@ -135,7 +135,7 @@ public class MemberApi {
             cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
                 .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));
         else
-            cookie = cookieUtil.emptyCookie(REFRESH_TOKEN.getValue());
+            cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), "", 0);
 
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(SuccessResponse.noContent());
     }

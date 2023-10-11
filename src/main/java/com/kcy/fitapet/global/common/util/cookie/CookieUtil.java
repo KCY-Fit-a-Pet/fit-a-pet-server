@@ -63,14 +63,4 @@ public class CookieUtil {
                 .findAny()
                 .map(cookie -> createCookie(cookieName, "", 0));
     }
-
-    public ResponseCookie emptyCookie(String cookieName) {
-        return ResponseCookie.from(cookieName, "")
-                .path("/")
-                .httpOnly(true)
-                .maxAge(0)
-                .secure(true)
-                .sameSite("None")
-                .build();
-    }
 }
