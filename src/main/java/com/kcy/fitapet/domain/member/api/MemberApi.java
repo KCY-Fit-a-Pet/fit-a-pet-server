@@ -14,6 +14,7 @@ import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
+import com.kcy.fitapet.global.common.util.jwt.AuthConstants;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
@@ -37,6 +38,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -63,7 +65,7 @@ public class MemberApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@AccessTokenInfo AccessToken accessToken, @RequestBody @Valid SignUpReq dto) {
+    public ResponseEntity<?> signUp(@RequestHeader("Authorization") String accessToken, @RequestBody @Valid SignUpReq dto) {
         Map<String, String> tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
     }
@@ -78,7 +80,7 @@ public class MemberApi {
             @ApiResponse(responseCode = "200", description = "인증번호 전송 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @GetMapping("/sms")
+    @PostMapping("/sms")
     public ResponseEntity<?> smsAuthorization(
             @RequestParam(value = "code", required = false) String code,
             @RequestBody @Valid SmsReq dto) {
@@ -88,12 +90,12 @@ public class MemberApi {
         }
 
         String token = memberAuthService.checkCertificationNumber(dto, code);
+        if (!StringUtils.hasText(token))
+            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
 
-        return (token.equals(""))
-                ? ResponseEntity.ok(FailureResponse.of("code", ErrorCode.INVALID_AUTH_CODE.getMessage()))
-                : ResponseEntity.ok()
+        return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), token)
-                    .body(SuccessResponse.from(Map.of("code", "인증 성공")));
+                    .body(SuccessResponse.noContent());
     }
 
     @Operation(summary = "로그인", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
@@ -106,7 +108,7 @@ public class MemberApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestHeader(value = "Authorization", required = false) String accessToken, @RequestBody @Valid SignInReq dto) {
+    public ResponseEntity<?> signIn(@RequestHeader(value = "Authorization", required = false) String accessToken, @RequestBody @Valid SignInReq dto) {
         if (accessToken != null)
             throw new GlobalErrorException(ErrorCode.ALREADY_LOGIN_USER);
         Map<String, String> tokens = memberAuthService.login(dto);
@@ -124,7 +126,7 @@ public class MemberApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(
+    public ResponseEntity<?> signOut(
             @AccessTokenInfo AccessToken accessToken,
             @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
             HttpServletRequest request, HttpServletResponse response) {

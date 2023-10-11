@@ -50,8 +50,12 @@ public class MemberAuthService {
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Map<String, String> register(AccessToken accessToken, SignUpReq dto) {
-        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken.accessToken());
+    public Map<String, String> register(String requestAccessToken, SignUpReq dto) {
+        String accessToken = jwtUtil.resolveToken(requestAccessToken);
+        if (!StringUtils.hasText(accessToken))
+            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
+
+        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken);
         smsCertificationService.removeCertificationNumber(authenticatedPhone);
 
         Member requestMember = dto.toEntity(authenticatedPhone);
