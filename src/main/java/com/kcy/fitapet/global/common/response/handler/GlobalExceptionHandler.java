@@ -48,6 +48,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }
 
+    /**
+     * API 호출 시 인가 관련 예외를 처리하는 메서드
+     * @param e AccessDeniedException
+     * @return ResponseEntity<ErrorResponse>
+     */
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
         log.warn("handleAccessDeniedException : {}", e.getMessage());

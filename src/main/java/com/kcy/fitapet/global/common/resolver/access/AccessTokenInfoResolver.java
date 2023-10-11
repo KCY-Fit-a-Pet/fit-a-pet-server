@@ -1,10 +1,13 @@
 package com.kcy.fitapet.global.common.resolver.access;
 
+import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.AuthConstants;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import java.time.LocalDateTime;
 @Component
 public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -37,17 +41,28 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
             NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory) {
         final var httpServletRequest = (HttpServletRequest) webRequest.getNativeRequest();
-        String accessToken = jwtUtil.resolveToken(httpServletRequest.getHeader(AuthConstants.AUTH_HEADER.getValue()));
+        final var httpServletResponse = (HttpServletResponse) webRequest.getNativeResponse();
+        boolean isReissued = false;
 
-        if (!StringUtils.hasText(accessToken)) {
-            log.error("Access Token is empty");
-            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "access token is empty");
+        String reissuedAccessToken = httpServletResponse.getHeader(AuthConstants.REISSUED_ACCESS_TOKEN.getValue());
+
+        String accessToken;
+        if (!StringUtils.hasText(reissuedAccessToken)) {
+            accessToken = jwtUtil.resolveToken(httpServletRequest.getHeader(AuthConstants.AUTH_HEADER.getValue()));
+
+            if (!StringUtils.hasText(accessToken)) {
+                log.error("Access Token is empty");
+                throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "access token is empty");
+            }
+        } else {
+            accessToken = reissuedAccessToken;
+            isReissued = true;
         }
 
         Long userId = jwtUtil.getUserIdFromToken(accessToken);
         LocalDateTime expiryDate = jwtUtil.getExpiryDate(accessToken);
+        log.info("access token expiryDate : {}", expiryDate);
 
-        return new AccessToken(accessToken, userId, expiryDate);
+        return AccessToken.of(accessToken, userId, expiryDate, isReissued);
     }
-
 }

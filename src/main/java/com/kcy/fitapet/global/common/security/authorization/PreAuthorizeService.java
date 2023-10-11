@@ -14,8 +14,7 @@ public class PreAuthorizeService {
     public boolean test(Long requestMemberId) {
         log.info("is start pre authorization check");
 
-//        authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("user role type : {}",requestMemberId);
+        log.info("user role type : {}", requestMemberId);
         return true;
     }
 }

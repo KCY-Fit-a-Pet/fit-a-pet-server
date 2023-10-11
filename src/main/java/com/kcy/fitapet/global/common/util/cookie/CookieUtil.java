@@ -3,6 +3,7 @@ package com.kcy.fitapet.global.common.util.cookie;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ public class CookieUtil {
      * @param cookieName String : 찾을 쿠키의 이름
      * @return Optional<Cookie> : 쿠키가 존재하면 해당 쿠키를, 존재하지 않으면 Optional.empty()를 반환합니다.
      */
-    public Optional<Cookie> getCookie(HttpServletRequest request, String cookieName) {
+    public Optional<Cookie> getCookieFromRequest(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return Optional.empty();

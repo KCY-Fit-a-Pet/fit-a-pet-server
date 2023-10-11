@@ -79,10 +79,11 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public void logout(AccessToken accessToken, String requestRefreshToken) {
-        if (requestRefreshToken != null)
+    public void logout(AccessToken requestAccessToken, String requestRefreshToken) {
+        forbiddenTokenService.register(requestAccessToken);
+
+        if (!StringUtils.hasText(requestRefreshToken))
             refreshTokenService.logout(requestRefreshToken);
-        forbiddenTokenService.register(accessToken);
     }
 
     @Transactional

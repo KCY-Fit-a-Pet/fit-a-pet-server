@@ -130,15 +130,19 @@ public class MemberApi {
             @AccessTokenInfo AccessToken accessToken,
             @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
             HttpServletRequest request, HttpServletResponse response) {
+        if (accessToken.isReissued()) {
+            refreshToken = response.getHeader(HttpHeaders.SET_COOKIE).substring(AuthConstants.REFRESH_TOKEN.getValue().length() + 1);
+            log.info("reissued refresh token: {}", refreshToken);
+        }
+
         memberAuthService.logout(accessToken, refreshToken);
 
-        ResponseCookie cookie;
-        if (refreshToken != null)
-            cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
-                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));
-        else
-            cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), "", 0);
+        if (!StringUtils.hasText(refreshToken)) {
+            return ResponseEntity.ok(SuccessResponse.noContent());
+        }
 
+        ResponseCookie cookie = cookieUtil.deleteCookie(request, response, REFRESH_TOKEN.getValue())
+                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다."));
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(SuccessResponse.noContent());
     }
 
@@ -151,11 +155,7 @@ public class MemberApi {
     })
     @GetMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
-        if (refreshToken == null) {
-            throw new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "존재하지 않는 쿠키입니다.");
-        }
         Map<String, String> tokens = memberAuthService.refresh(refreshToken);
-
         return getResponseEntity(tokens);
     }
 
