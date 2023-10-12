@@ -2,7 +2,7 @@ package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.domain.member.domain.RoleType;
 import com.kcy.fitapet.global.common.util.DateUtil;
-import com.kcy.fitapet.global.common.util.exception.JwtErrorCodeUtil;
+import com.kcy.fitapet.global.common.util.jwt.exception.JwtErrorCodeUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;

@@ -1,5 +1,6 @@
 package com.kcy.fitapet.global.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
 import com.kcy.fitapet.global.common.security.filter.JwtAuthenticationFilter;
 import com.kcy.fitapet.global.common.security.filter.JwtExceptionFilter;
@@ -22,9 +23,11 @@ public class SecurityFilterConfig {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
 
+    private final ObjectMapper objectMapper;
+
     @Bean
     public JwtExceptionFilter jwtExceptionFilter() {
-        return new JwtExceptionFilter();
+        return new JwtExceptionFilter(objectMapper);
     }
 
     @Bean

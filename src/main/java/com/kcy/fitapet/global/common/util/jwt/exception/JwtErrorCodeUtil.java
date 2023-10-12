@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.exception;
+package com.kcy.fitapet.global.common.util.jwt.exception;
 
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;

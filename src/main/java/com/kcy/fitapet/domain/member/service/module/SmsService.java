@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kcy.fitapet.domain.member.dto.sms.SensReq;
 import com.kcy.fitapet.domain.member.dto.sms.SensRes;
 import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +28,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class SmsService {
+    private final ObjectMapper objectMapper;
+
     private final String accessKey;
     private final String secretKey;
     private final String serviceId;
@@ -35,12 +39,14 @@ public class SmsService {
             @Value("${ncp.api-key}") String accessKey,
             @Value("${ncp.secret-key}") String secretKey,
             @Value("${ncp.sms.service-key}") String serviceId,
-            @Value("${ncp.sms.sender-phone}") String phone
+            @Value("${ncp.sms.sender-phone}") String phone,
+            @Autowired ObjectMapper objectMapper
     ) {
         this.accessKey = accessKey;
         this.secretKey = secretKey;
         this.serviceId = serviceId;
         this.phone = phone;
+        this.objectMapper = objectMapper;
     }
 
     public SensRes sendCertificationNumber(SmsReq smsReq, String certificationNumber)
@@ -57,7 +63,6 @@ public class SmsService {
 
         SensReq request = SensReq.of("SMS", "COMM", "82", phone, createAuthCodeMessage(certificationNumber), messages);
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String body = objectMapper.writeValueAsString(request);
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 

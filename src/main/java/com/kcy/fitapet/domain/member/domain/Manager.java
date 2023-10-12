@@ -4,6 +4,7 @@ import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 @Table(name = "MANAGER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Manager extends Auditable {

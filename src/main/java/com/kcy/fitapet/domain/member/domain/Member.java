@@ -26,13 +26,14 @@ public class Member extends Auditable {
 
     @Getter
     private String uid;
+    @Getter
     private String name;
     private String password;
     @Getter
     private String phone;
     @Getter
     private String email;
-    @Column(name = "profile_img")
+    @Column(name = "profile_img") @Getter
     private String profileImg;
     @Column(name = "account_locked") @ColumnDefault("false")
     private Boolean accountLocked;
@@ -50,9 +51,9 @@ public class Member extends Auditable {
     private List<Notification> notifications = new ArrayList<>();
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private NotificationSetting notificationSetting;
-    @OneToMany(mappedBy = "master")
+    @OneToMany(mappedBy = "master") @Getter
     private List<Pet> pets = new ArrayList<>();
-    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL) @Getter
     private List<Manager> underCares = new ArrayList<>();
 
     @Builder
