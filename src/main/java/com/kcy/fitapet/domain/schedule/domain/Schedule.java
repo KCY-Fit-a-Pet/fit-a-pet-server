@@ -3,6 +3,7 @@ package com.kcy.fitapet.domain.schedule.domain;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.domain.Pet;
+import com.kcy.fitapet.domain.pet.domain.PetSchedule;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,6 +30,7 @@ public class Schedule extends Auditable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "reservation_dt")
     private LocalDateTime reservationDt;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "notify_dt")
     private LocalDateTime notifyDt;
@@ -36,15 +38,16 @@ public class Schedule extends Auditable {
     @Column(name = "is_done") @ColumnDefault("false")
     private boolean isDone;
 
-    @ManyToMany(mappedBy = "schedules")
-    private List<Pet> pets = new ArrayList<>();
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
+    private List<PetSchedule> pets = new ArrayList<>();
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", updatable = false)
     private Member author;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "last_editor_id")
     private Member lastEditor;
-
 
     @Builder
     private Schedule(String scheduleName, String location, LocalDateTime reservationDt, LocalDateTime notifyDt, boolean isDone) {

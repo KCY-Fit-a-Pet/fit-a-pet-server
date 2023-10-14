@@ -4,6 +4,7 @@ import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
 import com.kcy.fitapet.domain.notification.domain.NotificationSetting;
 import com.kcy.fitapet.domain.oauthid.domain.OAuthID;
+import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -49,8 +50,10 @@ public class Member extends Auditable {
     private List<Notification> notifications = new ArrayList<>();
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private NotificationSetting notificationSetting;
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Master> pets = new ArrayList<>();
+    @OneToMany(mappedBy = "master")
+    private List<Pet> pets = new ArrayList<>();
+    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL)
+    private List<Manager> underCares = new ArrayList<>();
 
     @Builder
     private Member(String uid, String name, String password, String phone, String email, String profileImg, Boolean accountLocked, RoleType role) {

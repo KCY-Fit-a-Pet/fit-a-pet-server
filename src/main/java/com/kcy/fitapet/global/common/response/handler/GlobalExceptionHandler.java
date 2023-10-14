@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(GlobalErrorException.class)
     protected ResponseEntity<ErrorResponse> handleGlobalErrorException(GlobalErrorException e) {
-        log.error("handleGlobalErrorException : {}", e.getMessage());
+        log.warn("handleGlobalErrorException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }
@@ -42,9 +43,21 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AuthErrorException.class)
     protected ResponseEntity<ErrorResponse> handleAuthErrorException(AuthErrorException e) {
-        log.error("handleAuthErrorException : {}", e.getMessage());
+        log.warn("handleAuthErrorException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(e.getErrorCode().getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    }
+
+    /**
+     * API 호출 시 인가 관련 예외를 처리하는 메서드
+     * @param e AccessDeniedException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+        log.warn("handleAccessDeniedException : {}", e.getMessage());
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.FORBIDDEN_ERROR.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     /**
@@ -54,10 +67,10 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<FailureResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("handleMethodArgumentNotValidException: {}", e.getMessage());
+        log.warn("handleMethodArgumentNotValidException: {}", e.getMessage());
         BindingResult bindingResult = e.getBindingResult();
         final FailureResponse response = FailureResponse.from(bindingResult);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.unprocessableEntity().body(response);
     }
 
     /**
@@ -67,9 +80,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MissingRequestHeaderException.class)
     protected ResponseEntity<FailureResponse> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
-        log.error("handleMissingRequestHeaderException : {}", e.getMessage());
+        log.warn("handleMissingRequestHeaderException : {}", e.getMessage());
         final FailureResponse response = FailureResponse.of("causedBy", e.getMessage());
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.unprocessableEntity().body(response);
     }
 
     /**
@@ -79,7 +92,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        log.error("handleHttpMessageNotReadableException : {}", e.getMessage());
+        log.warn("handleHttpMessageNotReadableException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.MISSING_REQUEST_BODY_ERROR.getMessage());
         return ResponseEntity.badRequest().body(response);
     }
@@ -91,7 +104,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
-        log.error("handleMissingServletRequestParameterException : {}", e.getMessage());
+        log.warn("handleMissingServletRequestParameterException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.MISSING_REQUEST_PARAMETER_ERROR.getMessage());
         return ResponseEntity.badRequest().body(response);
     }
@@ -103,7 +116,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoHandlerFoundException.class)
     protected ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException e) {
-        log.error("handleNoHandlerFoundException : {}", e.getMessage());
+        log.warn("handleNoHandlerFoundException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -115,7 +128,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NullPointerException.class)
     protected ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
-        log.error("handleNullPointerException : {}", e.getMessage());
+        log.warn("handleNullPointerException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.NULL_POINT_ERROR.getMessage());
         return ResponseEntity.internalServerError().body(response);
     }
@@ -129,7 +142,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.error("handleException : {}", e.getMessage());
+        log.warn("handleException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
         return ResponseEntity.internalServerError().body(response);
     }

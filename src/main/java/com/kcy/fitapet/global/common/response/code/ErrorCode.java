@@ -9,7 +9,7 @@ import static org.springframework.http.HttpStatus.*;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public enum ErrorCode implements StateCode {
+public enum ErrorCode implements StatusCode {
     /**
      * 400 BAD_QUEST: Client 요청이 잘못된 경우
      */
@@ -24,8 +24,9 @@ public enum ErrorCode implements StateCode {
     MISSING_REQUEST_HEADER_ERROR(BAD_REQUEST, "요청 헤더가 전달되지 않았습니다."),
     MISSING_REQUEST_BODY_ERROR(BAD_REQUEST, "요청 바디가 전달되지 않았습니다."),
 
-    DUPLICATE_NICKNAME_ERROR(BAD_REQUEST, "중복된 닉네임이 존재합니다."),
-    DUPLICATE_EMAIL_ERROR(BAD_REQUEST, "중복된 이메일이 존재합니다."),
+    ALREADY_LOGIN_USER(BAD_REQUEST, "이미 로그인한 유저입니다."),
+
+    DUPLICATE_USER_INFO_ERROR(BAD_REQUEST, "중복된 유저정보(닉네임/이메일/전화번호)가 존재합니다."),
     DUPLICATE_PHONE_ERROR(BAD_REQUEST, "중복된 전화번호가 존재합니다."),
 
     NOT_MATCH_PASSWORD_ERROR(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),

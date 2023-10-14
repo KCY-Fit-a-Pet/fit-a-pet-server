@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum AuthConstants {
     AUTH_HEADER("Authorization"), TOKEN_TYPE("Bearer "),
-    ACCESS_TOKEN("accessToken"), REFRESH_TOKEN("refreshToken");
+    ACCESS_TOKEN("accessToken"), REFRESH_TOKEN("refreshToken"),
+    REISSUED_ACCESS_TOKEN("X-Access-Token");
 
     private final String value;
 

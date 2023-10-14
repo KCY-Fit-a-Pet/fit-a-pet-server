@@ -1,10 +1,16 @@
 package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.domain.member.domain.RoleType;
+import com.kcy.fitapet.global.common.util.DateUtil;
+import com.kcy.fitapet.global.common.util.exception.JwtErrorCodeUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,10 +19,12 @@ import org.springframework.util.StringUtils;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
+// TODO : JwtUtilImpl의 모든 예외 발생 제거
 /**
  * JWT 토큰 생성 및 검증을 담당하는 클래스
  */
@@ -30,15 +38,18 @@ public class JwtUtilImpl implements JwtUtil {
     private final String jwtSecretKey;
     private final Duration accessTokenExpirationTime;
     private final Duration refreshTokenExpirationTime;
+    private final Duration smsAuthExpirationTime;
 
     public JwtUtilImpl(
             @Value("${jwt.secret}") String jwtSecretKey,
             @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime,
-            @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime
+            @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime,
+            @Value("${jwt.token.sms-auth-expiration-time}") Duration smsAuthExpirationTime
     ) {
         this.jwtSecretKey = jwtSecretKey;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+        this.smsAuthExpirationTime = smsAuthExpirationTime;
     }
 
     @Override
@@ -46,9 +57,8 @@ public class JwtUtilImpl implements JwtUtil {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith(AuthConstants.TOKEN_TYPE.getValue())) {
             return authHeader.substring(AuthConstants.TOKEN_TYPE.getValue().length());
         }
-        throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "Access Token is empty.");
+        return "";
     }
-
 
     @Override
     @SuppressWarnings("deprecation")
@@ -78,14 +88,14 @@ public class JwtUtilImpl implements JwtUtil {
 
     @Override
     @SuppressWarnings("deprecation")
-    public String generateSmsAuthToken(String phoneNumber) {
+    public String generateSmsAuthToken(SmsAuthInfo user) {
         final Date now = new Date();
 
         return Jwts.builder()
                 .setHeader(createHeader())
-                .setClaims(Map.of(PHONE_NUMBER, phoneNumber))
+                .setClaims(Map.of(PHONE_NUMBER, user.phoneNumber()))
                 .signWith(SignatureAlgorithm.HS256, createSignature())
-                .setExpiration(createExpireDate(now, 1000 * 60 * 3))
+                .setExpiration(createExpireDate(now, smsAuthExpirationTime.toMillis()))
                 .compact();
     }
 
@@ -111,44 +121,30 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     @Override
-    public Date getExpiryDate(String token) {
+    public LocalDateTime getExpiryDate(String token) {
         Claims claims = verifyAndGetClaims(token);
-        return claims.getExpiration();
+        return DateUtil.toLocalDateTime(claims.getExpiration());
     }
 
-    private Claims verifyAndGetClaims(final String accessToken) throws AuthErrorException {
+    @Override
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = verifyAndGetClaims(token);
+            return claims.getExpiration().before(new Date());
+        } catch (AuthErrorException e) {
+            return true;
+        }
+    }
+
+    private Claims verifyAndGetClaims(final String accessToken) {
         try {
             return getClaimsFromToken(accessToken);
         } catch (JwtException e) {
-            handleJwtException(e);
-        } catch (Exception e) {
-            log.error("토큰 검증에 실패했습니다. : {}", e.getMessage());
-        }
-        throw new AuthErrorException(AuthErrorCode.WRONG_JWT_TOKEN, "토큰 검증에 실패했습니다.");
-    }
+            final AuthErrorCode errorCode = JwtErrorCodeUtil.determineErrorCode(e, AuthErrorCode.FAILED_AUTHENTICATION);
 
-    private void handleJwtException(JwtException e) {
-        AuthErrorCode errorCode;
-        String causedBy;
-        if (e instanceof ExpiredJwtException) {
-            errorCode = AuthErrorCode.EXPIRED_ACCESS_TOKEN;
-            causedBy = e.toString();
-        } else if (e instanceof MalformedJwtException) {
-            errorCode = AuthErrorCode.MALFORMED_ACCESS_TOKEN;
-            causedBy = e.toString();
-        } else if (e instanceof SignatureException) {
-            errorCode = AuthErrorCode.TAMPERED_ACCESS_TOKEN;
-            causedBy = e.toString();
-        } else if (e instanceof UnsupportedJwtException) {
-            errorCode = AuthErrorCode.WRONG_JWT_TOKEN;
-            causedBy = e.toString();
-        } else {
-            errorCode = AuthErrorCode.EMPTY_ACCESS_TOKEN;
-            causedBy = e.toString();
+            log.warn("Error code : {}, Error - {},  {}", errorCode, e.getClass(), e.getMessage());
+            throw new AuthErrorException(errorCode, e.toString());
         }
-
-        log.warn(causedBy);
-        throw new AuthErrorException(errorCode, causedBy);
     }
 
     private Map<String, Object> createHeader() {

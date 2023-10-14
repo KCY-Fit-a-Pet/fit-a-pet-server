@@ -9,10 +9,14 @@ import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.service.module.SmsService;
+import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
@@ -22,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -45,24 +50,23 @@ public class MemberAuthService {
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Map<String, String> register(String authHeader, SignUpReq dto) {
-        String parsedToken = jwtUtil.resolveToken(authHeader);
-        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(parsedToken);
+    public Map<String, String> register(String requestAccessToken, SignUpReq dto) {
+        String accessToken = jwtUtil.resolveToken(requestAccessToken);
+        if (!StringUtils.hasText(accessToken))
+            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
 
-        if (!smsCertificationService.isCorrectCertificationNumber(authenticatedPhone, parsedToken))
-            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
+        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken);
         smsCertificationService.removeCertificationNumber(authenticatedPhone);
 
         Member requestMember = dto.toEntity(authenticatedPhone);
         requestMember.encodePassword(bCryptPasswordEncoder);
-        log.debug("회원가입 요청: {}", requestMember);
         validateMember(requestMember);
+        log.debug("회원가입 요청: {}", requestMember);
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
         log.debug("회원가입 완료: {}", registeredMember);
-        JwtUserInfo jwtUserInfo = JwtUserInfo.from(registeredMember);
 
-        return generateToken(jwtUserInfo);
+        return generateToken(JwtUserInfo.from(registeredMember));
     }
 
     @Transactional
@@ -71,18 +75,15 @@ public class MemberAuthService {
         if (member.checkPassword(dto.password(), bCryptPasswordEncoder))
             throw new GlobalErrorException(ErrorCode.NOT_MATCH_PASSWORD_ERROR);
 
-        JwtUserInfo jwtUserInfo = JwtUserInfo.from(member);
-
-        return generateToken(jwtUserInfo);
+        return generateToken(JwtUserInfo.from(member));
     }
 
     @Transactional
-    public void logout(String authHeader, String requestRefreshToken) {
-        String accessToken = jwtUtil.resolveToken(authHeader);
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
+    public void logout(AccessToken requestAccessToken, String requestRefreshToken) {
+        forbiddenTokenService.register(requestAccessToken);
 
-        refreshTokenService.logout(requestRefreshToken);
-        forbiddenTokenService.register(accessToken, userId);
+        if (!StringUtils.hasText(requestRefreshToken))
+            refreshTokenService.logout(requestRefreshToken);
     }
 
     @Transactional
@@ -119,14 +120,16 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public String checkCertificationNumber(String requestPhone, String requestCertificationNumber) {
-        String token = null;
-        if (smsCertificationService.isCorrectCertificationNumber(requestPhone, requestCertificationNumber)) {
-            log.info("인증번호 일치");
-            token = smsCertificationService.issueSmsAuthToken(requestPhone);
+    public String checkCertificationNumber(SmsReq smsReq, String requestCertificationNumber) {
+        if (!smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber)) {
+            log.warn("인증번호 불일치");
+            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
         }
 
-        return (token != null) ? token : "";
+        String token = jwtUtil.generateSmsAuthToken(SmsAuthInfo.of(1L, smsReq.to()));
+        smsCertificationService.saveSmsAuthToken(smsReq.to(), token);
+
+        return token;
     }
 
     private void checkSmsStatus(String requestPhone, SensRes sensRes) {
@@ -142,16 +145,9 @@ public class MemberAuthService {
         log.info("SMS 발송 성공");
     }
 
-    // TODO: Query문 하나로 압축
     private void validateMember(Member member) {
-        if (memberSearchService.isExistMemberByUid(member.getUid()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_NICKNAME_ERROR);
-
-        if (memberSearchService.isExistMemberByEmail(member.getEmail()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_EMAIL_ERROR);
-
-        if (memberSearchService.isExistMemberByPhone(member.getPhone()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_PHONE_ERROR);
+        if (memberSearchService.isExistMemberByUidOrEmailOrPhone(member.getUid(), member.getEmail(), member.getPhone()))
+            throw new GlobalErrorException(ErrorCode.DUPLICATE_USER_INFO_ERROR);
     }
 
     private Map<String, String> generateToken(JwtUserInfo jwtUserInfo) {

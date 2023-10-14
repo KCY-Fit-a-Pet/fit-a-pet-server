@@ -1,7 +1,8 @@
 package com.kcy.fitapet.domain.pet.domain;
 
 import com.kcy.fitapet.domain.care.domain.Care;
-import com.kcy.fitapet.domain.member.domain.Master;
+import com.kcy.fitapet.domain.member.domain.Manager;
+import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.memo.domain.Memo;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.schedule.domain.Schedule;
@@ -34,18 +35,19 @@ public class Pet extends Auditable {
     private String species;
     private String feed;
 
+    @ManyToOne
+    @JoinColumn(name = "master_id")
+    private Member master;
+
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
-    private List<Master> masters = new ArrayList<>();
-    @ManyToMany
-    @JoinTable(name = "PET_SCHEDULE",
-            joinColumns = @JoinColumn(name = "pet_id"),
-            inverseJoinColumns = @JoinColumn(name = "schedule_id"))
-    private List<Schedule> schedules = new ArrayList<>();
-    @ManyToMany
-    @JoinTable(name = "PET_CARE",
-            joinColumns = @JoinColumn(name = "pet_id"),
-            inverseJoinColumns = @JoinColumn(name = "care_id"))
-    private List<Care> cares = new ArrayList<>();
+    private List<Manager> managers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
+    private List<PetSchedule> schedules = new ArrayList<>();
+
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
+    private List<PetCare> cares = new ArrayList<>();
+
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
     private List<Memo> memos = new ArrayList<>();
 

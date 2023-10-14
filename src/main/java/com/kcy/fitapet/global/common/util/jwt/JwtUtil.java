@@ -1,18 +1,19 @@
 package com.kcy.fitapet.global.common.util.jwt;
 
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface JwtUtil {
     /**
      * 헤더로부터 토큰을 추출하고 유효성을 검사하는 메서드
      * @param authHeader : 메시지 헤더
-     * @return String : 토큰
-     * @throws AuthErrorException : 토큰이 유효하지 않을 경우
+     * @return 값이 있다면 토큰, 없다면 빈 문자열 (빈 문자열을 반환하는 경우 예외 처리를 해주어야 한다.)
      */
-    String resolveToken(String authHeader) throws AuthErrorException;
+    String resolveToken(String authHeader);
 
     /**
      * 사용자 정보 기반으로 액세스 토큰을 생성하는 메서드
@@ -30,10 +31,10 @@ public interface JwtUtil {
 
     /**
      * 사용자 정보 기반으로 SMS 인증 토큰을 생성하는 메서드
-     * @param phoneNumber String : 수신자 번호
+     * @param user SmsAuthInfo : 사용자 정보
      * @return String : 토큰
      */
-    String generateSmsAuthToken(String phoneNumber);
+    String generateSmsAuthToken(SmsAuthInfo user);
 
     /**
      * token으로 부터 사용자 정보를 추출하는 메서드
@@ -63,8 +64,14 @@ public interface JwtUtil {
     /**
      * 토큰의 만료일을 추출하는 메서드
      * @param token String : 토큰
-     * @return Date : 만료일
+     * @return LocalDateTime : 만료일
      * @throws AuthErrorException : 토큰이 유효하지 않을 경우
      */
-    Date getExpiryDate(String token) throws AuthErrorException;
+    LocalDateTime getExpiryDate(String token) throws AuthErrorException;
+
+    /**
+     * 토큰의 만료 여부를 검사하는 메서드
+     * @param token String : 토큰
+     */
+    boolean isTokenExpired(String token);
 }

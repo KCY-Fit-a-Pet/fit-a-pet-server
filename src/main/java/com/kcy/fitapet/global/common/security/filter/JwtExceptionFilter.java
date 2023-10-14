@@ -1,6 +1,8 @@
 package com.kcy.fitapet.global.common.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kcy.fitapet.global.common.util.exception.JwtErrorCodeUtil;
+import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorResponse;
 import jakarta.servlet.FilterChain;
@@ -16,7 +18,6 @@ import java.io.IOException;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Slf4j
-@Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -25,14 +26,10 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            if (e.getCause() instanceof AuthErrorException) {
-                log.error("AuthErrorException caught in JwtExceptionFilter: {}", e.getCause().getMessage());
-                sendAuthError(response, (AuthErrorException) e.getCause());
-                return;
-            }
-            log.error("Exception caught in JwtExceptionFilter: {}", e.getMessage());
-            e.printStackTrace();
-            sendError(response, e);
+            AuthErrorException exception = JwtErrorCodeUtil.determineAuthErrorException(e);
+            log.warn("Exception caught in JwtExceptionFilter: {}", exception.getMessage());
+
+            sendAuthError(response, exception);
         }
     }
 
@@ -41,14 +38,6 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         response.setStatus(e.getErrorCode().getHttpStatus().value());
 
         AuthErrorResponse errorResponse = new AuthErrorResponse(e.getErrorCode().name(), e.getErrorCode().getMessage());
-        objectMapper.writeValue(response.getWriter(), errorResponse);
-    }
-
-    private void sendError(HttpServletResponse response, Exception e) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
-        AuthErrorResponse errorResponse = new AuthErrorResponse(INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getMessage());
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }
 }

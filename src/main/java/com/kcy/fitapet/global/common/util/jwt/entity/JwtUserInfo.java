@@ -6,10 +6,10 @@ import lombok.Builder;
 import lombok.ToString;
 
 @Builder
-public record JwtUserInfo(
+public record JwtUserInfo  (
         Long id,
         RoleType role
-) {
+) implements JwtDto {
     public static JwtUserInfo of(Long id, RoleType role) {
         return new JwtUserInfo(id, role);
     }
