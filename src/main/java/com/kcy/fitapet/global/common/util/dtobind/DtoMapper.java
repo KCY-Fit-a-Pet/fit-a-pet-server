@@ -25,7 +25,9 @@ public final class DtoMapper {
      * 중첩 클래스는 @InnerDto 어노테이션을 선언해야 하며, name 속성이 JSON의 key 값으로 사용된다.
      * @param data Object : @Dto 타입 객체
      * @return Map<String, Object>
-     * TODO: 10/14/2023 Pageable 객체를 받아서 처리할 수 있도록 한다.
+     *
+     * @todo 10/14/2023 Pageable 객체 처리
+     * @body Pageable 객체를 JSend 형식의 Map으로 변환할 수 있도록 처리한다. (PageDto를 상속받아서 사용)
      */
     public <T> Map<String, Object> from(T data) {
         // 1. data의 클래스를 가져온다.
@@ -63,7 +65,6 @@ public final class DtoMapper {
             return instance;
     }
 
-    // TODO : 내부 클래스에 @JsonIgnore가 선언된 필드가 있는 경우, 해당 값은 제외해야 한다.
     private <T> Object extractInnerDtoValues(T data, Object instance) {
         Class<?> declaringClass = instance.getClass().getDeclaringClass();
         String name = instance.getClass().getAnnotation(InnerDto.class).name();
