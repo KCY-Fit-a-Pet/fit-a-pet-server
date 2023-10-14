@@ -36,3 +36,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### test ###
+src/main/java/com/kcy/fitapet/test/

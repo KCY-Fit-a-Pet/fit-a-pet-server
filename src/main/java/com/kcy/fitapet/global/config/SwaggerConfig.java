@@ -22,7 +22,7 @@ import org.springframework.util.ObjectUtils;
 )
 @RequiredArgsConstructor
 public class SwaggerConfig {
-    private static String JWT = "jwtAuth";
+    private static final String JWT = "jwtAuth";
     private final Environment environment;
 
     @Bean
