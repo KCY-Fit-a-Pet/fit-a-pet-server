@@ -11,6 +11,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
-// TODO : JwtUtilImpl의 모든 예외 발생 제거
 /**
  * JWT 토큰 생성 및 검증을 담당하는 클래스
  */
@@ -35,7 +35,9 @@ public class JwtUtilImpl implements JwtUtil {
     private static final String ROLE = "role";
     private static final String PHONE_NUMBER = "phoneNumber";
 
-    private final String jwtSecretKey;
+    private final Key signatureKey;
+    private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+
     private final Duration accessTokenExpirationTime;
     private final Duration refreshTokenExpirationTime;
     private final Duration smsAuthExpirationTime;
@@ -46,14 +48,16 @@ public class JwtUtilImpl implements JwtUtil {
             @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime,
             @Value("${jwt.token.sms-auth-expiration-time}") Duration smsAuthExpirationTime
     ) {
-        this.jwtSecretKey = jwtSecretKey;
+        final byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
+        this.signatureKey = Keys.hmacShaKeyFor(secretKeyBytes);
+
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
         this.smsAuthExpirationTime = smsAuthExpirationTime;
     }
 
     @Override
-    public String resolveToken(String authHeader) throws AuthErrorException {
+    public String resolveToken(String authHeader) {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith(AuthConstants.TOKEN_TYPE.getValue())) {
             return authHeader.substring(AuthConstants.TOKEN_TYPE.getValue().length());
         }
@@ -61,40 +65,38 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+//    @SuppressWarnings("deprecation")
     public String generateAccessToken(JwtUserInfo user) {
         final Date now = new Date();
 
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, accessTokenExpirationTime.toMillis()))
                 .compact();
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public String generateRefreshToken(JwtUserInfo user) {
         final Date now = new Date();
 
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, refreshTokenExpirationTime.toMillis()))
                 .compact();
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public String generateSmsAuthToken(SmsAuthInfo user) {
         final Date now = new Date();
 
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(Map.of(PHONE_NUMBER, user.phoneNumber()))
-                .signWith(SignatureAlgorithm.HS256, createSignature())
+                .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, smsAuthExpirationTime.toMillis()))
                 .compact();
     }
@@ -158,19 +160,13 @@ public class JwtUtilImpl implements JwtUtil {
                 ROLE, dto.role().getRole());
     }
 
-    private Key createSignature() {
-        byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
-        return new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
-    }
-
     private Date createExpireDate(final Date now, long expirationTime) {
         return new Date(now.getTime() + expirationTime);
     }
 
-    @SuppressWarnings("deprecation")
     private Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(Base64.getDecoder().decode(jwtSecretKey))
+        return Jwts.parserBuilder()
+                .setSigningKey(signatureKey).build()
                 .parseClaimsJws(token)
                 .getBody();
     }
