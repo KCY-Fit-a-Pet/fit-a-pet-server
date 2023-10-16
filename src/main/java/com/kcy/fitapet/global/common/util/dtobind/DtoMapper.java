@@ -35,6 +35,10 @@ public final class DtoMapper {
      * @todo 10/14/2023 Pageable 객체 처리
      * @body Pageable 객체를 JSend 형식의 Map으로 변환할 수 있도록 처리한다. (PageDto를 상속받아서 사용)
      */
+    // TODO(YANG JAESEO) : 2021/10/14 Pageable 객체 처리
+    // Pageable 객체를 JSend 형식의 Map으로 변환할 수 있도록 처리한다. (PageDto를 상속받아서 사용)
+    // assignees: YANG JAESEO
+    // labels: enhancement
     public <T> Map<String, Object> from(T data) {
         // 1. data의 클래스를 가져온다.
         Class<?> type = data.getClass();
@@ -67,7 +71,7 @@ public final class DtoMapper {
                 log.error("[ERROR] Dto 클래스에 기본 생성자가 없습니다.");
                 throw new GlobalErrorException(ErrorCode.INTERNAL_SERVER_ERROR);
             } catch (Exception e) {
-                log.error("[ERROR] Dto 클래스를 생성할 수 없습니다.");
+                log.error("[ERROR] Dto 클래스를 생성할 수 없습니다. : {}", e.getMessage());
                 throw new GlobalErrorException(ErrorCode.INTERNAL_SERVER_ERROR);
             }
             return instance;
