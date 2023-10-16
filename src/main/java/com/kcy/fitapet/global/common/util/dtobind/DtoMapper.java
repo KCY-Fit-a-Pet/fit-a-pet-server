@@ -32,7 +32,9 @@ public final class DtoMapper {
      * @param data Object : @Dto 타입 객체
      * @return Map<String, Object>
      */
-
+    // TODO(YANG JAESEO) : 2021/10/14 Pageable 객체 처리
+    // Pageable 객체를 JSend 형식의 Map으로 변환할 수 있도록 처리한다. (PageDto를 상속받아서 사용)
+    // labels: enhancement
     public <T> Map<String, Object> from(T data) {
         // 1. data의 클래스를 가져온다.
         Class<?> type = data.getClass();
