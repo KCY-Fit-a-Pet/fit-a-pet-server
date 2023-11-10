@@ -1,6 +1,6 @@
 package com.kcy.fitapet.global.common.util.jwt;
 
-import com.kcy.fitapet.domain.member.domain.RoleType;
+import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.global.common.util.DateUtil;
 import com.kcy.fitapet.global.common.util.jwt.exception.JwtErrorCodeUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -65,7 +64,6 @@ public class JwtUtilImpl implements JwtUtil {
     }
 
     @Override
-//    @SuppressWarnings("deprecation")
     public String generateAccessToken(JwtUserInfo user) {
         final Date now = new Date();
 

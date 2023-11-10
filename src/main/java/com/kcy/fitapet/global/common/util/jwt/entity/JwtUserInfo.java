@@ -1,9 +1,8 @@
 package com.kcy.fitapet.global.common.util.jwt.entity;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.domain.RoleType;
+import com.kcy.fitapet.domain.member.type.RoleType;
 import lombok.Builder;
-import lombok.ToString;
 
 @Builder
 public record JwtUserInfo  (

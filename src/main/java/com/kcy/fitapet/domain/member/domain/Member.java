@@ -1,5 +1,7 @@
 package com.kcy.fitapet.domain.member.domain;
 
+import com.kcy.fitapet.domain.member.type.RoleType;
+import com.kcy.fitapet.domain.member.type.RoleTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
 import com.kcy.fitapet.domain.notification.domain.NotificationSetting;
