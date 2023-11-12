@@ -1,11 +1,9 @@
 package com.kcy.fitapet.global.common.resolver.access;
 
-import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.AuthConstants;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
@@ -14,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -26,7 +25,6 @@ import java.time.LocalDateTime;
 @Component
 public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
     private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -34,6 +32,11 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
                 && parameter.getParameterType().equals(AccessToken.class);
     }
 
+    /**
+     * 요청받은 액세스 토큰 정보를 추출하여 AccessToken 객체에 담아 반환한다.
+     * 단, 인증 과정에서 재발급이 일어난 경우에는 헤더에 담긴 재발급된 액세스 토큰을 추출한다.
+     * 재발급된 액세스 토큰 추출 시, AccessToken 객체의 isReissued 필드를 true로 설정된다.
+     */
     @Override
     public Object resolveArgument(
             MethodParameter parameter,

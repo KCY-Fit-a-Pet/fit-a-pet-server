@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.member.domain;
+package com.kcy.fitapet.domain.member.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -19,7 +19,6 @@ public enum RoleType implements LegacyCommonType {
     private final String role;
     private static final Map<String, RoleType> stringToEnum =
             Stream.of(values()).collect(toMap(Object::toString, e -> e));
-
 
     @JsonValue
     public String getRole() { return role; }

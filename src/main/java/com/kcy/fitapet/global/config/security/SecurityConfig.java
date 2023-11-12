@@ -30,6 +30,7 @@ public class SecurityConfig {
     private final JwtSecurityConfig jwtSecurityConfig;
 
     private final String[] publicEndpoints = {
+            "/api/v1/test", "/api/v1/test/**",
             "/favicon.ico",
 
             // Swagger

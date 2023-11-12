@@ -17,7 +17,7 @@ public class LegacyEnumValueConvertUtils {
                 .filter(e -> e.getCode().equals(code))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("enum=[%s], code=[%s]가 존재하지 않습니다.", enumClass.getName(), code))); // TODO : 공통 예외로 변경
+                        String.format("enum=[%s], code=[%s]가 존재하지 않습니다.", enumClass.getName(), code)));
     }
 
     public static <T extends Enum<T> & LegacyCommonType> String toLegacyCode(T enumValue) {

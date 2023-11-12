@@ -1,15 +1,15 @@
 version: '3.7'
 services:
-  proxy:
-    image: jaeseo/nginx:latest
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - was-net
-    depends_on:
-      - api
+#  proxy:
+#    image: jaeseo/nginx:latest
+#    restart: always
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    networks:
+#      - was-net
+#    depends_on:
+#      - api
 
   fitapet-api:
     image: jaeseo/fitapet:latest
@@ -18,6 +18,8 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      - TZ=Asia/Seoul
     networks:
       - was-net
 

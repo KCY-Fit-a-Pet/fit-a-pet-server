@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.member.api;
 
+import com.kcy.fitapet.domain.member.dao.MemberRepository;
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
 import com.kcy.fitapet.domain.member.dto.sms.SmsReq;

@@ -5,6 +5,8 @@ import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.memo.domain.Memo;
 import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.pet.type.GenderType;
+import com.kcy.fitapet.domain.pet.type.GenderTypeConverter;
 import com.kcy.fitapet.domain.schedule.domain.Schedule;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,7 +26,8 @@ public class Pet extends Auditable {
     private Long id;
     @Column(name = "pet_name")
     private String petName;
-    private boolean gender;
+    @Convert(converter = GenderTypeConverter.class)
+    private GenderType gender;
     @Column(name = "pet_profile_img")
     private String petProfileImg;
     @ColumnDefault("false")
@@ -52,7 +55,7 @@ public class Pet extends Auditable {
     private List<Memo> memos = new ArrayList<>();
 
     @Builder
-    private Pet(String petName, boolean gender, String petProfileImg, boolean neutered, LocalDateTime birth,
+    private Pet(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDateTime birth,
                 Integer age, String species, String feed) {
         this.petName = petName;
         this.gender = gender;
@@ -64,7 +67,7 @@ public class Pet extends Auditable {
         this.feed = feed;
     }
 
-    public static Pet of(String petName, boolean gender, String petProfileImg, boolean neutered, LocalDateTime birth,
+    public static Pet of(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDateTime birth,
                          Integer age, String species, String feed) {
         return Pet.builder()
                 .petName(petName)

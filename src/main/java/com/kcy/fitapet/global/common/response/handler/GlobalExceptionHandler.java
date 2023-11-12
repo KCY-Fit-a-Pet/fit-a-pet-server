@@ -9,12 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
@@ -53,11 +55,11 @@ public class GlobalExceptionHandler {
      * @param e AccessDeniedException
      * @return ResponseEntity<ErrorResponse>
      */
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+    protected ErrorResponse handleAccessDeniedException(AccessDeniedException e) {
         log.warn("handleAccessDeniedException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.FORBIDDEN_ERROR.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return ErrorResponse.of(ErrorCode.FORBIDDEN_ERROR.getMessage());
     }
 
     /**
@@ -90,11 +92,11 @@ public class GlobalExceptionHandler {
      * @param e HttpMessageNotReadableException
      * @return ResponseEntity<ErrorResponse>
      */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+    protected ErrorResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.warn("handleHttpMessageNotReadableException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.MISSING_REQUEST_BODY_ERROR.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ErrorResponse.of(ErrorCode.MISSING_REQUEST_BODY_ERROR.getMessage());
     }
 
     /**
@@ -102,11 +104,11 @@ public class GlobalExceptionHandler {
      * @param e MissingServletRequestParameterException
      * @return ResponseEntity<ErrorResponse>
      */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+    protected ErrorResponse handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
         log.warn("handleMissingServletRequestParameterException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.MISSING_REQUEST_PARAMETER_ERROR.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return ErrorResponse.of(ErrorCode.MISSING_REQUEST_PARAMETER_ERROR.getMessage());
     }
 
     /**
@@ -114,11 +116,23 @@ public class GlobalExceptionHandler {
      * @param e NoHandlerFoundException
      * @return ResponseEntity<ErrorResponse>
      */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoHandlerFoundException.class)
-    protected ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException e) {
+    protected ErrorResponse handleNoHandlerFoundException(NoHandlerFoundException e) {
         log.warn("handleNoHandlerFoundException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        return ErrorResponse.of(ErrorCode.NOT_FOUND_ERROR.getMessage());
+    }
+
+    /**
+     * API 호출 시 데이터를 반환할 수 없는 경우
+     * @param e HttpMessageNotWritableException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(HttpMessageNotWritableException.class)
+    protected ErrorResponse handleHttpMessageNotWritableException(HttpMessageNotWritableException e) {
+        log.warn("handleHttpMessageNotWritableException : {}", e.getMessage());
+        return ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 
     /**
@@ -126,11 +140,11 @@ public class GlobalExceptionHandler {
      * @param e NullPointerException
      * @return ResponseEntity<ErrorResponse>
      */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(NullPointerException.class)
-    protected ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
+    protected ErrorResponse handleNullPointerException(NullPointerException e) {
         log.warn("handleNullPointerException : {}", e.getMessage());
-        final ErrorResponse response = ErrorResponse.of(ErrorCode.NULL_POINT_ERROR.getMessage());
-        return ResponseEntity.internalServerError().body(response);
+        return ErrorResponse.of(ErrorCode.NULL_POINT_ERROR.getMessage());
     }
 
     // ================================================================================== //
@@ -142,7 +156,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-        log.warn("handleException : {}", e.getMessage());
+        log.warn("{} : handleException : {}", e.getClass(), e.getMessage());
+        e.printStackTrace();
+
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
         return ResponseEntity.internalServerError().body(response);
     }

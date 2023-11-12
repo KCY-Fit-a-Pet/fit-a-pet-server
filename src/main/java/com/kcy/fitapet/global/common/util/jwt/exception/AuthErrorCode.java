@@ -43,4 +43,9 @@ public enum AuthErrorCode implements StatusCode {
 
     private final HttpStatus httpStatus;
     private final String message;
+
+    @Override
+    public String getName() {
+        return name();
+    }
 }
