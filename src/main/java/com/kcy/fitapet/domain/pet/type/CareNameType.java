@@ -11,7 +11,7 @@ public enum CareNameType {
     MEDICINE(CareType.DAILY),
     SNACK(CareType.DAILY);
 
-    private CareType careType;
+    private final CareType careType;
 
     CareNameType(CareType careType) {
         this.careType = careType;

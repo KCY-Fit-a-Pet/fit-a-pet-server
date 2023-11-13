@@ -35,10 +35,6 @@ public class Pet extends Auditable {
     private String species;
     private String feed;
 
-    @ManyToOne
-    @JoinColumn(name = "master_id")
-    private Member master;
-
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
     private List<Manager> managers = new ArrayList<>();
 

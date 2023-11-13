@@ -5,9 +5,9 @@ import com.kcy.fitapet.domain.pet.dao.PetCareRepository;
 import com.kcy.fitapet.domain.pet.dao.PetRepository;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.pet.domain.PetCare;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

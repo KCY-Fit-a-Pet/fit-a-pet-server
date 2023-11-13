@@ -62,7 +62,7 @@ public class PetRegisterReq {
         return cares.stream()
                 .map(careName -> Care.builder()
                         .careName(careName.getCareName())
-                        .dtype(CareNameType.valueOf(careName.getCareName()).getCareType())
+                        .dtype(CareNameType.valueOf(careName.getCareName().toUpperCase()).getCareType())
                         .build())
                 .toList();
     }
