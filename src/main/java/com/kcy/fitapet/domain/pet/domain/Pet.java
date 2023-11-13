@@ -1,18 +1,16 @@
 package com.kcy.fitapet.domain.pet.domain;
 
-import com.kcy.fitapet.domain.care.domain.Care;
 import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.memo.domain.Memo;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.type.GenderType;
 import com.kcy.fitapet.domain.pet.type.GenderTypeConverter;
-import com.kcy.fitapet.domain.schedule.domain.Schedule;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +18,7 @@ import java.util.List;
 @Table(name = "PET")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(of = {"petName", "gender", "birth", "species"})
+@ToString(of = {"petName", "gender", "birthDate", "species"})
 public class Pet extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,9 +30,8 @@ public class Pet extends Auditable {
     private String petProfileImg;
     @ColumnDefault("false")
     private boolean neutered;
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime birth;
-    private Integer age;
+    @Temporal(TemporalType.DATE)
+    private LocalDate birthDate;
     private String species;
     private String feed;
 
@@ -55,27 +52,25 @@ public class Pet extends Auditable {
     private List<Memo> memos = new ArrayList<>();
 
     @Builder
-    private Pet(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDateTime birth,
-                Integer age, String species, String feed) {
+    private Pet(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDate birthDate,
+                String species, String feed) {
         this.petName = petName;
         this.gender = gender;
         this.petProfileImg = petProfileImg;
         this.neutered = neutered;
-        this.birth = birth;
-        this.age = age;
+        this.birthDate = birthDate;
         this.species = species;
         this.feed = feed;
     }
 
-    public static Pet of(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDateTime birth,
-                         Integer age, String species, String feed) {
+    public static Pet of(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDate birthDate,
+                         String species, String feed) {
         return Pet.builder()
                 .petName(petName)
                 .gender(gender)
                 .petProfileImg(petProfileImg)
                 .neutered(neutered)
-                .birth(birth)
-                .age(age)
+                .birthDate(birthDate)
                 .species(species)
                 .feed(feed).build();
     }

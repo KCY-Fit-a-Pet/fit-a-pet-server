@@ -1,13 +1,12 @@
 package com.kcy.fitapet.domain.care.domain;
 
+import com.kcy.fitapet.domain.care.type.CareType;
+import com.kcy.fitapet.domain.care.type.CareTypeConverter;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.domain.PetCare;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +15,7 @@ import java.util.List;
 @Table(name = "CARE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"careName", "dtype"})
+@Getter
 public class Care extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.care.domain;
+package com.kcy.fitapet.domain.care.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -12,8 +12,8 @@ import static java.util.stream.Collectors.toMap;
 
 @RequiredArgsConstructor
 public enum CareType implements LegacyCommonType {
-    DAILY("1", "일상관리"),
-    WEEKLY("2", "주간관리");
+    DAILY("1", "D"),
+    WEEKLY("2", "W");
 
     private final String code;
     private final String type;
