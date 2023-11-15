@@ -46,7 +46,7 @@ public final class DtoMapper {
                 .map(this::getInstance)// 3. 클래스 생성자를 이용해 인스턴스 생성
                 .toList();
 
-        // 4. data의 값을 도메인 별로 binding하여 Map 형태로 포매팅한다. setter가 없으므로 getter 메서드를 이용한다.
+        // 4. data의 값을 도메인 별로 binding하여 Map 형태로 포매팅한다.
         // (단, @JsonIgnore가 선언된 필드는 내부 클래스에 포함되지 않으며, 단지 중첩 클래스에 값을 복사하기 위해 사용한다.)
         instances.forEach(instance -> {
             if (instance.getClass().isAnnotationPresent(InnerDto.class)) {

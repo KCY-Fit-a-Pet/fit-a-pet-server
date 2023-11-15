@@ -23,41 +23,13 @@ public class PetManageService {
     private final MemberSearchService memberSearchService;
     private final MemberSaveService memberSaveService;
     private final PetSaveService petSaveService;
-    private final CareSaveService careSaveService;
 
     @Transactional
-    public void savePet(PetRegisterReq req, Long memberId) {
-        Pet pet = petSaveService.savePet(req.toPetEntity());
-
-        List<Care> cares = careSaveService.saveCares(req.toCareEntity());
-        petSaveService.mappingPetAndCares(pet, cares);
+    public void savePet(Pet pet, Long memberId) {
+        pet = petSaveService.savePet(pet);
 
         Member member = memberSearchService.getMemberById(memberId);
         memberSaveService.mappingMemberAndPet(member, pet, ManageType.MASTER);
-
-        // TODO: cares에 대한 careDetail 저장
-        for (Care care : cares) {
-            if (care.getDtype().equals(CareType.DAILY)) {
-                // 1. careDetail 생성 (careTime=현재시간, limitTime=현재시간, isDone=false)
-
-                // 1-1. 식사라면 아침, 점심, 저녁 3개 생성
-
-                // 3.
-
-                // 2.
-
-            } else {
-                // 1. careDetail 생성
-
-                // 2. DayOfWeek 월~일 false로 초기화해서 생성
-                DayOfWeek dayOfWeek = DayOfWeek.init();
-
-
-
-
-            }
-        }
     }
 
-    private
 }

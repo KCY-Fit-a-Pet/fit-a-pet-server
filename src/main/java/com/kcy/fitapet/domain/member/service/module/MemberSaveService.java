@@ -23,7 +23,7 @@ public class MemberSaveService {
 
     @Transactional
     public void mappingMemberAndPet(Member member, Pet pet, ManageType manageType) {
-        Manager manager = Manager.of(member, pet, manageType);
+        Manager manager = Manager.of(member, pet, false, manageType);
         managerRepository.save(manager);
     }
 }

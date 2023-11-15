@@ -21,11 +21,4 @@ public class PetSaveService {
     public Pet savePet(Pet pet) {;
         return petRepository.save(pet);
     }
-
-    @Transactional
-    public void mappingPetAndCares(Pet pet, List<Care> cares) {
-        cares.stream()
-                .map(care -> PetCare.of(pet, care))
-                .forEach(petCareRepository::save);
-    }
 }

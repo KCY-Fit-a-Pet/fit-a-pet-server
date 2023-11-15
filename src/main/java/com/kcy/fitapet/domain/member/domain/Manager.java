@@ -29,6 +29,7 @@ public class Manager extends Auditable {
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
+    @Column(name = "mtype")
     @Convert(converter = ManageTypeConverter.class)
     private ManageType manageType;
 
@@ -40,14 +41,15 @@ public class Manager extends Auditable {
         this.hidden = false;
     }
 
-    private Manager(Member manager, Pet pet, ManageType manageType) {
+    private Manager(Member manager, Pet pet, boolean hidden, ManageType manageType) {
         this.manager = manager;
         this.pet = pet;
+        this.hidden = hidden;
         this.manageType = manageType;
     }
 
-    public static Manager of(Member manager, Pet pet, ManageType manageType) {
-        return new Manager(manager, pet, manageType);
+    public static Manager of(Member manager, Pet pet, boolean hidden, ManageType manageType) {
+        return new Manager(manager, pet, hidden, manageType);
     }
 
     public void updateManager(Member manager) {
