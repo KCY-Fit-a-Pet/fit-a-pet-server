@@ -23,4 +23,37 @@ public class PetCare extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "care_id")
     private Care care;
+
+    private PetCare(Pet pet, Care care) {
+        this.pet = pet;
+        this.care = care;
+    }
+
+    public static PetCare of(Pet pet, Care care) {
+        return new PetCare(pet, care);
+    }
+
+    public void updatePet(Pet pet) {
+        if (this.pet != null) {
+            this.pet.getCares().remove(this);
+        }
+
+        this.pet = pet;
+
+        if (pet != null) {
+            pet.getCares().add(this);
+        }
+    }
+
+    public void updateCare(Care care) {
+        if (this.care != null) {
+            this.care.getPets().remove(this);
+        }
+
+        this.care = care;
+
+        if (care != null) {
+            care.getPets().add(this);
+        }
+    }
 }

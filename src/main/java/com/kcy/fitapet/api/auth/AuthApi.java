@@ -1,6 +1,5 @@
-package com.kcy.fitapet.domain.member.api;
+package com.kcy.fitapet.api.auth;
 
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
 import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
@@ -51,7 +50,7 @@ import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.*;
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
 @Slf4j
-public class MemberApi {
+public class AuthApi {
     private final MemberAuthService memberAuthService;
     private final CookieUtil cookieUtil;
 

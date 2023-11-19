@@ -47,4 +47,8 @@ public class DayOfWeek extends Auditable {
         return DayOfWeek.builder()
                 .mon(mon).tue(tue).wed(wed).thu(thu).fri(fri).sat(sat).sun(sun).build();
     }
+
+    public static DayOfWeek init() {
+        return DayOfWeek.builder().build();
+    }
 }

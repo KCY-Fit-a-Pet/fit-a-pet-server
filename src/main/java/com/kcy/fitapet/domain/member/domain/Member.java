@@ -53,8 +53,6 @@ public class Member extends Auditable {
     private List<Notification> notifications = new ArrayList<>();
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private NotificationSetting notificationSetting;
-    @OneToMany(mappedBy = "master") @Getter
-    private List<Pet> pets = new ArrayList<>();
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL) @Getter
     private List<Manager> underCares = new ArrayList<>();
 
