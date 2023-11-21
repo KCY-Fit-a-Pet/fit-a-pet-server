@@ -1,9 +1,9 @@
 package com.kcy.fitapet.api.auth;
 
-import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
-import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
-import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
-import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
+import com.kcy.fitapet.api.auth.dto.auth.SignInReq;
+import com.kcy.fitapet.api.auth.dto.auth.SignUpReq;
+import com.kcy.fitapet.api.auth.dto.sms.SmsReq;
+import com.kcy.fitapet.api.auth.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
 import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.resolver.access.AccessTokenInfo;

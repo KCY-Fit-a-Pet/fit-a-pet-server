@@ -1,4 +1,4 @@
-package com.kcy.fitapet.api.page.api;
+package com.kcy.fitapet.api.page;
 
 import com.kcy.fitapet.api.page.service.MainPageService;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;

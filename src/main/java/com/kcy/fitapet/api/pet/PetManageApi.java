@@ -1,6 +1,6 @@
 package com.kcy.fitapet.api.pet;
 
-import com.kcy.fitapet.domain.pet.dto.PetRegisterReq;
+import com.kcy.fitapet.api.pet.dto.PetRegisterReq;
 import com.kcy.fitapet.domain.pet.service.component.PetManageService;
 import com.kcy.fitapet.global.common.response.ErrorResponse;
 import com.kcy.fitapet.global.common.response.FailureResponse;
@@ -8,7 +8,6 @@ import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

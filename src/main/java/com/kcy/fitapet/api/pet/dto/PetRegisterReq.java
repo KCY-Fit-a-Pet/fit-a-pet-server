@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.pet.dto;
+package com.kcy.fitapet.api.pet.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kcy.fitapet.domain.pet.domain.Pet;

@@ -1,11 +1,11 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
-import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
-import com.kcy.fitapet.domain.member.dto.sms.SensRes;
-import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
-import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
+import com.kcy.fitapet.api.auth.dto.auth.SignInReq;
+import com.kcy.fitapet.api.auth.dto.auth.SignUpReq;
+import com.kcy.fitapet.api.auth.dto.sms.SensRes;
+import com.kcy.fitapet.api.auth.dto.sms.SmsReq;
+import com.kcy.fitapet.api.auth.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.service.module.SmsService;

@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.member.dto.auth;
+package com.kcy.fitapet.api.auth.dto.auth;
 
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.type.RoleType;
