@@ -5,7 +5,6 @@ import com.kcy.fitapet.domain.member.dto.profile.MemberProfileRes;
 import com.kcy.fitapet.domain.member.dto.profile.ProfilePatchReq;
 import com.kcy.fitapet.domain.member.exception.ProfileErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import lombok.RequiredArgsConstructor;

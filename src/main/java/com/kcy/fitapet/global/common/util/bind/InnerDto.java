@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.dtobind;
+package com.kcy.fitapet.global.common.util.bind;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

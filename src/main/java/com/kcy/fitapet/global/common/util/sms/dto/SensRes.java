@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.member.dto.sms;
+package com.kcy.fitapet.global.common.util.sms.dto;
 
 import lombok.Builder;
 

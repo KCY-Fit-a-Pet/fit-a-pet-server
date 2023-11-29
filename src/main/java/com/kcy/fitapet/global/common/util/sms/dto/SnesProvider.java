@@ -1,10 +1,8 @@
-package com.kcy.fitapet.domain.member.service.module;
+package com.kcy.fitapet.global.common.util.sms.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kcy.fitapet.domain.member.dto.sms.SensReq;
-import com.kcy.fitapet.domain.member.dto.sms.SensRes;
-import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
+import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,9 +22,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-@Service
 @Slf4j
-public class SmsService {
+@Component
+public class SnesProvider implements SmsProvider {
     private final ObjectMapper objectMapper;
 
     private final String accessKey;
@@ -35,7 +32,7 @@ public class SmsService {
     private final String serviceId;
     private final String phone;
 
-    public SmsService(
+    public SnesProvider(
             @Value("${ncp.api-key}") String accessKey,
             @Value("${ncp.secret-key}") String secretKey,
             @Value("${ncp.sms.service-key}") String serviceId,
@@ -49,7 +46,7 @@ public class SmsService {
         this.objectMapper = objectMapper;
     }
 
-    @Transactional
+    @Override
     public SensRes sendCertificationNumber(SmsReq smsReq, String certificationNumber)
             throws JsonProcessingException, RestClientException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         long now = System.currentTimeMillis();

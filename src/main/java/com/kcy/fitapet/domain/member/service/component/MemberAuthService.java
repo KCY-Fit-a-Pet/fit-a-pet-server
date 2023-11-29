@@ -3,14 +3,10 @@ package com.kcy.fitapet.domain.member.service.component;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
-import com.kcy.fitapet.domain.member.dto.sms.SensRes;
-import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
-import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
 import com.kcy.fitapet.domain.member.exception.ProfileErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.domain.member.service.module.SmsService;
 import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
@@ -23,6 +19,10 @@ import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
 import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
+import com.kcy.fitapet.global.common.util.sms.SmsProvider;
+import com.kcy.fitapet.global.common.util.sms.dto.SensRes;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.REFRESH_TOKEN
 public class MemberAuthService {
     private final MemberSearchService memberSearchService;
     private final MemberSaveService memberSaveService;
-    private final SmsService smsService;
+    private final SmsProvider smsProvider;
 
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
@@ -107,9 +107,9 @@ public class MemberAuthService {
 
         SensRes sensRes;
         try {
-            sensRes = smsService.sendCertificationNumber(dto, certificationNumber);
+            sensRes = smsProvider.sendCertificationNumber(dto, certificationNumber);
         } catch (Exception e) {
-            log.error("SMS 발송 실패: {}", e.getMessage());
+            log.warn("SMS 발송 실패: {}", e.getMessage());
             smsCertificationService.removeCertificationNumber(dto.to());
             throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
         }
@@ -136,11 +136,11 @@ public class MemberAuthService {
 
     private void checkSmsStatus(String requestPhone, SensRes sensRes) {
         if (sensRes.statusCode().equals("404")) {
-            log.error("존재하지 않는 수신자: {}", requestPhone);
+            log.warn("존재하지 않는 수신자: {}", requestPhone);
             smsCertificationService.removeCertificationNumber(requestPhone);
             throw new GlobalErrorException(SmsErrorCode.INVALID_RECEIVER);
         } else if (sensRes.statusName().equals("fail")) {
-            log.error("SMS API 응답 실패: {}", sensRes);
+            log.warn("SMS API 응답 실패: {}", sensRes);
             smsCertificationService.removeCertificationNumber(requestPhone);
             throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
         }

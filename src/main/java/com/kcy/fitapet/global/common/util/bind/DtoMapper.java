@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.dtobind;
+package com.kcy.fitapet.global.common.util.bind;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
