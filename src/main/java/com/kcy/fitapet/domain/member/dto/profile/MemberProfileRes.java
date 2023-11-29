@@ -2,11 +2,13 @@ package com.kcy.fitapet.domain.member.dto.profile;
 
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.type.NotificationSetting;
+import com.kcy.fitapet.global.common.util.bind.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Schema(description = "회원 프로필 조회 응답")
 @Builder
+@Dto(name = "member")
 public record MemberProfileRes(
         @Schema(description = "회원 번호")
         Long id,
@@ -18,19 +20,26 @@ public record MemberProfileRes(
         String email,
         @Schema(description = "프로필 사진")
         String profileImage,
-        @Schema(description = "알림 설정")
-        NotificationSetting notificationSetting,
+        @Schema(description = "케어 설정")
+        boolean isCare,
+        @Schema(description = "메모 설정")
+        boolean isMemo,
+        @Schema(description = "일정 설정")
+        boolean isSchedule,
         @Schema(description = "전화번호")
         String phone
 ) {
         public static MemberProfileRes from(Member member) {
+                NotificationSetting setting = member.getNotificationSetting();
                 return MemberProfileRes.builder()
                         .id(member.getId())
                         .name(member.getName())
                         .uid(member.getUid())
                         .email(member.getEmail())
                         .profileImage(member.getProfileImg())
-                        .notificationSetting(member.getNotificationSetting())
+                        .isCare(setting.isCare())
+                        .isMemo(setting.isMemo())
+                        .isSchedule(setting.isSchedule())
                         .phone(member.getPhone())
                         .build();
         }

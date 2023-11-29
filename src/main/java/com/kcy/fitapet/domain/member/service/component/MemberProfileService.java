@@ -31,7 +31,7 @@ public class MemberProfileService {
     public void updateName(Long userId, ProfilePatchReq req) {
         Member member = memberSearchService.findById(userId);
 
-        isValidateNickname(member, req.getName());
+        isValidateUsername(member, req.getName());
 
         member.updateName(req.getName());
     }
@@ -49,11 +49,11 @@ public class MemberProfileService {
     public void updateNotification(Long userId, String type) {
         Member member = memberSearchService.findById(userId);
 
-        if (type.equals("care")) {
+        if (type.equalsIgnoreCase("care")) {
             member.updateEmailNotification();
-        } else if (type.equals("memo")) {
+        } else if (type.equalsIgnoreCase("memo")) {
             member.updateSmsNotification();
-        } else if (type.equals("schedule")) {
+        } else if (type.equalsIgnoreCase("schedule")) {
             member.updateScheduleNotification();
         } else {
             StatusCode errorCode = ProfileErrorCode.INVALID_NOTIFICATION_TYPE_ERROR;
@@ -65,11 +65,11 @@ public class MemberProfileService {
     /**
      * 사용자 입력 닉네임과 기존 닉네임이 일치하는지 확인하고 변경 사항이 없으면 예외 <br/>
      * @param member Member : 사용자 정보
-     * @param nickname String : 사용자 입력 닉네임
+     * @param username String : 사용자 입력 닉네임
      * @throws GlobalErrorException : 닉네임 변경 실패
      */
-    private void isValidateNickname(Member member, String nickname) {
-        if (!StringUtils.hasText(nickname) || member.getName().equals(nickname)) {
+    private void isValidateUsername(Member member, String username) {
+        if (!StringUtils.hasText(username) || member.getName().equals(username)) {
             StatusCode errorCode = ProfileErrorCode.NOT_CHANGE_NAME_ERROR;
             log.warn("닉네임 변경 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
@@ -87,9 +87,9 @@ public class MemberProfileService {
      */
     private void isValidatePassword(Member member, String prePassword, String newPassword) {
         StatusCode errorCode = null;
-        if (prePassword.equals(newPassword)) {
-            errorCode = ProfileErrorCode.NOT_CHANGE_PASSWORD_ERROR;
-        } else if (!member.checkPassword(prePassword, bCryptPasswordEncoder)) { // TODO: 빈 문자열이 들어올 때 검사
+        if (!StringUtils.hasText(newPassword) || prePassword.equals(newPassword)) {
+            errorCode = ProfileErrorCode.INVALID_PASSWORD_REQUEST;
+        } else if (!member.checkPassword(prePassword, bCryptPasswordEncoder)) {
             errorCode = ProfileErrorCode.NOT_MATCH_PASSWORD_ERROR;
         }
 

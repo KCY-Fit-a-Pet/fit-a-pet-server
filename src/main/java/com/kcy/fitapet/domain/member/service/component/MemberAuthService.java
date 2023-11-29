@@ -55,7 +55,7 @@ public class MemberAuthService {
     public Map<String, String> register(String requestAccessToken, SignUpReq dto) {
         String accessToken = jwtUtil.resolveToken(requestAccessToken);
         if (!StringUtils.hasText(accessToken))
-            throw new AuthErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
+            throw new GlobalErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN);
 
         String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken);
         smsCertificationService.removeCertificationNumber(authenticatedPhone);
@@ -74,7 +74,7 @@ public class MemberAuthService {
     @Transactional
     public Map<String, String> login(SignInReq dto) {
         Member member = memberSearchService.findByUid(dto.uid());
-        if (member.checkPassword(dto.password(), bCryptPasswordEncoder))
+        if (!member.checkPassword(dto.password(), bCryptPasswordEncoder))
             throw new GlobalErrorException(ProfileErrorCode.NOT_MATCH_PASSWORD_ERROR);
 
         return generateToken(JwtUserInfo.from(member));

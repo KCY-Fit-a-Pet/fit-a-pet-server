@@ -1,10 +1,13 @@
 package com.kcy.fitapet.global.common.response;
 
+import com.kcy.fitapet.global.common.util.bind.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Map;
 
 /**
  * API Response의 success에 대한 공통적인 응답을 정의한다.
@@ -18,10 +21,10 @@ public class SuccessResponse<T> {
     @Schema(description = "응답 상태", defaultValue = "success")
     private final String status = "success";
     @Schema(description = "응답 코드", example = "200")
-    private T data;
+    private Map<String, T> data;
 
     @Builder
-    private SuccessResponse(T data) {
+    private SuccessResponse(Map<String, T> data) {
         this.data = data;
     }
 
@@ -30,8 +33,11 @@ public class SuccessResponse<T> {
      * @param data : 전송할 데이터
      */
     public static <T> SuccessResponse<T> from(T data) {
+        String key = getDtoName(data);
+        if (key == null) key = "data";
+
         return SuccessResponse.<T>builder()
-                .data(data)
+                .data(Map.of(key, data))
                 .build();
     }
 
@@ -40,5 +46,13 @@ public class SuccessResponse<T> {
      */
     public static SuccessResponse<?> noContent() {
         return SuccessResponse.builder().build();
+    }
+
+    private static <T> String getDtoName(T data) {
+        Class<?> clazz = data.getClass();
+        if (clazz != null && clazz.isAnnotationPresent(Dto.class)) {
+            return clazz.getAnnotation(Dto.class).name();
+        }
+        return null;
     }
 }

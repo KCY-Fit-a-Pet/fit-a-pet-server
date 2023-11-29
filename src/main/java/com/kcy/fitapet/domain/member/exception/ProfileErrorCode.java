@@ -15,8 +15,9 @@ public enum ProfileErrorCode implements StatusCode {
 
     DUPLICATE_PHONE_ERROR(BAD_REQUEST, "중복된 전화번호가 존재합니다."),
 
+    INVALID_PASSWORD_TYPE_ERROR(BAD_REQUEST, "유효하지 않은 비밀번호 타입입니다."),
     NOT_MATCH_PASSWORD_ERROR(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
-    NOT_CHANGE_PASSWORD_ERROR(BAD_REQUEST, "기존 비밀번호와 새 비밀번호가 일치합니다."),
+    INVALID_PASSWORD_REQUEST(BAD_REQUEST, "유효하지 않은 비밀번호 변경 요청입니다."),
 
     NOT_CHANGE_NAME_ERROR(BAD_REQUEST, "잘못된 닉네임 변경 요청입니다."),
 

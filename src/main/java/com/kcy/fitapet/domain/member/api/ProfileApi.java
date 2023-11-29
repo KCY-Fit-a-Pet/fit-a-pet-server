@@ -2,8 +2,10 @@ package com.kcy.fitapet.domain.member.api;
 
 import com.kcy.fitapet.domain.member.dto.profile.MemberProfileRes;
 import com.kcy.fitapet.domain.member.dto.profile.ProfilePatchReq;
+import com.kcy.fitapet.domain.member.exception.ProfileErrorCode;
 import com.kcy.fitapet.domain.member.service.component.MemberProfileService;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
+import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,10 +44,14 @@ public class ProfileApi {
             @RequestParam("type") @NotBlank String type,
             @RequestBody ProfilePatchReq req
     ) {
-        if (type.equals("name")) {
+        log.info("type: {}", type);
+
+        if (type.equalsIgnoreCase("name")) {
             memberProfileService.updateName(user.getUserId(), req);
-        } else if (type.equals("password")) {
+        } else if (type.equalsIgnoreCase("password")) {
             memberProfileService.updatePassword(user.getUserId(), req);
+        } else {
+            throw new GlobalErrorException(ProfileErrorCode.INVALID_PASSWORD_TYPE_ERROR);
         }
 
         return ResponseEntity.ok(SuccessResponse.noContent());

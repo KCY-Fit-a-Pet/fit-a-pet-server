@@ -47,9 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final List<String> jwtIgnoreUrls = List.of(
             "/api/v1/test", "/api/v1/test/**",
-            "/api/v1/members/register", "/api/v1/members/login",
-            "/api/v1/members/refresh",
-            "/api/v1/members/sms/**",
+            "/api/v1/auth/register", "/api/v1/auth/login",
+            "/api/v1/auth/refresh",
+            "/api/v1/auth/sms/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
             "/favicon.ico"
     );
