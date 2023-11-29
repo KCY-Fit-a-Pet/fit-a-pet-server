@@ -1,28 +1,19 @@
-package com.kcy.fitapet.domain.notification.domain;
+package com.kcy.fitapet.domain.member.type;
 
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
-@Entity
-@Table(name = "NOTIFICATION_SETTING")
+@Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"isCare", "isMemo", "isSchedule"})
-public class NotificationSetting extends Auditable {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class NotificationSetting {
     @Column(name = "is_care") @ColumnDefault("false")
     private boolean isCare;
     @Column(name = "is_memo") @ColumnDefault("false")
     private boolean isMemo;
     @Column(name = "is_schedule") @ColumnDefault("false")
     private boolean isSchedule;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
 
     @Builder
     private NotificationSetting(boolean isCare, boolean isMemo, boolean isSchedule) {
@@ -37,5 +28,17 @@ public class NotificationSetting extends Auditable {
                 .isMemo(isMemo)
                 .isSchedule(isSchedule)
                 .build();
+    }
+
+    public void updateEmailNotification() {
+        this.isCare = !this.isCare;
+    }
+
+    public void updateMemoNotification() {
+        this.isMemo = !this.isMemo;
+    }
+
+    public void updateScheduleNotification() {
+        this.isSchedule = !this.isSchedule;
     }
 }

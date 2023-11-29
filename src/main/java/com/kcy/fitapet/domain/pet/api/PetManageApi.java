@@ -1,6 +1,6 @@
-package com.kcy.fitapet.api.pet;
+package com.kcy.fitapet.domain.pet.api;
 
-import com.kcy.fitapet.api.pet.dto.PetRegisterReq;
+import com.kcy.fitapet.domain.pet.dto.PetRegisterReq;
 import com.kcy.fitapet.domain.pet.service.component.PetManageService;
 import com.kcy.fitapet.global.common.response.ErrorResponse;
 import com.kcy.fitapet.global.common.response.FailureResponse;

@@ -21,7 +21,7 @@ public class PetManageService {
     public void savePet(Pet pet, Long memberId) {
         pet = petSaveService.savePet(pet);
 
-        Member member = memberSearchService.getMemberById(memberId);
+        Member member = memberSearchService.findById(memberId);
         memberSaveService.mappingMemberAndPet(member, pet, ManageType.MASTER);
     }
 

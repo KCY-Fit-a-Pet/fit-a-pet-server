@@ -2,9 +2,9 @@ package com.kcy.fitapet.domain.member.service.module;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kcy.fitapet.api.auth.dto.sms.SensReq;
-import com.kcy.fitapet.api.auth.dto.sms.SensRes;
-import com.kcy.fitapet.api.auth.dto.sms.SmsReq;
+import com.kcy.fitapet.domain.member.dto.sms.SensReq;
+import com.kcy.fitapet.domain.member.dto.sms.SensRes;
+import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;

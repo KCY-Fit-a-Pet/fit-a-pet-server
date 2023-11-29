@@ -15,7 +15,7 @@ public class GlobalErrorException extends RuntimeException {
 
     @Override
     public String toString() {
-        return String.format("GlobalErrorException(code=%s, message=%s)",
-                errorCode.getName(), errorCode.getMessage());
+        return "GlobalErrorException(code=" + errorCode.getName()
+                + ", message=" + errorCode.getMessage() + ")";
     }
 }

@@ -1,8 +1,7 @@
 package com.kcy.fitapet.global.common.util.redis.sms;
 
-import com.kcy.fitapet.global.common.response.code.ErrorCode;
+import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -41,7 +40,7 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
     @Override
     public boolean isCorrectCertificationNumber(String phoneNumber, String requestCertificationNumber) {
         SmsCertification smsCertification = smsCertificationRepository.findById(phoneNumber)
-                .orElseThrow(() -> new GlobalErrorException(ErrorCode.EXPIRED_AUTH_CODE));
+                .orElseThrow(() -> new GlobalErrorException(SmsErrorCode.EXPIRED_AUTH_CODE));
 
         return smsCertification.getCertificationNumber().equals(requestCertificationNumber);
     }
@@ -57,7 +56,7 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
         log.info("ttl: {}", ttl);
 
         if (ttl == null || ttl < 0L)
-            throw new GlobalErrorException(ErrorCode.EXPIRED_AUTH_CODE);
+            throw new GlobalErrorException(SmsErrorCode.EXPIRED_AUTH_CODE);
 
         return LocalDateTime.now().plusSeconds(ttl);
     }

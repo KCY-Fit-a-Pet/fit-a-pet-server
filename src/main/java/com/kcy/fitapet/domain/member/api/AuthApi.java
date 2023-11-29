@@ -1,9 +1,10 @@
-package com.kcy.fitapet.api.auth;
+package com.kcy.fitapet.domain.member.api;
 
-import com.kcy.fitapet.api.auth.dto.auth.SignInReq;
-import com.kcy.fitapet.api.auth.dto.auth.SignUpReq;
-import com.kcy.fitapet.api.auth.dto.sms.SmsReq;
-import com.kcy.fitapet.api.auth.dto.sms.SmsRes;
+import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
+import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
+import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
+import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
+import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
 import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.resolver.access.AccessTokenInfo;
@@ -12,10 +13,8 @@ import com.kcy.fitapet.global.common.response.FailureResponse;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,19 +34,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.*;
+import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.ACCESS_TOKEN;
+import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Tag(name = "유저 관리 API", description = "유저 인증과 관련된 API")
 @RestController
-@RequestMapping("/api/v1/members")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthApi {
@@ -91,7 +88,7 @@ public class AuthApi {
 
         String token = memberAuthService.checkCertificationNumber(dto, code);
         if (!StringUtils.hasText(token))
-            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
+            throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
 
         return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), token)
@@ -157,23 +154,6 @@ public class AuthApi {
     public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
         Map<String, String> tokens = memberAuthService.refresh(refreshToken);
         return getResponseEntity(tokens);
-    }
-
-    @Operation(summary = "인증 테스트", description = "인증 테스트")
-    @Parameter(name = "Authorization", description = "액세스 토큰", in = ParameterIn.HEADER)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "인증 테스트 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
-            @ApiResponse(responseCode = "400", description = "인증 테스트 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
-            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-    })
-    @PreAuthorize("@preAuthorizeService.test(#securityUser.userId)")
-    @GetMapping("/authentication")
-    public ResponseEntity<?> authenticationTest(@AuthenticationPrincipal CustomUserDetails securityUser, Authentication authentication) {
-        log.info("type: {}", authentication.getPrincipal());
-        JwtUserInfo user = securityUser.toJwtUserInfo();
-        log.info("user: {}", user);
-
-        return ResponseEntity.ok(SuccessResponse.from(Map.of("user", user)));
     }
 
     /**

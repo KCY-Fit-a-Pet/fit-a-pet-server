@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.care.domain;
 
 import com.kcy.fitapet.domain.care.type.WeekType;
-import com.kcy.fitapet.domain.care.type.CareTypeConverter;
+import com.kcy.fitapet.domain.care.type.WeekTypeConverter;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.domain.PetCare;
@@ -23,7 +23,7 @@ public class Care extends Auditable {
     @Column(name = "care_name")
     private String careName;
     @Column(name = "week")
-    @Convert(converter = CareTypeConverter.class)
+    @Convert(converter = WeekTypeConverter.class)
     private WeekType week;
     @Column(name = "limit_time")
     @Temporal(TemporalType.TIME)

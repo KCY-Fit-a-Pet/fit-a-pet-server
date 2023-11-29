@@ -1,11 +1,13 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.api.auth.dto.auth.SignInReq;
-import com.kcy.fitapet.api.auth.dto.auth.SignUpReq;
-import com.kcy.fitapet.api.auth.dto.sms.SensRes;
-import com.kcy.fitapet.api.auth.dto.sms.SmsReq;
-import com.kcy.fitapet.api.auth.dto.sms.SmsRes;
+import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
+import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
+import com.kcy.fitapet.domain.member.dto.sms.SensRes;
+import com.kcy.fitapet.domain.member.dto.sms.SmsReq;
+import com.kcy.fitapet.domain.member.dto.sms.SmsRes;
+import com.kcy.fitapet.domain.member.exception.ProfileErrorCode;
+import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.service.module.SmsService;
@@ -71,9 +73,9 @@ public class MemberAuthService {
 
     @Transactional
     public Map<String, String> login(SignInReq dto) {
-        Member member = memberSearchService.getMemberByUid(dto.uid());
+        Member member = memberSearchService.findByUid(dto.uid());
         if (member.checkPassword(dto.password(), bCryptPasswordEncoder))
-            throw new GlobalErrorException(ErrorCode.NOT_MATCH_PASSWORD_ERROR);
+            throw new GlobalErrorException(ProfileErrorCode.NOT_MATCH_PASSWORD_ERROR);
 
         return generateToken(JwtUserInfo.from(member));
     }
@@ -91,7 +93,7 @@ public class MemberAuthService {
         RefreshToken refreshToken = refreshTokenService.refresh(requestRefreshToken);
 
         Long memberId = refreshToken.getUserId();
-        JwtUserInfo dto = JwtUserInfo.from(memberSearchService.getMemberById(memberId));
+        JwtUserInfo dto = JwtUserInfo.from(memberSearchService.findById(memberId));
         String accessToken = jwtUtil.generateAccessToken(dto);
 
         return Map.of(ACCESS_TOKEN.getValue(), accessToken, REFRESH_TOKEN.getValue(), refreshToken.getToken());
@@ -99,8 +101,8 @@ public class MemberAuthService {
 
     @Transactional
     public SmsRes sendCertificationNumber(SmsReq dto) {
-        if (memberSearchService.isExistMemberByPhone(dto.to()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_PHONE_ERROR);
+        if (memberSearchService.isExistByPhone(dto.to()))
+            throw new GlobalErrorException(ProfileErrorCode.DUPLICATE_PHONE_ERROR);
         String certificationNumber = smsCertificationService.issueCertificationNumber(dto.to());
 
         SensRes sensRes;
@@ -123,7 +125,7 @@ public class MemberAuthService {
     public String checkCertificationNumber(SmsReq smsReq, String requestCertificationNumber) {
         if (!smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber)) {
             log.warn("인증번호 불일치");
-            throw new GlobalErrorException(ErrorCode.INVALID_AUTH_CODE);
+            throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
 
         String token = jwtUtil.generateSmsAuthToken(SmsAuthInfo.of(1L, smsReq.to()));
@@ -136,7 +138,7 @@ public class MemberAuthService {
         if (sensRes.statusCode().equals("404")) {
             log.error("존재하지 않는 수신자: {}", requestPhone);
             smsCertificationService.removeCertificationNumber(requestPhone);
-            throw new GlobalErrorException(ErrorCode.INVALID_RECEIVER);
+            throw new GlobalErrorException(SmsErrorCode.INVALID_RECEIVER);
         } else if (sensRes.statusName().equals("fail")) {
             log.error("SMS API 응답 실패: {}", sensRes);
             smsCertificationService.removeCertificationNumber(requestPhone);
@@ -146,8 +148,8 @@ public class MemberAuthService {
     }
 
     private void validateMember(Member member) {
-        if (memberSearchService.isExistMemberByUidOrEmailOrPhone(member.getUid(), member.getEmail(), member.getPhone()))
-            throw new GlobalErrorException(ErrorCode.DUPLICATE_USER_INFO_ERROR);
+        if (memberSearchService.isExistByUidOrEmailOrPhone(member.getUid(), member.getEmail(), member.getPhone()))
+            throw new GlobalErrorException(ProfileErrorCode.DUPLICATE_USER_INFO_ERROR);
     }
 
     private Map<String, String> generateToken(JwtUserInfo jwtUserInfo) {

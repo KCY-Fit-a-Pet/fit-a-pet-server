@@ -4,10 +4,10 @@ import com.kcy.fitapet.global.common.util.converter.AbstractLegacyEnumAttributeC
 import jakarta.persistence.Converter;
 
 @Converter
-public class CareTypeConverter extends AbstractLegacyEnumAttributeConverter<WeekType> {
+public class WeekTypeConverter extends AbstractLegacyEnumAttributeConverter<WeekType> {
     private static final String ENUM_NAME = "돌봄타입";
 
-    public CareTypeConverter() {
+    public WeekTypeConverter() {
         super(WeekType.class, false, ENUM_NAME);
     }
 }

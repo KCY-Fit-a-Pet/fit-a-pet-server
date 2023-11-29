@@ -12,24 +12,24 @@ public class MemberSearchService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public Member getMemberById(Long id) {
+    public Member findById(Long id) {
         return memberRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")
         );
     }
 
     @Transactional(readOnly = true)
-    public Member getMemberByUid(String uid) {
+    public Member findByUid(String uid) {
         return memberRepository.findByUid(uid).orElseThrow(
                 () -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")
         );
     }
 
-    public boolean isExistMemberByUidOrEmailOrPhone(String uid, String email, String phone) {
+    public boolean isExistByUidOrEmailOrPhone(String uid, String email, String phone) {
         return memberRepository.existsByUidOrEmailOrPhone(uid, email, phone);
     }
 
-    public boolean isExistMemberByPhone(String phone) {
+    public boolean isExistByPhone(String phone) {
         return memberRepository.existsByPhone(phone);
     }
 }

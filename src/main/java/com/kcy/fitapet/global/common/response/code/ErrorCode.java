@@ -26,15 +26,6 @@ public enum ErrorCode implements StatusCode {
 
     ALREADY_LOGIN_USER(BAD_REQUEST, "이미 로그인한 유저입니다."),
 
-    DUPLICATE_USER_INFO_ERROR(BAD_REQUEST, "중복된 유저정보(닉네임/이메일/전화번호)가 존재합니다."),
-    DUPLICATE_PHONE_ERROR(BAD_REQUEST, "중복된 전화번호가 존재합니다."),
-
-    NOT_MATCH_PASSWORD_ERROR(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
-
-    EXPIRED_AUTH_CODE(BAD_REQUEST, "인증 시간이 만료되었습니다"),
-    INVALID_AUTH_CODE(BAD_REQUEST, "유효하지 않은 인증 코드입니다"),
-    INVALID_RECEIVER(BAD_REQUEST, "유효하지 않은 수신자입니다"),
-
     /**
      * 403 FORBIDDEN: 서버에서 요청을 거부한 경우
      */
