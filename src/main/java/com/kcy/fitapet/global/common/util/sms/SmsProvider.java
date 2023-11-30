@@ -17,4 +17,11 @@ public interface SmsProvider {
      * @return SensRes : SMS API 요청에 대한 응답 객체
      */
     SensRes sendCertificationNumber(SmsReq smsReq, String certificationNumber) throws JsonProcessingException, RestClientException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException;
+
+    /**
+     * 인증번호 생성
+     * @param phoneNumber : String
+     * @return String : 인증번호
+     */
+    String issueCertificationNumber(String phoneNumber);
 }

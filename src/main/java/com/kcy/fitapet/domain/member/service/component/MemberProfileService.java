@@ -1,12 +1,17 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
+import com.kcy.fitapet.domain.member.dto.auth.MemberFindRes;
+import com.kcy.fitapet.domain.member.dto.mapping.MemberUidMapping;
 import com.kcy.fitapet.domain.member.dto.profile.MemberProfileRes;
 import com.kcy.fitapet.domain.member.dto.profile.ProfilePatchReq;
 import com.kcy.fitapet.domain.member.exception.ProfileErrorCode;
+import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,12 +24,25 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class MemberProfileService {
     private final MemberSearchService memberSearchService;
+    private final SmsCertificationService smsCertificationService;
+
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional(readOnly = true)
     public MemberProfileRes getProfile(Long userId) {
         Member member = memberSearchService.findById(userId);
         return MemberProfileRes.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberFindRes getNameWhenSmsAuthorization(SmsReq smsReq, String requestCertificationNumber) {
+        if (!smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber)) {
+            log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", requestCertificationNumber);
+            throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
+        }
+
+        MemberUidMapping res = memberSearchService.findUidAndCreatedAtByPhone(smsReq.to());
+        return MemberFindRes.of(res.getUid(), res.getCreatedAt());
     }
 
     @Transactional

@@ -4,13 +4,6 @@ import java.time.LocalDateTime;
 
 public interface SmsCertificationService {
     /**
-     * 인증번호 발행
-     * @param phoneNumber : String
-     * @return String : 인증번호
-     */
-    String issueCertificationNumber(String phoneNumber);
-
-    /**
      * SMS 인증 완료 후 계정 생성을 위한 토큰 저장
      * @param phoneNumber : String
      * @param accessToken : String

@@ -39,6 +39,14 @@ public enum ErrorCode implements StatusCode {
     NOT_VALID_ERROR(NOT_FOUND,"유효하지 않은 요청입니다."),
     NOT_VALID_HEADER_ERROR(NOT_FOUND,"헤더에 데이터가 존재하지 않습니다."),
 
+    // ExtendedRepository
+    NOT_FOUND_MEMBER(NOT_FOUND, "존재하지 않는 유저입니다."),
+    NOT_FOUND_MANAGER(NOT_FOUND, "존재하지 않는 관리자입니다."),
+    NOT_FOUND_PET(NOT_FOUND, "존재하지 않는 반려동물입니다."),
+    NOT_FOUND_PET_CARE(NOT_FOUND, "존재하지 않는 반려동물 돌봄입니다."),
+    NOT_FOUND_PET_SCHEDULE(NOT_FOUND, "존재하지 않는 반려동물 일정입니다."),
+
+
     /**
      * 500 INTERNAL_SERVER_ERROR: 서버에서 에러가 발생한 경우
      */

@@ -1,8 +1,11 @@
-package com.kcy.fitapet.global.common.util.sms.dto;
+package com.kcy.fitapet.global.common.util.sms.snes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
+import com.kcy.fitapet.global.common.util.sms.dto.SensReq;
+import com.kcy.fitapet.global.common.util.sms.dto.SensRes;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Component
@@ -68,6 +72,17 @@ public class SnesProvider implements SmsProvider {
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
         return restTemplate.postForObject("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages", httpEntity, SensRes.class);
+    }
+
+    public String issueCertificationNumber(String phoneNumber) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 6; i++) {
+            sb.append(ThreadLocalRandom.current().nextInt(0, 10));
+        }
+        String code = sb.toString();
+
+        return code;
     }
 
     private String makeSignature(long now) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {

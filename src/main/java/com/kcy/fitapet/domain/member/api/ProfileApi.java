@@ -7,6 +7,7 @@ import com.kcy.fitapet.domain.member.service.component.MemberProfileService;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "프로필 API")
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/u/accounts")
+@RequestMapping("/api/v1/accounts")
 @RequiredArgsConstructor
 public class ProfileApi {
     private final MemberProfileService memberProfileService;
@@ -64,4 +65,6 @@ public class ProfileApi {
         memberProfileService.updateNotification(user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
+
+
 }

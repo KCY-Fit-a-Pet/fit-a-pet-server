@@ -18,23 +18,8 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
     private final RedisTemplate<String, SmsCertification> redisTemplate;
 
     @Override
-    public String issueCertificationNumber(String phoneNumber) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < 6; i++) {
-            sb.append(ThreadLocalRandom.current().nextInt(0, 10));
-        }
-        String code = sb.toString();
-
-        SmsCertification smsCertification = SmsCertification.of(phoneNumber, code);
-        smsCertificationRepository.save(smsCertification);
-
-        return code;
-    }
-
-    @Override
-    public void saveSmsAuthToken(String phoneNumber, String accessToken) {
-        smsCertificationRepository.save(SmsCertification.of(phoneNumber, accessToken));
+    public void saveSmsAuthToken(String phoneNumber, String value) {
+        smsCertificationRepository.save(SmsCertification.of(phoneNumber, value));
     }
 
     @Override

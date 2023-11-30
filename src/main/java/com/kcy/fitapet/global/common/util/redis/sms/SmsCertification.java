@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash(value = "smsCertification", timeToLive = 180)
+@RedisHash(value = "smsCertification", timeToLive = 300)
 @Getter
 public class SmsCertification {
     @Id

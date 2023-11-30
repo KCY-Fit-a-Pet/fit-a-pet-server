@@ -1,7 +1,9 @@
 package com.kcy.fitapet.domain.member.api;
 
+import com.kcy.fitapet.domain.member.dto.auth.MemberFindRes;
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
+import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
@@ -29,6 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -62,7 +65,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/register")
-    public ResponseEntity<?> signUp(@RequestHeader("Authorization") String accessToken, @RequestBody @Valid SignUpReq dto) {
+    public ResponseEntity<?> signUp(@RequestHeader("Authorization") @NotBlank String accessToken, @RequestBody @Valid SignUpReq dto) {
         Map<String, String> tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
     }
@@ -94,6 +97,17 @@ public class AuthApi {
                     .header(ACCESS_TOKEN.getValue(), token)
                     .body(SuccessResponse.noContent());
     }
+
+//    @PostMapping("/simple-sms")
+//    public ResponseEntity<?> simpleSmsAuthorization(@RequestParam(value = "code", required = false) String code, @RequestBody @Valid SmsReq dto) {
+//        if (code == null) {
+//            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto);
+//            return ResponseEntity.ok(SuccessResponse.from(smsRes));
+//        }
+//
+//        MemberFindRes res = memberAuthService.simpleCheckCertificationNumber(dto, code);
+//        return ResponseEntity.ok(SuccessResponse.from(res));
+//    }
 
     @Operation(summary = "로그인", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
     @Parameters({

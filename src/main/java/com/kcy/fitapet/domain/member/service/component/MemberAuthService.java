@@ -1,8 +1,10 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
+import com.kcy.fitapet.domain.member.dto.auth.MemberFindRes;
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
+import com.kcy.fitapet.domain.member.dto.mapping.MemberUidMapping;
 import com.kcy.fitapet.domain.member.exception.ProfileErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
@@ -42,11 +44,12 @@ import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.REFRESH_TOKEN
 public class MemberAuthService {
     private final MemberSearchService memberSearchService;
     private final MemberSaveService memberSaveService;
-    private final SmsProvider smsProvider;
 
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
     private final SmsCertificationService smsCertificationService;
+
+    private final SmsProvider smsProvider;
     private final JwtUtil jwtUtil;
 
     private final PasswordEncoder bCryptPasswordEncoder;
@@ -54,8 +57,6 @@ public class MemberAuthService {
     @Transactional
     public Map<String, String> register(String requestAccessToken, SignUpReq dto) {
         String accessToken = jwtUtil.resolveToken(requestAccessToken);
-        if (!StringUtils.hasText(accessToken))
-            throw new GlobalErrorException(AuthErrorCode.EMPTY_ACCESS_TOKEN);
 
         String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken);
         smsCertificationService.removeCertificationNumber(authenticatedPhone);
@@ -63,10 +64,8 @@ public class MemberAuthService {
         Member requestMember = dto.toEntity(authenticatedPhone);
         requestMember.encodePassword(bCryptPasswordEncoder);
         validateMember(requestMember);
-        log.debug("회원가입 요청: {}", requestMember);
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
-        log.debug("회원가입 완료: {}", registeredMember);
 
         return generateToken(JwtUserInfo.from(registeredMember));
     }
@@ -103,7 +102,8 @@ public class MemberAuthService {
     public SmsRes sendCertificationNumber(SmsReq dto) {
         if (memberSearchService.isExistByPhone(dto.to()))
             throw new GlobalErrorException(ProfileErrorCode.DUPLICATE_PHONE_ERROR);
-        String certificationNumber = smsCertificationService.issueCertificationNumber(dto.to());
+        String certificationNumber = smsProvider.issueCertificationNumber(dto.to());
+        smsCertificationService.saveSmsAuthToken(dto.to(), certificationNumber);
 
         SensRes sensRes;
         try {
