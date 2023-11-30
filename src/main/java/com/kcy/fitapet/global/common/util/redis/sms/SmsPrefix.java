@@ -12,7 +12,12 @@ public enum SmsPrefix {
 
     private final String prefix;
 
-    public static String getTopic(SmsPrefix prefix, String phoneNumber) {
-        return prefix + phoneNumber;
+    public String getTopic(String phoneNumber) {
+        return this.prefix + phoneNumber;
+    }
+
+    @Override
+    public String toString() {
+        return prefix;
     }
 }

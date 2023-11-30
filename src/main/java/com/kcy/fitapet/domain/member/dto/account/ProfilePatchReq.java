@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.member.dto.profile;
+package com.kcy.fitapet.domain.member.dto.account;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

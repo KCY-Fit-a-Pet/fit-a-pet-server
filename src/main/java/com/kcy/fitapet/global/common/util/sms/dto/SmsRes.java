@@ -1,5 +1,6 @@
 package com.kcy.fitapet.global.common.util.sms.dto;
 
+import com.kcy.fitapet.global.common.util.bind.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
  */
 @Builder
 @Schema(description = "SMS 인증번호 발송 응답")
+@Dto(name = "sms")
 public record SmsRes(
         @Schema(description = "수신자 번호")
         String to,

@@ -4,6 +4,8 @@ import com.kcy.fitapet.domain.member.dao.MemberRepository;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.dto.auth.MemberFindRes;
 import com.kcy.fitapet.domain.member.dto.mapping.MemberUidMapping;
+import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
+import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,14 +23,21 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public Member findByUid(String uid) {
         return memberRepository.findByUid(uid).orElseThrow(
-                () -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")
+                () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Member findByPhone(String phone) {
+        return memberRepository.findByPhone(phone).orElseThrow(
+                () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
         );
     }
 
     @Transactional(readOnly = true)
     public MemberUidMapping findUidAndCreatedAtByPhone(String phone) {
         return memberRepository.findUidAndCreatedAtByPhone(phone).orElseThrow(
-                () -> new IllegalArgumentException("해당 회원이 존재하지 않습니다.")
+                () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
         );
     }
 

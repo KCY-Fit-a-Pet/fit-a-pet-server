@@ -1,9 +1,8 @@
 package com.kcy.fitapet.domain.member.api;
 
-import com.kcy.fitapet.domain.member.dto.auth.MemberFindRes;
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
-import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
+import com.kcy.fitapet.global.common.util.redis.sms.SmsPrefix;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
@@ -70,7 +69,7 @@ public class AuthApi {
         return getResponseEntity(tokens);
     }
 
-    @Operation(summary = "전화번호 인증", description = "전화번호를 입력받고 인증번호를 전송합니다.")
+    @Operation(summary = "회원가입 전화번호 인증")
     @Parameters({
             @Parameter(name = "phone", description = "전화번호", in = ParameterIn.QUERY, required = true),
             @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY)
@@ -80,16 +79,16 @@ public class AuthApi {
             @ApiResponse(responseCode = "200", description = "인증번호 전송 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
-    @PostMapping("/sms")
-    public ResponseEntity<?> smsAuthorization(
+    @PostMapping("/register-sms")
+    public ResponseEntity<?> registerSmsAuthorization(
             @RequestParam(value = "code", required = false) String code,
             @RequestBody @Valid SmsReq dto) {
         if (code == null) {
-            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto);
+            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto, SmsPrefix.REGISTER);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        String token = memberAuthService.checkCertificationNumber(dto, code);
+        String token = memberAuthService.checkCertificationForRegister(dto, code);
         if (!StringUtils.hasText(token))
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
 
@@ -98,16 +97,29 @@ public class AuthApi {
                     .body(SuccessResponse.noContent());
     }
 
-//    @PostMapping("/simple-sms")
-//    public ResponseEntity<?> simpleSmsAuthorization(@RequestParam(value = "code", required = false) String code, @RequestBody @Valid SmsReq dto) {
-//        if (code == null) {
-//            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto);
-//            return ResponseEntity.ok(SuccessResponse.from(smsRes));
-//        }
-//
-//        MemberFindRes res = memberAuthService.simpleCheckCertificationNumber(dto, code);
-//        return ResponseEntity.ok(SuccessResponse.from(res));
-//    }
+    @Operation(summary = "ID/PW 찾기 전화번호 인증")
+    @Parameters({
+            @Parameter(name = "type", description = "인증 타입(uid, password)", in = ParameterIn.QUERY, required = true),
+            @Parameter(name = "dto", description = "전화번호", schema = @Schema(implementation = SmsReq.class))
+    })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "인증번호 전송 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
+            @ApiResponse(responseCode = "200", description = "인증번호 전송 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
+            @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @PostMapping("/search-sms")
+    public ResponseEntity<?> searchSmsAuthorization(
+        @RequestParam(value = "type") SmsPrefix type,
+        @RequestParam(value = "code", required = false) String code,
+        @RequestBody @Valid SmsReq dto
+    ) {
+        if (code == null) {
+            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto, type);
+            return ResponseEntity.ok(SuccessResponse.from(smsRes));
+        }
+        memberAuthService.checkCertificationForSearch(dto, code, type);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
 
     @Operation(summary = "로그인", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
     @Parameters({

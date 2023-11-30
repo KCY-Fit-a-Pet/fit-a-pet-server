@@ -16,6 +16,7 @@ public enum ErrorCode implements StatusCode {
     BAD_REQUEST_ERROR(BAD_REQUEST, "잘못된 서버 요청입니다."),
     REQUEST_HEADER_MISS_MATCH(BAD_REQUEST, "유효하지 않은 헤더 정보입니다."),
     REQUEST_BODY_MISS_MATCH(BAD_REQUEST,  "유효하지 않은 바디 정보입니다."),
+    INVALID_QUERY_TYPE(BAD_REQUEST, "유효하지 않은 쿼리 타입입니다."),
     INVALID_TYPE_VALUE(BAD_REQUEST, "유효하지 않은 타입 필드가 존재합니다."),
 
     IO_ERROR(BAD_REQUEST, "유효하지 않은 입출력입니다."),
@@ -45,7 +46,6 @@ public enum ErrorCode implements StatusCode {
     NOT_FOUND_PET(NOT_FOUND, "존재하지 않는 반려동물입니다."),
     NOT_FOUND_PET_CARE(NOT_FOUND, "존재하지 않는 반려동물 돌봄입니다."),
     NOT_FOUND_PET_SCHEDULE(NOT_FOUND, "존재하지 않는 반려동물 일정입니다."),
-
 
     /**
      * 500 INTERNAL_SERVER_ERROR: 서버에서 에러가 발생한 경우

@@ -7,10 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public enum ProfileErrorCode implements StatusCode {
+public enum AccountErrorCode implements StatusCode {
     DUPLICATE_USER_INFO_ERROR(BAD_REQUEST, "중복된 유저정보(닉네임/이메일/전화번호)가 존재합니다."),
 
     DUPLICATE_PHONE_ERROR(BAD_REQUEST, "중복된 전화번호가 존재합니다."),
@@ -22,6 +23,9 @@ public enum ProfileErrorCode implements StatusCode {
     NOT_CHANGE_NAME_ERROR(BAD_REQUEST, "잘못된 닉네임 변경 요청입니다."),
 
     INVALID_NOTIFICATION_TYPE_ERROR(BAD_REQUEST, "유효하지 않은 알림 타입입니다."),
+
+    /* 404 */
+    NOT_FOUND_MEMBER_ERROR(NOT_FOUND, "존재하지 않는 회원입니다."),
     ;
 
     private final HttpStatus httpStatus;

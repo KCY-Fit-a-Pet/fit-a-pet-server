@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -18,26 +19,30 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
     private final RedisTemplate<String, SmsCertification> redisTemplate;
 
     @Override
-    public void saveSmsAuthToken(String phoneNumber, String value) {
-        smsCertificationRepository.save(SmsCertification.of(phoneNumber, value));
+    public void saveSmsAuthToken(String phoneNumber, String value, SmsPrefix prefix) {
+        smsCertificationRepository.save(SmsCertification.of(prefix.getTopic(phoneNumber), value));
     }
 
     @Override
-    public boolean isCorrectCertificationNumber(String phoneNumber, String requestCertificationNumber) {
-        SmsCertification smsCertification = smsCertificationRepository.findById(phoneNumber)
-                .orElseThrow(() -> new GlobalErrorException(SmsErrorCode.EXPIRED_AUTH_CODE));
+    public boolean isCorrectCertificationNumber(String phoneNumber, String requestCertificationNumber, SmsPrefix prefix) {
+        Optional<SmsCertification> smsCertification = smsCertificationRepository.findById(prefix.getTopic(phoneNumber));
 
-        return smsCertification.getCertificationNumber().equals(requestCertificationNumber);
+        return smsCertification.map(certification -> certification.getCertificationNumber().equals(requestCertificationNumber)).orElse(false);
     }
 
     @Override
-    public void removeCertificationNumber(String phoneNumber) {
-        smsCertificationRepository.deleteById(phoneNumber);
+    public boolean existsCertificationNumber(String phoneNumber, SmsPrefix prefix) {
+        return smsCertificationRepository.existsById(prefix.getTopic(phoneNumber));
     }
 
     @Override
-    public LocalDateTime getExpiredTime(String phoneNumber) {
-        Long ttl = redisTemplate.getExpire("smsCertification:" + phoneNumber);
+    public void removeCertificationNumber(String phoneNumber, SmsPrefix prefix) {
+        smsCertificationRepository.deleteById(prefix.getTopic(phoneNumber));
+    }
+
+    @Override
+    public LocalDateTime getExpiredTime(String phoneNumber, SmsPrefix prefix) {
+        Long ttl = redisTemplate.getExpire("smsCertification:" + prefix.getTopic(phoneNumber));
         log.info("ttl: {}", ttl);
 
         if (ttl == null || ttl < 0L)

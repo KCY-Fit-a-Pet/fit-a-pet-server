@@ -1,17 +1,18 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.auth.MemberFindRes;
+import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
+import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
+import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
+import com.kcy.fitapet.domain.member.dto.account.UidRes;
 import com.kcy.fitapet.domain.member.dto.mapping.MemberUidMapping;
-import com.kcy.fitapet.domain.member.dto.profile.MemberProfileRes;
-import com.kcy.fitapet.domain.member.dto.profile.ProfilePatchReq;
-import com.kcy.fitapet.domain.member.exception.ProfileErrorCode;
+import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
+import com.kcy.fitapet.global.common.util.redis.sms.SmsPrefix;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,34 +23,23 @@ import org.springframework.util.StringUtils;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MemberProfileService {
+public class MemberAccountService {
     private final MemberSearchService memberSearchService;
     private final SmsCertificationService smsCertificationService;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional(readOnly = true)
-    public MemberProfileRes getProfile(Long userId) {
+    public AccountProfileRes getProfile(Long userId) {
         Member member = memberSearchService.findById(userId);
-        return MemberProfileRes.from(member);
-    }
-
-    @Transactional(readOnly = true)
-    public MemberFindRes getNameWhenSmsAuthorization(SmsReq smsReq, String requestCertificationNumber) {
-        if (!smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber)) {
-            log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", requestCertificationNumber);
-            throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
-        }
-
-        MemberUidMapping res = memberSearchService.findUidAndCreatedAtByPhone(smsReq.to());
-        return MemberFindRes.of(res.getUid(), res.getCreatedAt());
+        return AccountProfileRes.from(member);
     }
 
     @Transactional
     public void updateName(Long userId, ProfilePatchReq req) {
         Member member = memberSearchService.findById(userId);
 
-        isValidateUsername(member, req.getName());
+        validateUsername(member, req.getName());
 
         member.updateName(req.getName());
     }
@@ -58,8 +48,28 @@ public class MemberProfileService {
     public void updatePassword(Long userId, ProfilePatchReq req) {
         Member member = memberSearchService.findById(userId);
 
-        isValidatePassword(member, req.getPrePassword(), req.getNewPassword());
+        validatePassword(member, req.getPrePassword(), req.getNewPassword());
 
+        member.updatePassword(req.getNewPassword(), bCryptPasswordEncoder);
+    }
+
+    @Transactional(readOnly = true)
+    public UidRes getUidWhenSmsAuthenticated(String phone, SmsPrefix prefix) {
+        validatePhone(phone, prefix);
+        MemberUidMapping res = memberSearchService.findUidAndCreatedAtByPhone(phone);
+        return UidRes.of(res.getUid(), res.getCreatedAt());
+    }
+
+    @Transactional
+    public void overwritePassword(AccountSearchReq req, SmsPrefix prefix) {
+        validatePhone(req.phone(), prefix);
+        Member member = memberSearchService.findByPhone(req.phone());
+
+        if (!StringUtils.hasText(req.getNewPassword())) {
+            StatusCode errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
+            log.warn("비밀번호 변경 실패: {}", errorCode);
+            throw new GlobalErrorException(errorCode);
+        }
         member.updatePassword(req.getNewPassword(), bCryptPasswordEncoder);
     }
 
@@ -74,7 +84,7 @@ public class MemberProfileService {
         } else if (type.equalsIgnoreCase("schedule")) {
             member.updateScheduleNotification();
         } else {
-            StatusCode errorCode = ProfileErrorCode.INVALID_NOTIFICATION_TYPE_ERROR;
+            StatusCode errorCode = AccountErrorCode.INVALID_NOTIFICATION_TYPE_ERROR;
             log.warn("알림 설정 변경 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
@@ -86,9 +96,9 @@ public class MemberProfileService {
      * @param username String : 사용자 입력 닉네임
      * @throws GlobalErrorException : 닉네임 변경 실패
      */
-    private void isValidateUsername(Member member, String username) {
+    private void validateUsername(Member member, String username) {
         if (!StringUtils.hasText(username) || member.getName().equals(username)) {
-            StatusCode errorCode = ProfileErrorCode.NOT_CHANGE_NAME_ERROR;
+            StatusCode errorCode = AccountErrorCode.NOT_CHANGE_NAME_ERROR;
             log.warn("닉네임 변경 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
@@ -103,16 +113,24 @@ public class MemberProfileService {
      * @param newPassword String : 새 비밀번호
      * @throws GlobalErrorException : 비밀번호 변경 실패
      */
-    private void isValidatePassword(Member member, String prePassword, String newPassword) {
+    private void validatePassword(Member member, String prePassword, String newPassword) {
         StatusCode errorCode = null;
         if (!StringUtils.hasText(newPassword) || prePassword.equals(newPassword)) {
-            errorCode = ProfileErrorCode.INVALID_PASSWORD_REQUEST;
+            errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
         } else if (!member.checkPassword(prePassword, bCryptPasswordEncoder)) {
-            errorCode = ProfileErrorCode.NOT_MATCH_PASSWORD_ERROR;
+            errorCode = AccountErrorCode.NOT_MATCH_PASSWORD_ERROR;
         }
 
         if (errorCode != null) {
             log.warn("비밀번호 변경 실패: {}", errorCode);
+            throw new GlobalErrorException(errorCode);
+        }
+    }
+
+    private void validatePhone(String phone, SmsPrefix prefix) {
+        if (!smsCertificationService.existsCertificationNumber(phone, prefix)) {
+            StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
+            log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
     }

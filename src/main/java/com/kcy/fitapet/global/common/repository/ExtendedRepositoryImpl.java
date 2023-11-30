@@ -36,8 +36,10 @@ public class ExtendedRepositoryImpl<T, ID extends Serializable>
         return result;
     }
 
+    // TODO: 2021-11-30. 이름에 의존적인 메서드 제거하고, 상태 패턴을 적용하여 의존도 낮추기
     private String getClassName() {
         Class<T> domainType = getDomainClass();
+        log.info("domainType: {}", domainType);
         return StringUtils.capitalize(domainType.getSimpleName())
                 .replaceAll("(.)(\\p{javaUpperCase})", "$1_$2")
                 .toLowerCase();
