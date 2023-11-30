@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.oauthid.domain;
+package com.kcy.fitapet.domain.oauth2.domain;
 
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;

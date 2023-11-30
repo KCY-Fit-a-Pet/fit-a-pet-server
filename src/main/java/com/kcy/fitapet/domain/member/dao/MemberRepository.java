@@ -3,7 +3,6 @@ package com.kcy.fitapet.domain.member.dao;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.dto.mapping.MemberUidMapping;
 import com.kcy.fitapet.global.common.repository.ExtendedRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;

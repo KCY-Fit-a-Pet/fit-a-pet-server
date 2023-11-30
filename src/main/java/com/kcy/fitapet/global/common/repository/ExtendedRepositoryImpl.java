@@ -4,6 +4,7 @@ import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -17,8 +18,8 @@ public class ExtendedRepositoryImpl<T, ID extends Serializable>
     private final EntityManager em;
     private static final String ID_MUST_NOT_BE_NULL = "The given id must not be null!";
 
-    public ExtendedRepositoryImpl(Class<T> domainClass, EntityManager em) {
-        super(domainClass, em);
+    public ExtendedRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager em) {
+        super(entityInformation, em);
         this.em = em;
     }
 

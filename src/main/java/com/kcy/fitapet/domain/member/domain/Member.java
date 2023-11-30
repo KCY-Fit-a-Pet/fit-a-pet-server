@@ -5,7 +5,7 @@ import com.kcy.fitapet.domain.member.type.RoleTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
 import com.kcy.fitapet.domain.member.type.NotificationSetting;
-import com.kcy.fitapet.domain.oauthid.domain.OAuthID;
+import com.kcy.fitapet.domain.oauth2.domain.OAuthID;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
