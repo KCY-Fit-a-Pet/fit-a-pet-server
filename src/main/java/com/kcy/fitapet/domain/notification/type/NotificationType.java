@@ -31,5 +31,5 @@ public enum NotificationType implements LegacyCommonType {
     public static NotificationType fromString(String type) {
         return stringToEnum.get(type.toUpperCase());
     }
-    @Override public String toString() { return type; }
+    @Override public String toString() { return name().toLowerCase(); }
 }
