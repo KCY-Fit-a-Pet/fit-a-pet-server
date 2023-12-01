@@ -1,10 +1,11 @@
 package com.kcy.fitapet.domain.member.domain;
 
 import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.domain.member.type.RoleTypeConverter;
+import com.kcy.fitapet.domain.member.type.converter.RoleTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
 import com.kcy.fitapet.domain.member.type.NotificationSetting;
+import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.domain.oauth2.domain.OAuthID;
 import jakarta.persistence.*;
 import lombok.*;
@@ -110,15 +111,7 @@ public class Member extends Auditable {
         this.password = passwordEncoder.encode(password);
     }
 
-    public void updateEmailNotification() {
-        this.notificationSetting.updateEmailNotification();
-    }
-
-    public void updateSmsNotification() {
-        this.notificationSetting.updateMemoNotification();
-    }
-
-    public void updateScheduleNotification() {
-        this.notificationSetting.updateScheduleNotification();
+    public void updateNotificationFromType(NotificationType type) {
+        this.notificationSetting.updateNotificationFromType(type);
     }
 }

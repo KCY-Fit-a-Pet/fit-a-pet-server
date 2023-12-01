@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.redis.sms;
+package com.kcy.fitapet.global.common.redis.sms;
 
 import java.time.LocalDateTime;
 

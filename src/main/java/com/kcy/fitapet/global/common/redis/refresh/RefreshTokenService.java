@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.redis.refresh;
+package com.kcy.fitapet.global.common.redis.refresh;
 
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 

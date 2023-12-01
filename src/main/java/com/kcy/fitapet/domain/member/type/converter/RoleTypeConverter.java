@@ -1,5 +1,6 @@
-package com.kcy.fitapet.domain.member.type;
+package com.kcy.fitapet.domain.member.type.converter;
 
+import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.global.common.util.converter.AbstractLegacyEnumAttributeConverter;
 import jakarta.persistence.Converter;
 

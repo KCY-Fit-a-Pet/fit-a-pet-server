@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.redis.refresh;
+package com.kcy.fitapet.global.common.redis.refresh;
 
 import lombok.Builder;
 import lombok.Getter;

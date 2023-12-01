@@ -2,7 +2,7 @@ package com.kcy.fitapet.domain.member.api;
 
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
-import com.kcy.fitapet.global.common.util.redis.sms.SmsPrefix;
+import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;

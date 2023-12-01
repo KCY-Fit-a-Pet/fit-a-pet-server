@@ -1,10 +1,10 @@
 package com.kcy.fitapet.domain.member.dto.account;
 
-import lombok.Getter;
+import com.kcy.fitapet.global.common.util.bind.Dto;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Dto(name = "member")
 public record UidRes(
        String uid,
        LocalDateTime createdAt

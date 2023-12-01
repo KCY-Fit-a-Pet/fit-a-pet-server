@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.redis.forbidden;
+package com.kcy.fitapet.global.common.redis.forbidden;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -5,14 +5,14 @@ import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
 import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
 import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
 import com.kcy.fitapet.domain.member.dto.account.UidRes;
-import com.kcy.fitapet.domain.member.dto.mapping.MemberUidMapping;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
+import com.kcy.fitapet.domain.notification.type.NotificationType;
+import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
+import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
-import com.kcy.fitapet.global.common.util.redis.sms.SmsPrefix;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,40 +54,29 @@ public class MemberAccountService {
     }
 
     @Transactional(readOnly = true)
-    public UidRes getUidWhenSmsAuthenticated(String phone, SmsPrefix prefix) {
-        validatePhone(phone, prefix);
-        MemberUidMapping res = memberSearchService.findUidAndCreatedAtByPhone(phone);
-        return UidRes.of(res.getUid(), res.getCreatedAt());
+    public UidRes getUidWhenSmsAuthenticated(String phone, String code, SmsPrefix prefix) {
+        validatePhone(phone, code, prefix);
+        Member member = memberSearchService.findByPhone(phone);
+        return UidRes.of(member.getUid(), member.getCreatedAt());
     }
 
     @Transactional
-    public void overwritePassword(AccountSearchReq req, SmsPrefix prefix) {
-        validatePhone(req.phone(), prefix);
+    public void overwritePassword(AccountSearchReq req, String code, SmsPrefix prefix) {
+        validatePhone(req.phone(), code, prefix);
         Member member = memberSearchService.findByPhone(req.phone());
 
-        if (!StringUtils.hasText(req.getNewPassword())) {
+        if (!StringUtils.hasText(req.newPassword())) {
             StatusCode errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
             log.warn("비밀번호 변경 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
-        member.updatePassword(req.getNewPassword(), bCryptPasswordEncoder);
+        member.updatePassword(req.newPassword(), bCryptPasswordEncoder);
     }
 
     @Transactional
-    public void updateNotification(Long userId, String type) {
+    public void updateNotification(Long userId, NotificationType type) {
         Member member = memberSearchService.findById(userId);
-
-        if (type.equalsIgnoreCase("care")) {
-            member.updateEmailNotification();
-        } else if (type.equalsIgnoreCase("memo")) {
-            member.updateSmsNotification();
-        } else if (type.equalsIgnoreCase("schedule")) {
-            member.updateScheduleNotification();
-        } else {
-            StatusCode errorCode = AccountErrorCode.INVALID_NOTIFICATION_TYPE_ERROR;
-            log.warn("알림 설정 변경 실패: {}", errorCode);
-            throw new GlobalErrorException(errorCode);
-        }
+        member.updateNotificationFromType(type);
     }
 
     /**
@@ -127,9 +116,22 @@ public class MemberAccountService {
         }
     }
 
-    private void validatePhone(String phone, SmsPrefix prefix) {
+    /**
+     * redis에 해당 전화번호에 대한 정보가 저장되어 있는 지 확인하고, <br/>
+     * {"phone:"인증번호"} 형태의 인증번호가 일치함을 확인
+     * @param phone
+     * @param code
+     * @param prefix
+     */
+    private void validatePhone(String phone, String code, SmsPrefix prefix) {
         if (!smsCertificationService.existsCertificationNumber(phone, prefix)) {
             StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
+            log.warn("인증번호 유효성 검사 실패: {}", errorCode);
+            throw new GlobalErrorException(errorCode);
+        }
+
+        if (!smsCertificationService.isCorrectCertificationNumber(phone, code, prefix)) {
+            StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }

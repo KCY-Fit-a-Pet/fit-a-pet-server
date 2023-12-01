@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.redis.refresh;
+package com.kcy.fitapet.global.common.redis.refresh;
 
 import org.springframework.data.repository.CrudRepository;
 

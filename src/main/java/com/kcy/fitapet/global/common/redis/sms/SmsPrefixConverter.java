@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.redis.sms;
+package com.kcy.fitapet.global.common.redis.sms;
 
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;

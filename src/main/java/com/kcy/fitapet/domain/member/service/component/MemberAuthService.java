@@ -9,24 +9,25 @@ import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
+import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
-import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
-import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
-import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
-import com.kcy.fitapet.global.common.util.redis.sms.SmsCertificationService;
-import com.kcy.fitapet.global.common.util.redis.sms.SmsPrefix;
+import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
+import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
+import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
+import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
+import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import com.kcy.fitapet.global.common.util.sms.dto.SensRes;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -110,8 +111,8 @@ public class MemberAuthService {
         }
         checkSmsStatus(dto.to(), sensRes);
 
-        smsCertificationService.saveSmsAuthToken(dto.to(), certificationNumber, SmsPrefix.REGISTER);
-        LocalDateTime expireTime = smsCertificationService.getExpiredTime(dto.to(), SmsPrefix.REGISTER);
+        smsCertificationService.saveSmsAuthToken(dto.to(), certificationNumber, prefix);
+        LocalDateTime expireTime = smsCertificationService.getExpiredTime(dto.to(), prefix);
         log.info("인증번호 만료 시간: {}", expireTime);
         return SmsRes.of(dto.to(), sensRes.requestTime(), expireTime);
     }
@@ -129,11 +130,18 @@ public class MemberAuthService {
         return token;
     }
 
-    @Transactional
-    public void checkCertificationForSearch(SmsReq req, String requestCertificationNumber, SmsPrefix prefix) {
-        if (!smsCertificationService.isCorrectCertificationNumber(req.to(), requestCertificationNumber, prefix)) {
-            log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", requestCertificationNumber);
-            throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
+    @Transactional(readOnly = true)
+    public void checkCertificationForSearch(SmsReq req, String code, SmsPrefix prefix) {
+        if (!smsCertificationService.existsCertificationNumber(req.to(), prefix)) {
+            StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
+            log.warn("인증번호 유효성 검사 실패: {}", errorCode);
+            throw new GlobalErrorException(errorCode);
+        }
+
+        if (!smsCertificationService.isCorrectCertificationNumber(req.to(), code, prefix)) {
+            StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
+            log.warn("인증번호 유효성 검사 실패: {}", errorCode);
+            throw new GlobalErrorException(errorCode);
         }
     }
 

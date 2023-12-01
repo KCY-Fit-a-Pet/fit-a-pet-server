@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.redis.sms;
+package com.kcy.fitapet.global.common.redis.sms;
 
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service

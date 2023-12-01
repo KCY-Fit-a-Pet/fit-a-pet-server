@@ -1,6 +1,6 @@
 package com.kcy.fitapet.global.config;
 
-import com.kcy.fitapet.global.common.util.redis.sms.SmsCertification;
+import com.kcy.fitapet.global.common.redis.sms.SmsCertification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

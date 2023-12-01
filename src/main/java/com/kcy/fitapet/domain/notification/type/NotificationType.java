@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.notification.domain;
+package com.kcy.fitapet.domain.notification.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

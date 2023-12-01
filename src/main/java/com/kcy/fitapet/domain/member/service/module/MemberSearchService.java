@@ -2,8 +2,6 @@ package com.kcy.fitapet.domain.member.service.module;
 
 import com.kcy.fitapet.domain.member.dao.MemberRepository;
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.auth.MemberFindRes;
-import com.kcy.fitapet.domain.member.dto.mapping.MemberUidMapping;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +28,6 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public Member findByPhone(String phone) {
         return memberRepository.findByPhone(phone).orElseThrow(
-                () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public MemberUidMapping findUidAndCreatedAtByPhone(String phone) {
-        return memberRepository.findUidAndCreatedAtByPhone(phone).orElseThrow(
                 () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
         );
     }

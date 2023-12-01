@@ -1,5 +1,6 @@
-package com.kcy.fitapet.domain.notification.domain;
+package com.kcy.fitapet.domain.notification.type;
 
+import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.util.converter.AbstractLegacyEnumAttributeConverter;
 import jakarta.persistence.Converter;
 

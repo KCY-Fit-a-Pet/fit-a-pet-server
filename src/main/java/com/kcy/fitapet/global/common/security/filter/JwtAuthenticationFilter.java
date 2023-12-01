@@ -6,9 +6,9 @@ import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
-import com.kcy.fitapet.global.common.util.redis.forbidden.ForbiddenTokenService;
-import com.kcy.fitapet.global.common.util.redis.refresh.RefreshToken;
-import com.kcy.fitapet.global.common.util.redis.refresh.RefreshTokenService;
+import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
+import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
+import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -49,7 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/test", "/api/v1/test/**",
             "/api/v1/auth/register", "/api/v1/auth/login",
             "/api/v1/auth/refresh",
-            "/api/v1/auth/sms/**",
+            "/api/v1/auth/register-sms/**", "/api/v1/auth/search-sms/**",
+            "/api/v1/accounts/search", "/api/v1/accounts/search/**",
+
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
             "/favicon.ico"
     );
