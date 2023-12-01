@@ -20,6 +20,8 @@ public record AccountProfileRes(
         String email,
         @Schema(description = "프로필 사진")
         String profileImage,
+        @Schema(description = "공지 설정")
+        boolean isNotice,
         @Schema(description = "케어 설정")
         boolean isCare,
         @Schema(description = "메모 설정")
@@ -37,6 +39,7 @@ public record AccountProfileRes(
                         .uid(member.getUid())
                         .email(member.getEmail())
                         .profileImage(member.getProfileImg())
+                        .isNotice(setting.isNotice())
                         .isCare(setting.isCare())
                         .isMemo(setting.isMemo())
                         .isSchedule(setting.isSchedule())

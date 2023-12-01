@@ -8,6 +8,7 @@ import com.kcy.fitapet.domain.member.dto.account.UidRes;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
+import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
 import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
@@ -36,21 +37,16 @@ public class MemberAccountService {
     }
 
     @Transactional
-    public void updateName(Long userId, ProfilePatchReq req) {
+    public void updateProfile(Long userId, ProfilePatchReq req, MemberAttrType type) {
         Member member = memberSearchService.findById(userId);
 
-        validateUsername(member, req.getName());
-
-        member.updateName(req.getName());
-    }
-
-    @Transactional
-    public void updatePassword(Long userId, ProfilePatchReq req) {
-        Member member = memberSearchService.findById(userId);
-
-        validatePassword(member, req.getPrePassword(), req.getNewPassword());
-
-        member.updatePassword(req.getNewPassword(), bCryptPasswordEncoder);
+        if (type == MemberAttrType.NAME) {
+            validateUsername(member, req.getName());
+            member.updateName(req.getName());
+        } else if (type == MemberAttrType.PASSWORD) {
+            validatePassword(member, req.getPrePassword(), req.getNewPassword());
+            member.updatePassword(req.getNewPassword(), bCryptPasswordEncoder);
+        }
     }
 
     @Transactional(readOnly = true)

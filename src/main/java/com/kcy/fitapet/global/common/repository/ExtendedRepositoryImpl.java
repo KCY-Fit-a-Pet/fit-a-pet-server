@@ -29,6 +29,7 @@ public class ExtendedRepositoryImpl<T, ID extends Serializable>
         Class<T> domainType = getDomainClass();
         T result = em.find(domainType, id);
 
+        log.info("domain class name : {}", getClassName());
         if (result == null) {
             log.error("{} id not found", domainType.getSimpleName());
             throw new GlobalErrorException(ErrorCode.valueOf("NOT_FOUND_" + getClassName()));
@@ -37,11 +38,11 @@ public class ExtendedRepositoryImpl<T, ID extends Serializable>
     }
 
     // TODO: 2021-11-30. 이름에 의존적인 메서드 제거하고, 상태 패턴을 적용하여 의존도 낮추기
+    // TODO: [점검 사항] camelCase -> CAMEL_CASE로 변경이 되는지?
     private String getClassName() {
         Class<T> domainType = getDomainClass();
-        log.info("domainType: {}", domainType);
         return StringUtils.capitalize(domainType.getSimpleName())
                 .replaceAll("(.)(\\p{javaUpperCase})", "$1_$2")
-                .toLowerCase();
+                .toUpperCase();
     }
 }

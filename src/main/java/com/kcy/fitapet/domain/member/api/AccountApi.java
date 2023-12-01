@@ -6,6 +6,7 @@ import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
 import com.kcy.fitapet.domain.member.dto.account.UidRes;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.service.component.MemberAccountService;
+import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
@@ -45,18 +46,11 @@ public class AccountApi {
     @PutMapping("")
     public ResponseEntity<?> putProfile(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam("type") @NotBlank String type,
+            @RequestParam("type") @NotBlank MemberAttrType type,
             @RequestBody ProfilePatchReq req
     ) {
         log.info("type: {}", type);
-
-        if (type.equalsIgnoreCase("name")) {
-            memberAccountService.updateName(user.getUserId(), req);
-        } else if (type.equalsIgnoreCase("password")) {
-            memberAccountService.updatePassword(user.getUserId(), req);
-        } else {
-            throw new GlobalErrorException(AccountErrorCode.INVALID_PASSWORD_TYPE_ERROR);
-        }
+        memberAccountService.updateProfile(user.getUserId(), req, type);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
