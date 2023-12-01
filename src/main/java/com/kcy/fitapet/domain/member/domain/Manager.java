@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.member.domain;
 
 import com.kcy.fitapet.domain.member.type.ManageType;
-import com.kcy.fitapet.domain.member.type.ManageTypeConverter;
+import com.kcy.fitapet.domain.member.type.converter.ManageTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;

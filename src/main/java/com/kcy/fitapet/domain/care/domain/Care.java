@@ -1,13 +1,14 @@
 package com.kcy.fitapet.domain.care.domain;
 
-import com.kcy.fitapet.domain.care.type.CareType;
-import com.kcy.fitapet.domain.care.type.CareTypeConverter;
+import com.kcy.fitapet.domain.care.type.WeekType;
+import com.kcy.fitapet.domain.care.type.WeekTypeConverter;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.pet.domain.PetCare;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +22,12 @@ public class Care extends Auditable {
     private Long id;
     @Column(name = "care_name")
     private String careName;
-    @Column(name = "dtype")
-    @Convert(converter = CareTypeConverter.class)
-    private CareType dtype;
+    @Column(name = "week")
+    @Convert(converter = WeekTypeConverter.class)
+    private WeekType week;
+    @Column(name = "limit_time")
+    @Temporal(TemporalType.TIME)
+    private LocalTime limitTime;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", updatable = false)
@@ -37,15 +41,16 @@ public class Care extends Auditable {
     private List<CareDetail> careDetails = new ArrayList<>();
 
     @Builder
-    private Care(String careName, CareType dtype) {
+    private Care(String careName, WeekType week, LocalTime limitTime) {
         this.careName = careName;
-        this.dtype = dtype;
+        this.week = week;
+        this.limitTime = limitTime;
     }
 
-    public static Care of(String careName, CareType dtype) {
+    public static Care of(String careName, WeekType week) {
         return Care.builder()
                 .careName(careName)
-                .dtype(dtype)
+                .week(week)
                 .build();
     }
 }

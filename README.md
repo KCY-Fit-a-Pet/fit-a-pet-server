@@ -62,6 +62,7 @@
 - Naver Cloud Platform Cloud DB for Redis
 - Naver Cloud Platform Object Storage
 - Naver Cloud Platform Simple & Easy Notification Service
+- Naver Cloud Platform API Gateway & Cloud Functions
 - Goorm IDE (for DB Server)
 
 ## Project Check List

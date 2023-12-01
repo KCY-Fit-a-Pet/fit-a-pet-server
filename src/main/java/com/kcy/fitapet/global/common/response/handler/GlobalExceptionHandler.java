@@ -6,6 +6,8 @@ import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.query.sqm.sql.ConversionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 /**
@@ -72,6 +75,23 @@ public class GlobalExceptionHandler {
         log.warn("handleMethodArgumentNotValidException: {}", e.getMessage());
         BindingResult bindingResult = e.getBindingResult();
         final FailureResponse response = FailureResponse.from(bindingResult);
+        return ResponseEntity.unprocessableEntity().body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    protected ResponseEntity<FailureResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.warn("handleMethodArgumentTypeMismatchException: {}", e.getMessage());
+
+        Class<?> type = e.getRequiredType();
+        String message;
+        if(type.isEnum()){
+            message = "The parameter " + e.getName() + " must have a value among : " + StringUtils.join(type.getEnumConstants(), ", ");
+        }
+        else{
+            message = "The parameter " + e.getName() + " must be of type " + type.getTypeName();
+        }
+
+        final FailureResponse response = FailureResponse.of("causedBy", message);
         return ResponseEntity.unprocessableEntity().body(response);
     }
 

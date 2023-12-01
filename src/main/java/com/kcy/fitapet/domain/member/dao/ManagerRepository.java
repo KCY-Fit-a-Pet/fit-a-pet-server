@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.member.dao;
 
 import com.kcy.fitapet.domain.member.domain.Manager;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.kcy.fitapet.global.common.repository.ExtendedRepository;
 
-public interface ManagerRepository extends JpaRepository<Manager, Long> {
+public interface ManagerRepository extends ExtendedRepository<Manager, Long> {
 }

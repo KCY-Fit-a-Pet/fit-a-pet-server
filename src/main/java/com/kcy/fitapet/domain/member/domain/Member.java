@@ -1,12 +1,12 @@
 package com.kcy.fitapet.domain.member.domain;
 
 import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.domain.member.type.RoleTypeConverter;
+import com.kcy.fitapet.domain.member.type.converter.RoleTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
-import com.kcy.fitapet.domain.notification.domain.NotificationSetting;
-import com.kcy.fitapet.domain.oauthid.domain.OAuthID;
-import com.kcy.fitapet.domain.pet.domain.Pet;
+import com.kcy.fitapet.domain.member.type.NotificationSetting;
+import com.kcy.fitapet.domain.notification.type.NotificationType;
+import com.kcy.fitapet.domain.oauth2.domain.OAuthID;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -42,6 +42,8 @@ public class Member extends Auditable {
     @Convert(converter = RoleTypeConverter.class)
     @Getter
     private RoleType role;
+    @Embedded @Getter
+    private NotificationSetting notificationSetting;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private Set<OAuthID> oauthIDs = new HashSet<>();
@@ -51,13 +53,11 @@ public class Member extends Auditable {
     private Set<MemberNickname> toMemberNickname = new HashSet<>();
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Notification> notifications = new ArrayList<>();
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
-    private NotificationSetting notificationSetting;
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL) @Getter
     private List<Manager> underCares = new ArrayList<>();
 
     @Builder
-    private Member(String uid, String name, String password, String phone, String email, String profileImg, Boolean accountLocked, RoleType role) {
+    private Member(String uid, String name, String password, String phone, String email, String profileImg, Boolean accountLocked, RoleType role, NotificationSetting notificationSetting) {
         this.uid = uid;
         this.name = name;
         this.password = password;
@@ -66,9 +66,11 @@ public class Member extends Auditable {
         this.profileImg = profileImg;
         this.accountLocked = accountLocked;
         this.role = role;
+        this.notificationSetting = notificationSetting;
     }
 
-    public static Member of(String uid, String name, String password, String phone, String email, String profileImg, Boolean accountLocked, RoleType role) {
+    public static Member of(String uid, String name, String password, String phone, String email,
+                            String profileImg, Boolean accountLocked, RoleType role, NotificationSetting notificationSetting) {
         return Member.builder()
                 .uid(uid)
                 .name(name)
@@ -78,6 +80,7 @@ public class Member extends Auditable {
                 .profileImg(profileImg)
                 .accountLocked(accountLocked)
                 .role(role)
+                .notificationSetting(notificationSetting)
                 .build();
     }
 
@@ -94,9 +97,21 @@ public class Member extends Auditable {
      * 비밀번호 확인
      * @param plainPassword : 평문 비밀번호
      * @param passwordEncoder : 비밀번호 암호화 객체
-     * @return true or false
+     * @return true or false : 비밀번호가 일치하면 true, 일치하지 않으면 false
      */
     public boolean checkPassword(String plainPassword, PasswordEncoder passwordEncoder) {
-        return passwordEncoder.matches(passwordEncoder.encode(plainPassword), this.password);
+        return passwordEncoder.matches(plainPassword, this.password);
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updatePassword(String password, PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public void updateNotificationFromType(NotificationType type) {
+        this.notificationSetting.updateNotificationFromType(type);
     }
 }
