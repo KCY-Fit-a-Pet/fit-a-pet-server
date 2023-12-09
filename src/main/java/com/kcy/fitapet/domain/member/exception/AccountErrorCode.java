@@ -26,6 +26,7 @@ public enum AccountErrorCode implements StatusCode {
 
     /* 404 */
     NOT_FOUND_MEMBER_ERROR(NOT_FOUND, "존재하지 않는 회원입니다."),
+    NOT_FOUND_PHONE_ERROR(NOT_FOUND, "존재하지 않는 전화번호입니다."),
     ;
 
     private final HttpStatus httpStatus;

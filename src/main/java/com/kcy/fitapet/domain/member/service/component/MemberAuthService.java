@@ -98,8 +98,7 @@ public class MemberAuthService {
 
     @Transactional
     public SmsRes sendCertificationNumber(SmsReq dto, SmsPrefix prefix) {
-        if (prefix.equals(SmsPrefix.REGISTER) && memberSearchService.isExistByPhone(dto.to()))
-            throw new GlobalErrorException(AccountErrorCode.DUPLICATE_PHONE_ERROR);
+        validateForSms(prefix, dto);
         String certificationNumber = smsProvider.issueCertificationNumber(dto.to());
 
         SensRes sensRes;
@@ -142,6 +141,16 @@ public class MemberAuthService {
             StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
+        }
+    }
+
+    private void validateForSms(SmsPrefix prefix, SmsReq req) {
+        if (prefix.equals(SmsPrefix.REGISTER) && memberSearchService.isExistByPhone(req.to())) {
+            log.warn("중복된 전화번호로 인한 회원가입 요청 실패: {}", req.to());
+            throw new GlobalErrorException(AccountErrorCode.DUPLICATE_PHONE_ERROR);
+        } else if (!prefix.equals(SmsPrefix.REGISTER) && !memberSearchService.isExistByPhone(req.to())) {
+            log.warn("DB에 존재하지 않는 전화번호로 인한 SMS 인증 요청 실패: {}", req.to());
+            throw new GlobalErrorException(AccountErrorCode.NOT_FOUND_PHONE_ERROR);
         }
     }
 
