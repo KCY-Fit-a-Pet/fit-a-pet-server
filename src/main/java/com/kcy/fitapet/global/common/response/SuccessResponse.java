@@ -34,6 +34,11 @@ public class SuccessResponse<T> {
      */
     public static <T> SuccessResponse<T> from(T data) {
         String key = getDtoName(data);
+
+        if (data instanceof Map) {
+            key = ((Map<?, ?>) data).keySet().stream().findFirst().orElse(null).toString();
+            data = (T) ((Map<?, ?>) data).get(key);
+        }
         if (key == null) key = "data";
 
         return SuccessResponse.<T>builder()

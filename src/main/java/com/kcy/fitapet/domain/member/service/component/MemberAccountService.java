@@ -36,6 +36,11 @@ public class MemberAccountService {
         return AccountProfileRes.from(member);
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsUid(String uid) {
+        return memberSearchService.isExistByUid(uid);
+    }
+
     @Transactional
     public void updateProfile(Long userId, ProfilePatchReq req, MemberAttrType type) {
         Member member = memberSearchService.findById(userId);
