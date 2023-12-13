@@ -145,12 +145,21 @@ public class MemberAuthService {
     }
 
     private void validateForSms(SmsPrefix prefix, SmsReq req) {
-        if (prefix.equals(SmsPrefix.REGISTER) && memberSearchService.isExistByPhone(req.to())) {
+        boolean isExistPhone = memberSearchService.isExistByPhone(req.to());
+        if (prefix.equals(SmsPrefix.REGISTER) && isExistPhone) {
             log.warn("중복된 전화번호로 인한 회원가입 요청 실패: {}", req.to());
             throw new GlobalErrorException(AccountErrorCode.DUPLICATE_PHONE_ERROR);
-        } else if (!prefix.equals(SmsPrefix.REGISTER) && !memberSearchService.isExistByPhone(req.to())) {
+        } else if (prefix.equals(SmsPrefix.UID) && !isExistPhone) {
             log.warn("DB에 존재하지 않는 전화번호로 인한 SMS 인증 요청 실패: {}", req.to());
             throw new GlobalErrorException(AccountErrorCode.NOT_FOUND_PHONE_ERROR);
+        } else if (prefix.equals(SmsPrefix.PASSWORD)) {
+            if (!isExistPhone) {
+                log.warn("DB에 존재하지 않는 전화번호로 인한 SMS 인증 요청 실패: {}", req.to());
+                throw new GlobalErrorException(AccountErrorCode.NOT_FOUND_PHONE_ERROR);
+            } else if (!memberSearchService.isExistByPhoneAndUid(req.to(), req.uid())) {
+                log.warn("등록된 유저 전화번호와 다른 전화번호 입력: {}", req.to());
+                throw new GlobalErrorException(AccountErrorCode.MISSMATCH_PHONE_AND_UID_ERROR);
+            }
         }
     }
 

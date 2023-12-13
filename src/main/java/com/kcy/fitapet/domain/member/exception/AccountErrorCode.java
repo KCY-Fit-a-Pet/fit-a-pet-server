@@ -24,6 +24,8 @@ public enum AccountErrorCode implements StatusCode {
 
     INVALID_NOTIFICATION_TYPE_ERROR(BAD_REQUEST, "유효하지 않은 알림 타입입니다."),
 
+    MISSMATCH_PHONE_AND_UID_ERROR(BAD_REQUEST, "등록된 전화번호와 일치하지 않는 유저입니다."),
+
     /* 404 */
     NOT_FOUND_MEMBER_ERROR(NOT_FOUND, "존재하지 않는 회원입니다."),
     NOT_FOUND_PHONE_ERROR(NOT_FOUND, "존재하지 않는 전화번호입니다."),

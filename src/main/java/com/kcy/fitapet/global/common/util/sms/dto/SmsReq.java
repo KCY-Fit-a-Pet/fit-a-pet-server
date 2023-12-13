@@ -13,6 +13,8 @@ import lombok.Builder;
 public record SmsReq(
         @Schema(description = "수신번호")
         @NotNull(message = "수신번호는 필수 입력값입니다.")
-        String to
+        String to,
+        @Schema(description = "아이디")
+        String uid
 ) {
 }
