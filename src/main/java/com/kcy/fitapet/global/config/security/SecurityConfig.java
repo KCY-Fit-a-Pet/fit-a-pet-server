@@ -39,9 +39,10 @@ public class SecurityConfig {
             // API
             "/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh",
             "/api/v1/auth/register-sms/**", "/api/v1/auth/search-sms/**",
-            "/api/v1/accounts/search", "/api/v1/accounts/search/**"
+            "/api/v1/accounts/search", "/api/v1/accounts/search/**",
     };
     private static final String[] publicReadOnlyPublicEndpoints = {
+            "/api/v1/accounts/exists", "/api/v1/accounts/exists/**"
     };
 
     @Bean

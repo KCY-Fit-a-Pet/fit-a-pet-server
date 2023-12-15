@@ -41,4 +41,14 @@ public class MemberSearchService {
     public boolean isExistByPhone(String phone) {
         return memberRepository.existsByPhone(phone);
     }
+
+    @Transactional(readOnly = true)
+    public boolean isExistByUid(String uid) {
+        return memberRepository.existsByUid(uid);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistByPhoneAndUid(String phone, String uid) {
+        return memberRepository.existsByPhoneAndUid(phone, uid);
+    }
 }

@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Tag(name = "프로필 API")
 @RestController
 @Slf4j
@@ -38,9 +40,19 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
+    @Operation(summary = "ID 존재 확인")
+    @GetMapping("/exists")
+    @Parameters({
+            @Parameter(name = "uid", description = "확인할 ID", required = true)
+    })
+    public ResponseEntity<?> getExistsUid(@RequestParam("uid") @NotBlank String uid) {
+        boolean exists = memberAccountService.existsUid(uid);
+        return ResponseEntity.ok(SuccessResponse.from(Map.of("valid", exists)));
+    }
+
     @Operation(summary = "프로필(비밀번호/이름) 수정")
     @Parameters({
-            @Parameter(name = "type", description = "수정할 프로필 타입", example = "name/password/", required = true),
+            @Parameter(name = "type", description = "수정할 프로필 타입", required = true),
             @Parameter(name = "req", description = "수정할 프로필 정보")
     })
     @PutMapping("")

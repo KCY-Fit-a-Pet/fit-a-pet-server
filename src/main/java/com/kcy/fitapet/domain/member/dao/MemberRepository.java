@@ -10,4 +10,6 @@ public interface MemberRepository extends ExtendedRepository<Member, Long> {
     Optional<Member> findByPhone(String phone);
     boolean existsByUidOrEmailOrPhone(String uid, String email, String phone);
     boolean existsByPhone(String phone);
+    boolean existsByUid(String uid);
+    boolean existsByPhoneAndUid(String phone, String uid);
 }

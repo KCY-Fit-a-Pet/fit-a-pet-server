@@ -6,14 +6,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum SmsPrefix {
-    REGISTER("register@"),
-    PASSWORD("password@"),
-    UID("uid@");
+    REGISTER("register"),
+    PASSWORD("password"),
+    UID("uid");
 
     private final String prefix;
 
     public String getTopic(String phoneNumber) {
-        return this.prefix + phoneNumber;
+        return this.prefix + '@' + phoneNumber;
     }
 
     @Override
