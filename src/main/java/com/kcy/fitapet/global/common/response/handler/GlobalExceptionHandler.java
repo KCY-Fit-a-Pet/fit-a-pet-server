@@ -31,7 +31,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 public class GlobalExceptionHandler {
     /**
      * API 호출 시 서버에서 발생시킨 전역 예외를 처리하는 메서드
-     * @param e GlobalErrorException
      * @return ResponseEntity<ErrorResponse>
      */
     @ExceptionHandler(GlobalErrorException.class)
@@ -43,7 +42,6 @@ public class GlobalExceptionHandler {
 
     /**
      * API 호출 시 인증 관련 예외를 처리하는 메서드
-     * @param e AuthErrorException
      * @return ResponseEntity<ErrorResponse>
      */
     @ExceptionHandler(AuthErrorException.class)
@@ -55,7 +53,6 @@ public class GlobalExceptionHandler {
 
     /**
      * API 호출 시 인가 관련 예외를 처리하는 메서드
-     * @param e AccessDeniedException
      * @return ResponseEntity<ErrorResponse>
      */
     @ResponseStatus(HttpStatus.FORBIDDEN)
@@ -67,7 +64,6 @@ public class GlobalExceptionHandler {
 
     /**
      * API 호출 시 객체 혹은 파라미터 데이터 값이 유효하지 않은 경우
-     * @param e MethodArgumentNotValidException
      * @return ResponseEntity<FailureResponse>
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -78,6 +74,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.unprocessableEntity().body(response);
     }
 
+    /**
+     * API 호출 시 객체 혹은 파라미터 데이터 값이 유효하지 않은 경우
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<FailureResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         log.warn("handleMethodArgumentTypeMismatchException: {}", e.getMessage());
@@ -97,7 +96,6 @@ public class GlobalExceptionHandler {
 
     /**
      * API 호출 시 'Header' 내에 데이터 값이 유효하지 않은 경우
-     * @param e MissingRequestHeaderException
      * @return ResponseEntity<FailureResponse>
      */
     @ExceptionHandler(MissingRequestHeaderException.class)
@@ -109,7 +107,6 @@ public class GlobalExceptionHandler {
 
     /**
      * API 호출 시 'BODY' 내에 데이터 값이 존재하지 않은 경우
-     * @param e HttpMessageNotReadableException
      * @return ResponseEntity<ErrorResponse>
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -121,7 +118,6 @@ public class GlobalExceptionHandler {
 
     /**
      * API 호출 시 'Parameter' 내에 데이터 값이 존재하지 않은 경우
-     * @param e MissingServletRequestParameterException
      * @return ResponseEntity<ErrorResponse>
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -133,7 +129,6 @@ public class GlobalExceptionHandler {
 
     /**
      * 잘못된 URL 호출 시
-     * @param e NoHandlerFoundException
      * @return ResponseEntity<ErrorResponse>
      */
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -145,7 +140,6 @@ public class GlobalExceptionHandler {
 
     /**
      * API 호출 시 데이터를 반환할 수 없는 경우
-     * @param e HttpMessageNotWritableException
      * @return ResponseEntity<ErrorResponse>
      */
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -155,9 +149,9 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
     }
 
+
     /**
      * NullPointerException이 발생한 경우
-     * @param e NullPointerException
      * @return ResponseEntity<ErrorResponse>
      */
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

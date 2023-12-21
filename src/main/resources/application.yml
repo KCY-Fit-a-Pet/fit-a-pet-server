@@ -32,6 +32,12 @@ spring:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
 
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+
 #  security:
 #    oauth2:
 #      client:
@@ -138,6 +144,7 @@ spring:
     generate-ddl: false
     hibernate:
       ddl-auto: none
+    show-sql: false
 
   main:
     allow-bean-definition-overriding: true
@@ -145,6 +152,12 @@ spring:
   data.redis:
     host: ${REDIS_HOST}
     port: ${REDIS_PORT}
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
