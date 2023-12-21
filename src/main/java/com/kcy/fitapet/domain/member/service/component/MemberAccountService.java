@@ -12,6 +12,7 @@ import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
 import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
+import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class MemberAccountService {
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional(readOnly = true)
-    public AccountProfileRes getProfile(Long userId) {
+    public AccountProfileRes getProfile(Long requestId, Long userId) {
         Member member = memberSearchService.findById(userId);
         return AccountProfileRes.from(member);
     }
@@ -42,7 +43,7 @@ public class MemberAccountService {
     }
 
     @Transactional
-    public void updateProfile(Long userId, ProfilePatchReq req, MemberAttrType type) {
+    public void updateProfile(Long requestId, Long userId, ProfilePatchReq req, MemberAttrType type) {
         Member member = memberSearchService.findById(userId);
 
         if (type == MemberAttrType.NAME) {
@@ -75,7 +76,7 @@ public class MemberAccountService {
     }
 
     @Transactional
-    public void updateNotification(Long userId, NotificationType type) {
+    public void updateNotification(Long requestId, Long userId, NotificationType type) {
         Member member = memberSearchService.findById(userId);
         member.updateNotificationFromType(type);
     }
@@ -118,11 +119,11 @@ public class MemberAccountService {
     }
 
     /**
-     * redis에 해당 전화번호에 대한 정보가 저장되어 있는 지 확인하고, <br/>
+     * in-memory에 해당 전화번호에 대한 정보가 저장되어 있는 지 확인하고, <br/>
      * {"phone:"인증번호"} 형태의 인증번호가 일치함을 확인
-     * @param phone
-     * @param code
-     * @param prefix
+     * @param phone : 전화번호
+     * @param code : 인증번호
+     * @param prefix : 인증번호 타입
      */
     private void validatePhone(String phone, String code, SmsPrefix prefix) {
         if (!smsCertificationService.existsCertificationNumber(phone, prefix)) {

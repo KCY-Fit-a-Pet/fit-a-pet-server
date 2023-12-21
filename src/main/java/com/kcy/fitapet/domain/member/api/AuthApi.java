@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,6 +65,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/register")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUp(@RequestHeader("Authorization") @NotBlank String accessToken, @RequestBody @Valid SignUpReq dto) {
         Map<String, String> tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
@@ -80,6 +82,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/register-sms")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> registerSmsAuthorization(
             @RequestParam(value = "code", required = false) String code,
             @RequestBody @Valid SmsReq dto) {
@@ -108,6 +111,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/search-sms")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> searchSmsAuthorization(
         @RequestParam(value = "type") SmsPrefix type,
         @RequestParam(value = "code", required = false) String code,
@@ -131,6 +135,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("/login")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signIn(@RequestHeader(value = "Authorization", required = false) String accessToken, @RequestBody @Valid SignInReq dto) {
         if (accessToken != null)
             throw new GlobalErrorException(ErrorCode.ALREADY_LOGIN_USER);
@@ -149,6 +154,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/logout")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> signOut(
             @AccessTokenInfo AccessToken accessToken,
             @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
