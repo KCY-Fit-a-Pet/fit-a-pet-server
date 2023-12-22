@@ -20,7 +20,7 @@ import java.util.Map;
 public class SuccessResponse<T> {
     @Schema(description = "응답 상태", defaultValue = "success")
     private final String status = "success";
-    @Schema(description = "응답 코드", example = "200")
+    @Schema(description = "응답 코드", example = "data or no_content")
     private Map<String, T> data;
 
     @Builder

@@ -9,6 +9,8 @@ import com.kcy.fitapet.domain.member.service.component.MemberAccountService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
+import com.kcy.fitapet.global.common.response.code.ErrorCode;
+import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
@@ -20,6 +22,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +38,12 @@ public class AccountApi {
     private final MemberAccountService memberAccountService;
 
     @Operation(summary = "프로필 조회")
-    @GetMapping("")
-    public ResponseEntity<?> getProfile(@AuthenticationPrincipal CustomUserDetails user) {
-        AccountProfileRes member = memberAccountService.getProfile(user.getUserId());
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated() and #id == principal.userId")
+    public ResponseEntity<?> getProfile(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        AccountProfileRes member = memberAccountService.getProfile(id, user.getUserId());
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
@@ -45,6 +52,7 @@ public class AccountApi {
     @Parameters({
             @Parameter(name = "uid", description = "확인할 ID", required = true)
     })
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> getExistsUid(@RequestParam("uid") @NotBlank String uid) {
         boolean exists = memberAccountService.existsUid(uid);
         return ResponseEntity.ok(SuccessResponse.from(Map.of("valid", exists)));
@@ -52,17 +60,20 @@ public class AccountApi {
 
     @Operation(summary = "프로필(비밀번호/이름) 수정")
     @Parameters({
+            @Parameter(name = "id", description = "수정할 프로필 ID", required = true),
             @Parameter(name = "type", description = "수정할 프로필 타입", required = true),
             @Parameter(name = "req", description = "수정할 프로필 정보")
     })
-    @PutMapping("")
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> putProfile(
+            @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam("type") @NotBlank MemberAttrType type,
             @RequestBody ProfilePatchReq req
     ) {
         log.info("type: {}", type);
-        memberAccountService.updateProfile(user.getUserId(), req, type);
+        memberAccountService.updateProfile(id, user.getUserId(), req, type);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
@@ -74,6 +85,7 @@ public class AccountApi {
             @Parameter(name = "code", description = "인증번호", required = true),
             @Parameter(name = "req", description = "uid(이름)/password(비밀번호)")
     })
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> postSearchIdOrPassword(
             @RequestParam("type") @NotBlank SmsPrefix type,
             @RequestParam("code") @NotBlank String code,
@@ -89,12 +101,17 @@ public class AccountApi {
     }
 
     @Operation(summary = "알림 on/off")
-    @Parameter(name = "type", description = "알림 타입", example = "care or memo or schedule", required = true)
-    @GetMapping("/notify")
-    public ResponseEntity<?> putNotify(@AuthenticationPrincipal CustomUserDetails user, @RequestParam("type") @NotBlank NotificationType type) {
-        memberAccountService.updateNotification(user.getUserId(), type);
+    @Parameters({
+            @Parameter(name = "id", description = "알림 설정할 ID", required = true),
+            @Parameter(name = "type", description = "알림 타입", example = "care or memo or schedule", required = true)
+    })
+    @GetMapping("/{id}/notify")
+    @PreAuthorize("isAuthenticated() and #id == principal.userId")
+    public ResponseEntity<?> putNotify(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam("type") @NotBlank NotificationType type) {
+        memberAccountService.updateNotification(id, user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
-
-
 }
