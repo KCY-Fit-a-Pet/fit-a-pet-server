@@ -15,9 +15,9 @@ import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.util.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -42,8 +42,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.ACCESS_TOKEN;
-import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.REFRESH_TOKEN;
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Tag(name = "유저 관리 API", description = "유저 인증과 관련된 API")
 @RestController

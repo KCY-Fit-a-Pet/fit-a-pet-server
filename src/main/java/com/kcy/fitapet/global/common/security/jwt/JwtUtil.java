@@ -1,8 +1,8 @@
-package com.kcy.fitapet.global.common.util.jwt;
+package com.kcy.fitapet.global.common.security.jwt;
 
-import com.kcy.fitapet.global.common.util.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.dto.SmsAuthInfo;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 
 import java.time.LocalDateTime;
 

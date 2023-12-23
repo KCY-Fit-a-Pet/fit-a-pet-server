@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.jwt.exception;
+package com.kcy.fitapet.global.common.security.jwt.exception;
 
 public record AuthErrorResponse(String code, String message) {
     @Override public String toString() {

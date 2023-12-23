@@ -6,6 +6,8 @@ public record OauthSignInReq(
         @NotEmpty
         String id,
         @NotEmpty
-        String id_token
+        String id_token,
+        @NotEmpty
+        String nonce
 ) {
 }

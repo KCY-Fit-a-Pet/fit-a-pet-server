@@ -4,15 +4,25 @@ import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKey;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Helper;
+import org.springframework.stereotype.Component;
 
-@Helper
+@Component
 @RequiredArgsConstructor
 public class OauthOIDCHelper {
     private final OauthOIDCProvider oauthOIDCProvider;
 
-    public OIDCDecodePayload getPayloadFromIdToken(String token, String iss, String aud, OIDCPublicKeyResponse response) {
-        String kid = getKidFromUnsignedIdToken(token, iss, aud);
+    /**
+     * ID Token의 payload를 추출하는 메서드 <br/>
+     * OAuth 2.0 spec에 따라 ID Token의 유효성 검사 수행 <br/>
+     * @param token : idToken
+     * @param iss : ID Token을 발급한 provider의 URL
+     * @param aud : ID Token이 발급된 앱의 앱 키
+     * @param nonce : 인증 서버 로그인 요청 시 전달한 임의의 문자열
+     * @param response : 공개키 목록
+     * @return OIDCDecodePayload : ID Token의 payload
+     */
+    public OIDCDecodePayload getPayloadFromIdToken(String token, String iss, String aud, String nonce, OIDCPublicKeyResponse response) {
+        String kid = getKidFromUnsignedIdToken(token, iss, aud, nonce);
 
         OIDCPublicKey key = response.getKeys().stream()
                 .filter(k -> k.kid().equals(kid))
@@ -22,7 +32,7 @@ public class OauthOIDCHelper {
         return oauthOIDCProvider.getOIDCTokenBody(token, key.n(), key.e());
     }
 
-    private String getKidFromUnsignedIdToken(String token, String iss, String aud) {
-        return oauthOIDCProvider.getKidFromUnsignedTokenHeader(token, iss, aud);
+    private String getKidFromUnsignedIdToken(String token, String iss, String aud, String nonce) {
+        return oauthOIDCProvider.getKidFromUnsignedTokenHeader(token, iss, aud, nonce);
     }
 }

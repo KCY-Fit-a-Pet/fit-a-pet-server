@@ -1,12 +1,12 @@
-package com.kcy.fitapet.global.common.util.jwt;
+package com.kcy.fitapet.global.common.security.jwt;
 
 import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.global.common.util.DateUtil;
-import com.kcy.fitapet.global.common.util.jwt.exception.JwtErrorCodeUtil;
-import com.kcy.fitapet.global.common.util.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.dto.SmsAuthInfo;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

@@ -1,9 +1,9 @@
 package com.kcy.fitapet.global.common.resolver.access;
 
-import com.kcy.fitapet.global.common.util.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
+import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

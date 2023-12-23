@@ -11,9 +11,9 @@ import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.util.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.dto.SmsAuthInfo;
+import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
@@ -33,8 +33,8 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.ACCESS_TOKEN;
-import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.REFRESH_TOKEN;
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Slf4j
 @Service

@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.jwt.exception;
+package com.kcy.fitapet.global.common.security.jwt.exception;
 
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import lombok.AccessLevel;

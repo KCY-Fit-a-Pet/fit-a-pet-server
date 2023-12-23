@@ -2,10 +2,10 @@ package com.kcy.fitapet.global.common.security.filter;
 
 import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.util.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.kcy.fitapet.global.common.util.jwt.AuthConstants.*;
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
 
 /**
  * 지정한 URL 별로 JWT 유효성 검증을 수행하며, 직접적인 사용자 인증을 확인합니다.

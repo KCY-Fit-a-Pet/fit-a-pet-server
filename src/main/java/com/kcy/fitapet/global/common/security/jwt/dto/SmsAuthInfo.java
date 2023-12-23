@@ -1,6 +1,6 @@
-package com.kcy.fitapet.global.common.util.jwt.dto;
+package com.kcy.fitapet.global.common.security.jwt.dto;
 
-import com.kcy.fitapet.global.common.util.jwt.entity.JwtDto;
+import com.kcy.fitapet.global.common.security.jwt.entity.JwtDto;
 import lombok.Builder;
 
 @Builder

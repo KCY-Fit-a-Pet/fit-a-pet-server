@@ -1,9 +1,8 @@
 package com.kcy.fitapet.domain.oauth.api;
 
-import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignInReq;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
-import com.kcy.fitapet.domain.oauth.service.OAuthService;
+import com.kcy.fitapet.domain.oauth.service.component.OauthService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth/oauth")
 @Slf4j
-public class OAuthApi {
-    private final OAuthService oAuthService;
+public class OauthApi {
+    private final OauthService oAuthService;
 
     @PostMapping("")
     @PreAuthorize("isAnonymous()")
@@ -40,6 +39,10 @@ public class OAuthApi {
             @RequestParam("provider") ProviderType provider,
             @RequestBody @Valid OauthSignUpReq req
     ) {
+        if (ProviderType.NAVER.equals(provider)) {
 
+        } else {
+
+        }
     }
 }

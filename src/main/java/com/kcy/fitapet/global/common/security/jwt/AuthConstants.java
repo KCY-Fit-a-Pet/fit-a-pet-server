@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.util.jwt;
+package com.kcy.fitapet.global.common.security.jwt;
 
 import lombok.Getter;
 

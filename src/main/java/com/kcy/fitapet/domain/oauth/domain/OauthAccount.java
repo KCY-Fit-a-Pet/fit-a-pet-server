@@ -8,15 +8,16 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Getter
 @Table(name = "OAUTH")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "provider"})
-public class OAuthAccount extends Auditable {
+public class OauthAccount extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "oauth_id")
-    private Long OAuthID;
+    private Long OauthId;
     @Convert(converter = ProviderTypeConverter.class)
     private ProviderType provider;
     private String email;
@@ -26,17 +27,17 @@ public class OAuthAccount extends Auditable {
     private Member member;
 
     @Builder
-    public OAuthAccount(Long id, Long OAuthID, ProviderType provider, String email, Member member) {
+    public OauthAccount(Long id, Long OauthId, ProviderType provider, String email, Member member) {
         this.id = id;
-        this.OAuthID = OAuthID;
+        this.OauthId = OauthId;
         this.provider = provider;
         this.email = email;
         this.member = member;
     }
 
-    public static OAuthAccount of(Long OAuthID, ProviderType provider, String email, Member member) {
-        return OAuthAccount.builder()
-                .OAuthID(OAuthID)
+    public static OauthAccount of(Long OauthId, ProviderType provider, String email, Member member) {
+        return OauthAccount.builder()
+                .OauthId(OauthId)
                 .provider(provider)
                 .email(email)
                 .member(member)
