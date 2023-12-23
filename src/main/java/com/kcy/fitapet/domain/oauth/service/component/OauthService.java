@@ -32,6 +32,7 @@ public class OauthService {
     private final OauthClientHelper oauthClientHelper;
 
     private final JwtUtil jwtUtil;
+
     @Transactional
     public void signUpByOIDC() {
 
@@ -53,6 +54,8 @@ public class OauthService {
             Member member = oauthSearchService.findMemberByOauthIdAndProvider(id, provider);
             return generateToken(JwtUserInfo.from(member));
         } else {
+            // 1. redis에 {id_token, id} 저장
+            // 2. null 반환 (회원가입 진행)
             return null;
         }
     }

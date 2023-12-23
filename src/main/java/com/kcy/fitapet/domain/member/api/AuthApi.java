@@ -194,8 +194,6 @@ public class AuthApi {
      * @return ResponseEntity<?>
      */
     private ResponseEntity<?> getResponseEntity(Map<String, String> tokens) {
-        log.debug("access token: {}", tokens.get(ACCESS_TOKEN.getValue()));
-        log.debug("refresh token: {}", tokens.get(REFRESH_TOKEN.getValue()));
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
