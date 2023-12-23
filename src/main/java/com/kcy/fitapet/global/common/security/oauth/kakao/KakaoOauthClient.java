@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(
         name = "KakaoOauthClient",
-        url = "${security.oauth2.client.provider.authorization-uri}",
+        url = "${oauth2.client.provider.kakao.authorization-uri}",
         configuration = KakaoOauthConfig.class
 )
 public interface KakaoOauthClient extends OauthClient {

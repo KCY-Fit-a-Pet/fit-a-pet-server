@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 public record OauthSignInReq(
         @NotEmpty
-        String id,
+        Long id,
         @NotEmpty
         String id_token,
         @NotEmpty

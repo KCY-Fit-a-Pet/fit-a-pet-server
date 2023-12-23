@@ -17,7 +17,7 @@ public class OauthAccount extends Auditable {
     private Long id;
 
     @Column(name = "oauth_id")
-    private Long OauthId;
+    private Long oauthId;
     @Convert(converter = ProviderTypeConverter.class)
     private ProviderType provider;
     private String email;
@@ -27,17 +27,17 @@ public class OauthAccount extends Auditable {
     private Member member;
 
     @Builder
-    public OauthAccount(Long id, Long OauthId, ProviderType provider, String email, Member member) {
+    public OauthAccount(Long id, Long oauthId, ProviderType provider, String email, Member member) {
         this.id = id;
-        this.OauthId = OauthId;
+        this.oauthId = oauthId;
         this.provider = provider;
         this.email = email;
         this.member = member;
     }
 
-    public static OauthAccount of(Long OauthId, ProviderType provider, String email, Member member) {
+    public static OauthAccount of(Long oauthId, ProviderType provider, String email, Member member) {
         return OauthAccount.builder()
-                .OauthId(OauthId)
+                .oauthId(oauthId)
                 .provider(provider)
                 .email(email)
                 .member(member)

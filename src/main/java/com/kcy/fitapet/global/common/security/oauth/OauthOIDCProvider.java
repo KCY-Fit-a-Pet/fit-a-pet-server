@@ -3,7 +3,6 @@ package com.kcy.fitapet.global.common.security.oauth;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
 import org.springframework.stereotype.Component;
 
-@Component
 public interface OauthOIDCProvider {
     /**
      * ID Token의 header에서 kid를 추출하는 메서드

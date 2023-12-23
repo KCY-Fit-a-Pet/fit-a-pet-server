@@ -5,7 +5,7 @@ import com.kcy.fitapet.domain.member.type.converter.RoleTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
-import com.kcy.fitapet.domain.oauth.domain.OAuthID;
+import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -45,7 +45,7 @@ public class Member extends Auditable {
     private NotificationSetting notificationSetting;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private Set<OAuthID> oauthIDs = new HashSet<>();
+    private Set<OauthAccount> oauthIDs = new HashSet<>();
     @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
     private Set<MemberNickname> fromMemberNickname = new HashSet<>();
     @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)

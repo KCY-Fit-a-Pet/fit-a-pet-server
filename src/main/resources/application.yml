@@ -38,21 +38,18 @@ spring:
     resources:
       add-mappings: false
 
-  security:
-    oauth2:
-      client:
-        provider:
-          kakao:
-            authorization-uri: ${KAKAO_AUTH_URI}
-        registration:
-            kakao:
-                client-id: ${KAKAO_CLIENT_ID}
-                client-secret: ${KAKAO_CLIENT_SECRET}
-                client-name: Kakao
-                scope:
-                  - profile_nickname
-                  - profile_image
-                  - account_email
+oauth2:
+  client:
+    provider:
+      kakao:
+        authorization-uri: ${KAKAO_AUTH_URI}
+        client-id: ${KAKAO_CLIENT_ID}
+        client-secret: ${KAKAO_CLIENT_SECRET}
+        client-name: Kakao
+        scope:
+          - profile_nickname
+          - profile_image
+          - account_email
 
 
 feign:

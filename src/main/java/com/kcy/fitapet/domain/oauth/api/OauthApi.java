@@ -35,7 +35,7 @@ public class OauthApi {
     @PostMapping("/{id}")
     @PreAuthorize("isAnonymous()")
     public void signUp(
-            @PathVariable("id") String id,
+            @PathVariable("id") Long id,
             @RequestParam("provider") ProviderType provider,
             @RequestBody @Valid OauthSignUpReq req
     ) {

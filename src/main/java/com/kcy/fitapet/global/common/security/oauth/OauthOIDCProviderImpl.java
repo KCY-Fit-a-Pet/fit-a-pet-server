@@ -6,6 +6,7 @@ import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.security.Key;
@@ -16,6 +17,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 
 @Slf4j
+@Component
 public class OauthOIDCProviderImpl implements OauthOIDCProvider {
     private final String KID = "kid";
     private final String RSA = "RSA";
