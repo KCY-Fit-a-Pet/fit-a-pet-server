@@ -3,7 +3,7 @@ package com.kcy.fitapet.global.common.security.authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.dto.JwtUserInfo;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

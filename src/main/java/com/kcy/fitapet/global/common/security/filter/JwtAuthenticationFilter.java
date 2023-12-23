@@ -3,7 +3,7 @@ package com.kcy.fitapet.global.common.security.filter;
 import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.dto.JwtUserInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;

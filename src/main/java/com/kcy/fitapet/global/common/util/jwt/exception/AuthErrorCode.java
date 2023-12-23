@@ -38,6 +38,7 @@ public enum AuthErrorCode implements StatusCode {
     /**
      * 500 INTERNAL_SERVER_ERROR: 서버 내부 에러
      */
+    INVALID_TOKEN(INTERNAL_SERVER_ERROR, "유효하지 않은 토큰입니다"),
     INVALID_JWT_DTO_FORMAT(INTERNAL_SERVER_ERROR, "서버 내부 에러가 발생했습니다."),
     UNEXPECTED_ERROR(INTERNAL_SERVER_ERROR, "예상치 못한 에러가 발생했습니다."),;
 

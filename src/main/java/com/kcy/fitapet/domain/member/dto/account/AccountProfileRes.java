@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.member.dto.account;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.type.NotificationSetting;
+import com.kcy.fitapet.domain.member.domain.NotificationSetting;
 import com.kcy.fitapet.global.common.util.bind.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

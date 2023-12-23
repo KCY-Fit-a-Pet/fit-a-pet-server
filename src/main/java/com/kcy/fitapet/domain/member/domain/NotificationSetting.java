@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.member.type;
+package com.kcy.fitapet.domain.member.domain;
 
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import jakarta.persistence.*;

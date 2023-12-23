@@ -1,11 +1,10 @@
 package com.kcy.fitapet.global.common.util.jwt;
 
-import com.kcy.fitapet.global.common.util.jwt.entity.JwtUserInfo;
-import com.kcy.fitapet.global.common.util.jwt.entity.SmsAuthInfo;
+import com.kcy.fitapet.global.common.util.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.util.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public interface JwtUtil {
     /**
