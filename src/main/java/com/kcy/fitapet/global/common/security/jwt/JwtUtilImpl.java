@@ -39,12 +39,19 @@ public class JwtUtilImpl implements JwtUtil {
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     private final JwtApplicationConfig jwtApplicationConfig;
 
+    private final String smsAuthSecretKey;
+    private final String smsOauthAccessKey;
+
     public JwtUtilImpl(
-            @Value("${jwt.secret}") String jwtSecretKey,
+            @Value("${jwt.secret.default}") String jwtSecretKey,
+            @Value("${jwt.secret.sms-auth}") String smsAuthSecretKey,
+            @Value("${jwt.secret.sms-oauth}") String smsOauthAccessKey,
             @Autowired JwtApplicationConfig jwtApplicationConfig
     ) {
         final byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
         this.signatureKey = Keys.hmacShaKeyFor(secretKeyBytes);
+        this.smsAuthSecretKey = smsAuthSecretKey;
+        this.smsOauthAccessKey = smsOauthAccessKey;
         this.jwtApplicationConfig = jwtApplicationConfig;
     }
 
@@ -82,11 +89,27 @@ public class JwtUtilImpl implements JwtUtil {
 
     @Override
     public String generateSmsAuthToken(SmsAuthInfo user) {
+        final byte[] secretKeyBytes = Base64.getDecoder().decode(smsAuthSecretKey);
+        final Key signatureKey = Keys.hmacShaKeyFor(secretKeyBytes);
         final Date now = new Date();
 
         return Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(Map.of(PHONE_NUMBER, user.phoneNumber()))
+                .signWith(signatureKey, signatureAlgorithm)
+                .setExpiration(createExpireDate(now, jwtApplicationConfig.getSmsAuthExpirationTime().toMillis()))
+                .compact();
+    }
+
+    @Override
+    public String generateSmsOauthToken(SmsAuthInfo user) {
+        final byte[] secretKeyBytes = Base64.getDecoder().decode(smsOauthAccessKey);
+        final Key signatureKey = Keys.hmacShaKeyFor(secretKeyBytes);
+        final Date now = new Date();
+
+        return Jwts.builder()
+                .setHeader(createHeader())
+                .setClaims(Map.of(USER_ID, user.userId(), PHONE_NUMBER, user.phoneNumber()))
                 .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, jwtApplicationConfig.getSmsAuthExpirationTime().toMillis()))
                 .compact();

@@ -7,6 +7,8 @@ import com.kcy.fitapet.domain.oauth.type.ProviderType;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -58,6 +61,7 @@ public class OauthApi {
                 : getResponseEntity(jwt);
     }
 
+    @Operation(summary = "OAuth 회원가입", description = "/{id}/sms로 전화번호 인증 후, accessToken 발급이 선행되어야 한다.")
     @PostMapping("/{id}")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUp(
@@ -81,6 +85,26 @@ public class OauthApi {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), jwt.accessToken())
+                .body(SuccessResponse.noContent());
+    }
+
+    @PostMapping("/{id}/sms")
+    public ResponseEntity<?> signUpSmsAuthorization(
+        @RequestParam(value = "code", required = false) String code,
+        @RequestBody @Valid SmsReq req
+    ) {
+        if (code == null) {
+            SmsRes smsRes = oAuthService.sendCertificationNumber(req);
+            return ResponseEntity.ok(SuccessResponse.from(smsRes));
+        }
+
+        String token = oAuthService.checkCertificationForRegister(req, code);
+        if (!StringUtils.hasText(token)) {
+            return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build();
+        }
+
+        return ResponseEntity.ok()
+                .header(ACCESS_TOKEN.getValue(), token)
                 .body(SuccessResponse.noContent());
     }
 }

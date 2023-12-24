@@ -148,7 +148,10 @@ springdoc:
       enabled: true
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret:
+    default: ${JWT_SECRET}
+    sms-auth: ${JWT_SECRET_SMS_AUTH}
+    sms-oauth: ${JWT_SECRET_SMS_OAUTH}
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
