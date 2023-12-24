@@ -7,6 +7,7 @@ import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
+import com.kcy.fitapet.domain.oauth.dto.OauthSmsReq;
 import com.kcy.fitapet.domain.oauth.exception.OauthException;
 import com.kcy.fitapet.domain.oauth.service.module.OauthApplicationConfigHelper;
 import com.kcy.fitapet.domain.oauth.service.module.OauthClientHelper;
@@ -76,15 +77,14 @@ public class OauthService {
     public Jwt signUpByOIDC(Long id, ProviderType provider, String requestAccessToken, OauthSignUpReq req) {
         String accessToken = jwtUtil.resolveToken(requestAccessToken);
         String topic = jwtUtil.getPhoneNumberFromToken(accessToken);
+        String phone = getPhoneByTopic(topic);
+
         validateToken(accessToken, topic, provider);
 
-        String phone = getPhoneByTopic(topic);
         String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
         OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
 
-        Member member = (memberSearchService.isExistByPhone(phone))
-                ? memberSearchService.findByPhone(phone)
-                : Member.builder().uid(req.uid()).name(req.name())
+        Member member = Member.builder().uid(req.uid()).name(req.name())
                 .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER).build();
         memberSaveService.saveMember(member);
         OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email(), member);
@@ -100,8 +100,8 @@ public class OauthService {
     }
 
     @Transactional
-    public SmsRes sendCode(SmsReq dto, Long id, ProviderType provider) {
-        SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto);
+    public SmsRes sendCode(OauthSmsReq dto, Long id, ProviderType provider) {
+        SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto.toSmsReq());
         String key = makeTopic(dto.to(), provider);
 
         smsRedisHelper.saveSmsAuthToken(key, smsInfo.code(), SmsPrefix.OAUTH);
@@ -111,16 +111,29 @@ public class OauthService {
     }
 
     @Transactional
-    public String checkCertificationNumber(SmsReq req, Long id, String code, ProviderType provider) {
+    public Jwt checkCertificationNumber(OauthSmsReq req, Long id, String code, ProviderType provider) {
         String key = makeTopic(req.to(), provider);
         if (!smsRedisHelper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
             log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", code);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
         smsRedisHelper.removeCode(key, SmsPrefix.OAUTH);
-        return jwtUtil.generateSmsOauthToken(SmsAuthInfo.of(id, key));
+
+        if (memberSearchService.isExistByPhone(req.to())) {
+            Member member = memberSearchService.findByPhone(req.to());
+            String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
+            OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
+            OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email(), member);
+
+            return generateToken(JwtUserInfo.from(member));
+        }
+
+        return Jwt.of(jwtUtil.generateSmsOauthToken(SmsAuthInfo.of(id, key)), null);
     }
 
+    /**
+     * idToken을 통해 payload를 가져온다.
+     */
     private OIDCDecodePayload getPayload(ProviderType provider, String idToken, String nonce) {
         OauthClient oauthClient = oauthClientHelper.getOauthClient(provider);
         OauthApplicationConfig oauthApplicationConfig = oauthApplicationConfigHelper.getOauthApplicationConfig(provider);
