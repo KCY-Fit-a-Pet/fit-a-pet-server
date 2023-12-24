@@ -16,8 +16,8 @@ import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
-import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
-import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
+import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
+import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
@@ -44,7 +44,7 @@ public class MemberAuthService {
 
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
-    private final SmsCertificationService smsCertificationService;
+    private final SmsRedisProvider smsRedisProvider;
 
     private final SmsProvider smsProvider;
     private final JwtUtil jwtUtil;
@@ -56,7 +56,7 @@ public class MemberAuthService {
         String accessToken = jwtUtil.resolveToken(requestAccessToken);
 
         String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken);
-        smsCertificationService.removeCode(authenticatedPhone, SmsPrefix.REGISTER);
+        smsRedisProvider.removeCode(authenticatedPhone, SmsPrefix.REGISTER);
 
         Member requestMember = dto.toEntity(authenticatedPhone);
         requestMember.encodePassword(bCryptPasswordEncoder);
@@ -100,34 +100,34 @@ public class MemberAuthService {
         validateForSms(prefix, dto);
         SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto);
 
-        smsCertificationService.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
-        LocalDateTime expireTime = smsCertificationService.getExpiredTime(dto.to(), prefix);
+        smsRedisProvider.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
+        LocalDateTime expireTime = smsRedisProvider.getExpiredTime(dto.to(), prefix);
         log.info("인증번호 만료 시간: {}", expireTime);
         return SmsRes.of(dto.to(), smsInfo.requestTime(), expireTime);
     }
 
     @Transactional
     public String checkCodeForRegister(SmsReq smsReq, String requestCode) {
-        if (!smsCertificationService.isCorrectCode(smsReq.to(), requestCode, SmsPrefix.REGISTER)) {
+        if (!smsRedisProvider.isCorrectCode(smsReq.to(), requestCode, SmsPrefix.REGISTER)) {
             log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", requestCode);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
 
         String token = jwtUtil.generateSmsAuthToken(SmsAuthInfo.of(1L, smsReq.to()));
-        smsCertificationService.saveSmsAuthToken(smsReq.to(), token, SmsPrefix.REGISTER);
+        smsRedisProvider.saveSmsAuthToken(smsReq.to(), token, SmsPrefix.REGISTER);
 
         return token;
     }
 
     @Transactional(readOnly = true)
     public void checkCodeForSearch(SmsReq req, String code, SmsPrefix prefix) {
-        if (!smsCertificationService.existsCode(req.to(), prefix)) {
+        if (!smsRedisProvider.isExistsCode(req.to(), prefix)) {
             StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
 
-        if (!smsCertificationService.isCorrectCode(req.to(), code, prefix)) {
+        if (!smsRedisProvider.isCorrectCode(req.to(), code, prefix)) {
             StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);

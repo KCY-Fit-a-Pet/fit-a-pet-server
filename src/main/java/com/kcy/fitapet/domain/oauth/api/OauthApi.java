@@ -5,7 +5,7 @@ import com.kcy.fitapet.domain.oauth.dto.OauthSignInReq;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
 import com.kcy.fitapet.domain.oauth.service.component.OauthService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
-import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
+import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;

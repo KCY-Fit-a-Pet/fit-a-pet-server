@@ -13,8 +13,8 @@ import com.kcy.fitapet.domain.oauth.service.module.OauthClientHelper;
 import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
 import com.kcy.fitapet.global.common.redis.oauth.OIDCTokenService;
-import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
-import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
+import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
+import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
@@ -51,7 +51,7 @@ public class OauthService {
     private final JwtUtil jwtUtil;
     private final OIDCTokenService oidcTokenService;
     private final SmsProvider smsProvider;
-    private final SmsCertificationService smsCertificationService;
+    private final SmsRedisProvider smsRedisProvider;
 
     @Transactional
     public Jwt signInByOIDC(Long id, String idToken, ProviderType provider, String nonce) {
@@ -88,21 +88,21 @@ public class OauthService {
     public SmsRes sendCode(SmsReq dto, Long id, ProviderType provider, SmsPrefix prefix) {
         SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto);
 
-        smsCertificationService.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
-        LocalDateTime expireTime = smsCertificationService.getExpiredTime(dto.to(), prefix);
+        smsRedisProvider.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
+        LocalDateTime expireTime = smsRedisProvider.getExpiredTime(dto.to(), prefix);
         log.info("인증번호 만료 시간: {}", expireTime);
         return SmsRes.of(dto.to(), smsInfo.requestTime(), expireTime);
     }
 
     @Transactional
     public String checkCertificationNumber(SmsReq req, Long id, String code) {
-        if (!smsCertificationService.isCorrectCode(req.to(), code, SmsPrefix.REGISTER)) {
+        if (!smsRedisProvider.isCorrectCode(req.to(), code, SmsPrefix.REGISTER)) {
             log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", code);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
 
         String token = jwtUtil.generateSmsOauthToken(SmsAuthInfo.of(id, req.to()));
-        smsCertificationService.saveSmsAuthToken(req.to(), token, SmsPrefix.OAUTH);
+        smsRedisProvider.saveSmsAuthToken(req.to(), token, SmsPrefix.OAUTH);
 
         return token;
     }

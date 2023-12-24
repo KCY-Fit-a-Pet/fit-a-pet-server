@@ -1,8 +1,10 @@
-package com.kcy.fitapet.global.common.redis.sms;
+package com.kcy.fitapet.global.common.redis.sms.provider;
+
+import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 
 import java.time.LocalDateTime;
 
-public interface SmsCertificationService {
+public interface SmsRedisProvider {
     /**
      * SMS 인증 완료 후 계정 생성을 위한 토큰 저장
      * @param phone : String
@@ -25,7 +27,7 @@ public interface SmsCertificationService {
      * @param prefix : SmsPrefix
      * @return boolean : 인증번호 존재 여부
      */
-    boolean existsCode(String phoneNumber, SmsPrefix prefix);
+    boolean isExistsCode(String phoneNumber, SmsPrefix prefix);
 
     /**
      * 인증번호 제거
@@ -41,4 +43,10 @@ public interface SmsCertificationService {
      * @return LocalDateTime : 인증번호 만료 시간
      */
      LocalDateTime getExpiredTime(String phoneNumber, SmsPrefix prefix);
+
+     default String getTopic(String phoneNumber, SmsPrefix prefix) {
+         String str = prefix.getTopic(phoneNumber);
+         return "sms" + str.substring(0, 1).toUpperCase() + str.substring(1)
+                 + ":" + phoneNumber;
+     }
 }

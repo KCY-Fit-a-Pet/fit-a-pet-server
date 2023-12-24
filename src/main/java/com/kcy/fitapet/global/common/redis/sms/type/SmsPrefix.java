@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.redis.sms;
+package com.kcy.fitapet.global.common.redis.sms.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

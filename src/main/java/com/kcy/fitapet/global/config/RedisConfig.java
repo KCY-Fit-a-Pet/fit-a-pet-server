@@ -1,6 +1,5 @@
 package com.kcy.fitapet.global.config;
 
-import com.kcy.fitapet.global.common.redis.sms.domain.SmsCertification;
 import com.kcy.fitapet.global.config.feign.OidcCacheManager;
 import com.kcy.fitapet.global.config.feign.RedisCacheConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,8 +60,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, SmsCertification> redisTemplate() {
-        RedisTemplate<String, SmsCertification> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate() {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
 
         template.setConnectionFactory(redisConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());
