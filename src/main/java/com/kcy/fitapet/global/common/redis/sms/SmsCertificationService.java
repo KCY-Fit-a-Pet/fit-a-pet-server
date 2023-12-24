@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 public interface SmsCertificationService {
     /**
      * SMS 인증 완료 후 계정 생성을 위한 토큰 저장
-     * @param phoneNumber : String
-     * @param key : String
+     * @param phone : String
+     * @param code : String
      */
-    void saveSmsAuthToken(String phoneNumber, String key, SmsPrefix prefix);
+    void saveSmsAuthToken(String phone, String code, SmsPrefix prefix);
 
     /**
      * 인증번호 확인

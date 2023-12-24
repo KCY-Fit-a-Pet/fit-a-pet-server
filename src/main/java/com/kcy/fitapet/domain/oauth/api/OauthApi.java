@@ -93,15 +93,17 @@ public class OauthApi {
 
     @PostMapping("/{id}/sms")
     public ResponseEntity<?> signUpSmsAuthorization(
+        @PathVariable("id") Long id,
+        @RequestParam("provider") ProviderType provider,
         @RequestParam(value = "code", required = false) String code,
         @RequestBody @Valid SmsReq req
     ) {
         if (code == null) {
-            SmsRes smsRes = memberAuthService.sendCode(req, SmsPrefix.OAUTH);
+            SmsRes smsRes = oAuthService.sendCode(req, id, provider, SmsPrefix.OAUTH);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        String token = oAuthService.checkCertificationNumber(req, code);
+        String token = oAuthService.checkCertificationNumber(req, id, code);
         if (!StringUtils.hasText(token))
             return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build();
 

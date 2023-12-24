@@ -13,7 +13,9 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public enum SmsErrorCode implements StatusCode {
     EXPIRED_AUTH_CODE(BAD_REQUEST, "인증 시간이 만료되었습니다"),
     INVALID_AUTH_CODE(BAD_REQUEST, "유효하지 않은 인증 코드입니다"),
-    INVALID_RECEIVER(BAD_REQUEST, "유효하지 않은 수신자입니다");
+    INVALID_RECEIVER(BAD_REQUEST, "유효하지 않은 수신자입니다"),
+    NOT_FOUND_SMS_PREFIX(BAD_REQUEST, "유효하지 않은 인증 타입입니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String message;

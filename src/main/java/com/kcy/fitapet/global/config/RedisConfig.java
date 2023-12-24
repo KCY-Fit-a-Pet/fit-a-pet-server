@@ -1,6 +1,6 @@
 package com.kcy.fitapet.global.config;
 
-import com.kcy.fitapet.global.common.redis.sms.SmsCertification;
+import com.kcy.fitapet.global.common.redis.sms.domain.SmsCertification;
 import com.kcy.fitapet.global.config.feign.OidcCacheManager;
 import com.kcy.fitapet.global.config.feign.RedisCacheConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;

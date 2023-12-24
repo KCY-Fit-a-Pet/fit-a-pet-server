@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.common.redis.sms;
+package com.kcy.fitapet.global.common.redis.sms.domain;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -10,18 +10,18 @@ import org.springframework.data.redis.core.RedisHash;
 public class SmsCertification {
     @Id
     private final String phoneNumber;
-    private final String certificationNumber;
+    private final String code;
 
     @Builder
-    public SmsCertification(String phoneNumber, String certificationNumber) {
+    public SmsCertification(String phoneNumber, String code) {
         this.phoneNumber = phoneNumber;
-        this.certificationNumber = certificationNumber;
+        this.code = code;
     }
 
-    public static SmsCertification of(String phoneNumber, String certificationNumber) {
+    public static SmsCertification of(String phoneNumber, String code) {
         return SmsCertification.builder()
                 .phoneNumber(phoneNumber)
-                .certificationNumber(certificationNumber)
+                .code(code)
                 .build();
     }
 }
