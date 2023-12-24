@@ -38,6 +38,8 @@ public class Member extends Auditable {
     private String profileImg;
     @Column(name = "account_locked") @ColumnDefault("false")
     private Boolean accountLocked;
+    @Column(name = "is_oauth") @ColumnDefault("false")
+    private Boolean isOauth;
     @Convert(converter = RoleTypeConverter.class)
     @Getter
     private RoleType role;
@@ -56,7 +58,9 @@ public class Member extends Auditable {
     private List<Manager> underCares = new ArrayList<>();
 
     @Builder
-    private Member(String uid, String name, String password, String phone, String email, String profileImg, Boolean accountLocked, RoleType role, NotificationSetting notificationSetting) {
+    private Member(String uid, String name, String password, String phone,
+                   String email, String profileImg, Boolean accountLocked, Boolean isOauth,
+                   RoleType role, NotificationSetting notificationSetting) {
         this.uid = uid;
         this.name = name;
         this.password = password;
@@ -64,12 +68,14 @@ public class Member extends Auditable {
         this.email = email;
         this.profileImg = profileImg;
         this.accountLocked = accountLocked;
+        this.isOauth = isOauth;
         this.role = role;
         this.notificationSetting = notificationSetting;
     }
 
     public static Member of(String uid, String name, String password, String phone, String email,
-                            String profileImg, Boolean accountLocked, RoleType role, NotificationSetting notificationSetting) {
+                            String profileImg, Boolean accountLocked, Boolean isOauth,
+                            RoleType role, NotificationSetting notificationSetting) {
         return Member.builder()
                 .uid(uid)
                 .name(name)
@@ -78,6 +84,7 @@ public class Member extends Auditable {
                 .email(email)
                 .profileImg(profileImg)
                 .accountLocked(accountLocked)
+                .isOauth(isOauth)
                 .role(role)
                 .notificationSetting(notificationSetting)
                 .build();

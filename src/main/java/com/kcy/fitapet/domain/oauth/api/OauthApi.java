@@ -48,7 +48,7 @@ public class OauthApi {
     ) {
         Jwt jwt = null;
         if (ProviderType.NAVER.equals(provider)) {
-            return null;
+            return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
             jwt = oAuthService.signInByOIDC(req.id(), req.id_token(), provider, req.nonce());
         }
@@ -67,12 +67,11 @@ public class OauthApi {
     ) {
         Jwt jwt = null;
         if (ProviderType.NAVER.equals(provider)) {
-            return null;
+            return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
-
+            jwt = oAuthService.signUpByOIDC(id, provider, req);
         }
 
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), jwt.refreshToken(), 60 * 60 * 24 * 7);
         return getResponseEntity(jwt);
     }
 

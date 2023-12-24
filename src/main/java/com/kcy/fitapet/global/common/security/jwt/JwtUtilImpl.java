@@ -13,6 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -36,23 +37,15 @@ public class JwtUtilImpl implements JwtUtil {
 
     private final Key signatureKey;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
-    private final Duration accessTokenExpirationTime;
-    private final Duration refreshTokenExpirationTime;
-    private final Duration smsAuthExpirationTime;
+    private final JwtApplicationConfig jwtApplicationConfig;
 
     public JwtUtilImpl(
             @Value("${jwt.secret}") String jwtSecretKey,
-            @Value("${jwt.token.access-expiration-time}") Duration accessTokenExpirationTime,
-            @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpirationTime,
-            @Value("${jwt.token.sms-auth-expiration-time}") Duration smsAuthExpirationTime
+            @Autowired JwtApplicationConfig jwtApplicationConfig
     ) {
         final byte[] secretKeyBytes = Base64.getDecoder().decode(jwtSecretKey);
         this.signatureKey = Keys.hmacShaKeyFor(secretKeyBytes);
-
-        this.accessTokenExpirationTime = accessTokenExpirationTime;
-        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
-        this.smsAuthExpirationTime = smsAuthExpirationTime;
+        this.jwtApplicationConfig = jwtApplicationConfig;
     }
 
     @Override
@@ -71,7 +64,7 @@ public class JwtUtilImpl implements JwtUtil {
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
                 .signWith(signatureKey, signatureAlgorithm)
-                .setExpiration(createExpireDate(now, accessTokenExpirationTime.toMillis()))
+                .setExpiration(createExpireDate(now, jwtApplicationConfig.getAccessExpirationTime().toMillis()))
                 .compact();
     }
 
@@ -83,7 +76,7 @@ public class JwtUtilImpl implements JwtUtil {
                 .setHeader(createHeader())
                 .setClaims(createClaims(user))
                 .signWith(signatureKey, signatureAlgorithm)
-                .setExpiration(createExpireDate(now, refreshTokenExpirationTime.toMillis()))
+                .setExpiration(createExpireDate(now, jwtApplicationConfig.getRefreshExpirationTime().toMillis()))
                 .compact();
     }
 
@@ -95,7 +88,7 @@ public class JwtUtilImpl implements JwtUtil {
                 .setHeader(createHeader())
                 .setClaims(Map.of(PHONE_NUMBER, user.phoneNumber()))
                 .signWith(signatureKey, signatureAlgorithm)
-                .setExpiration(createExpireDate(now, smsAuthExpirationTime.toMillis()))
+                .setExpiration(createExpireDate(now, jwtApplicationConfig.getSmsAuthExpirationTime().toMillis()))
                 .compact();
     }
 
