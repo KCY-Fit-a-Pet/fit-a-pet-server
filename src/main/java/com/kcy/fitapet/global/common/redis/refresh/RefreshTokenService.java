@@ -1,6 +1,6 @@
 package com.kcy.fitapet.global.common.redis.refresh;
 
-import com.kcy.fitapet.global.common.util.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 
 public interface RefreshTokenService {
     /**

@@ -1,7 +1,6 @@
 package com.kcy.fitapet.domain.member.dto.auth;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.type.NotificationSetting;
 import com.kcy.fitapet.domain.member.type.RoleType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

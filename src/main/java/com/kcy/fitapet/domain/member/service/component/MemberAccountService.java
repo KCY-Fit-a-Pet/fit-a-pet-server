@@ -10,9 +10,8 @@ import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
-import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
-import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
-import com.kcy.fitapet.global.common.response.code.ErrorCode;
+import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
+import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
-    private final SmsCertificationService smsCertificationService;
+    private final SmsRedisProvider smsRedisProvider;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
@@ -126,13 +125,13 @@ public class MemberAccountService {
      * @param prefix : 인증번호 타입
      */
     private void validatePhone(String phone, String code, SmsPrefix prefix) {
-        if (!smsCertificationService.existsCertificationNumber(phone, prefix)) {
+        if (!smsRedisProvider.isExistsCode(phone, prefix)) {
             StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
 
-        if (!smsCertificationService.isCorrectCertificationNumber(phone, code, prefix)) {
+        if (!smsRedisProvider.isCorrectCode(phone, code, prefix)) {
             StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);

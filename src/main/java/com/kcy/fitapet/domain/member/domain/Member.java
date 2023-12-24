@@ -4,9 +4,8 @@ import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.domain.member.type.converter.RoleTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
-import com.kcy.fitapet.domain.member.type.NotificationSetting;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
-import com.kcy.fitapet.domain.oauth2.domain.OAuthID;
+import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -39,6 +38,8 @@ public class Member extends Auditable {
     private String profileImg;
     @Column(name = "account_locked") @ColumnDefault("false")
     private Boolean accountLocked;
+    @Column(name = "is_oauth") @ColumnDefault("false") @Getter
+    private Boolean isOauth;
     @Convert(converter = RoleTypeConverter.class)
     @Getter
     private RoleType role;
@@ -46,7 +47,7 @@ public class Member extends Auditable {
     private NotificationSetting notificationSetting;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private Set<OAuthID> oauthIDs = new HashSet<>();
+    private Set<OauthAccount> oauthIDs = new HashSet<>();
     @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
     private Set<MemberNickname> fromMemberNickname = new HashSet<>();
     @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
@@ -57,7 +58,9 @@ public class Member extends Auditable {
     private List<Manager> underCares = new ArrayList<>();
 
     @Builder
-    private Member(String uid, String name, String password, String phone, String email, String profileImg, Boolean accountLocked, RoleType role, NotificationSetting notificationSetting) {
+    private Member(String uid, String name, String password, String phone,
+                   String email, String profileImg, Boolean accountLocked, Boolean isOauth,
+                   RoleType role, NotificationSetting notificationSetting) {
         this.uid = uid;
         this.name = name;
         this.password = password;
@@ -65,12 +68,14 @@ public class Member extends Auditable {
         this.email = email;
         this.profileImg = profileImg;
         this.accountLocked = accountLocked;
+        this.isOauth = isOauth;
         this.role = role;
         this.notificationSetting = notificationSetting;
     }
 
     public static Member of(String uid, String name, String password, String phone, String email,
-                            String profileImg, Boolean accountLocked, RoleType role, NotificationSetting notificationSetting) {
+                            String profileImg, Boolean accountLocked, Boolean isOauth,
+                            RoleType role, NotificationSetting notificationSetting) {
         return Member.builder()
                 .uid(uid)
                 .name(name)
@@ -79,6 +84,7 @@ public class Member extends Auditable {
                 .email(email)
                 .profileImg(profileImg)
                 .accountLocked(accountLocked)
+                .isOauth(isOauth)
                 .role(role)
                 .notificationSetting(notificationSetting)
                 .build();
@@ -113,5 +119,9 @@ public class Member extends Auditable {
 
     public void updateNotificationFromType(NotificationType type) {
         this.notificationSetting.updateNotificationFromType(type);
+    }
+
+    public void updateOathToOriginAccount() {
+        this.isOauth = Boolean.FALSE;
     }
 }

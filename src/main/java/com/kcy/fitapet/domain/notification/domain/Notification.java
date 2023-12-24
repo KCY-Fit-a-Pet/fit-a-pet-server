@@ -3,7 +3,7 @@ package com.kcy.fitapet.domain.notification.domain;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.Auditable;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
-import com.kcy.fitapet.domain.notification.type.NotificationTypeConverter;
+import com.kcy.fitapet.domain.notification.type.converter.NotificationTypeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

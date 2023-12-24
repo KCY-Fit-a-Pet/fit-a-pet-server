@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "CARE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(of = {"careName", "dtype"})
+@ToString(of = {"careName"})
 @Getter
 public class Care extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

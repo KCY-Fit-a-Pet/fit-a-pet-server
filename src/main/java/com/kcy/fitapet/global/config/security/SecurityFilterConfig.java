@@ -5,7 +5,7 @@ import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceIm
 import com.kcy.fitapet.global.common.security.filter.JwtAuthenticationFilter;
 import com.kcy.fitapet.global.common.security.filter.JwtExceptionFilter;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.util.jwt.JwtUtil;
+import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
 import lombok.AccessLevel;
