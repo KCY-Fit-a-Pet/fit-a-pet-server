@@ -5,6 +5,8 @@ import com.kcy.fitapet.global.common.redis.sms.qualify.SmsPasswordQualifier;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class SmsPasswordService {
     private final SmsRedisProvider smsRedisProvider;
@@ -27,5 +29,9 @@ public class SmsPasswordService {
 
     public void removeCode(String phone, SmsPrefix prefix) {
         smsRedisProvider.removeCode(phone, prefix);
+    }
+
+    public LocalDateTime getExpiredTime(String phone, SmsPrefix prefix) {
+        return smsRedisProvider.getExpiredTime(phone, prefix);
     }
 }

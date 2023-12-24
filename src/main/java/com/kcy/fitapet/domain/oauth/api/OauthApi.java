@@ -70,13 +70,14 @@ public class OauthApi {
     public ResponseEntity<?> signUp(
             @PathVariable("id") Long id,
             @RequestParam("provider") ProviderType provider,
+            @RequestHeader("Authorization") String accessToken,
             @RequestBody @Valid OauthSignUpReq req
     ) {
         Jwt jwt = null;
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
-            jwt = oAuthService.signUpByOIDC(id, provider, req);
+            jwt = oAuthService.signUpByOIDC(id, provider, accessToken, req);
         }
 
         return getResponseEntity(jwt);
@@ -99,11 +100,11 @@ public class OauthApi {
         @RequestBody @Valid SmsReq req
     ) {
         if (code == null) {
-            SmsRes smsRes = oAuthService.sendCode(req, id, provider, SmsPrefix.OAUTH);
+            SmsRes smsRes = oAuthService.sendCode(req, id, provider);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        String token = oAuthService.checkCertificationNumber(req, id, code);
+        String token = oAuthService.checkCertificationNumber(req, id, code, provider);
         if (!StringUtils.hasText(token))
             return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build();
 

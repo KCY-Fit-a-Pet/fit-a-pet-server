@@ -5,9 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Oauth Sign Up Request")
 public record OauthSignUpReq(
-        @Schema(description = "전화번호")
-        @NotBlank
-        String phone,
         @Schema(description = "이름")
         @NotBlank
         String name,

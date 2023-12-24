@@ -46,7 +46,7 @@ public interface SmsRedisProvider {
 
      default String getTopic(String phoneNumber, SmsPrefix prefix) {
          String str = prefix.getTopic(phoneNumber);
-         return "sms" + str.substring(0, 1).toUpperCase() + str.substring(1)
-                 + ":" + phoneNumber;
+         return "sms" + str.substring(0, 1).toUpperCase()
+                 + str.substring(1).replace("@", ":");
      }
 }

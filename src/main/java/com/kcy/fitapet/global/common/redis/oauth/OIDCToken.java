@@ -1,9 +1,8 @@
 package com.kcy.fitapet.global.common.redis.oauth;
 
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
-import jakarta.persistence.Id;
 import lombok.Builder;
-import lombok.Getter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 

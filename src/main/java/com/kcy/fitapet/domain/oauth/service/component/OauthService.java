@@ -12,14 +12,17 @@ import com.kcy.fitapet.domain.oauth.service.module.OauthApplicationConfigHelper;
 import com.kcy.fitapet.domain.oauth.service.module.OauthClientHelper;
 import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
+import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.oauth.OIDCTokenService;
-import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
+import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
+import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
 import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.oauth.OauthApplicationConfig;
 import com.kcy.fitapet.global.common.security.oauth.OauthClient;
 import com.kcy.fitapet.global.common.security.oauth.OauthOIDCHelper;
@@ -49,9 +52,11 @@ public class OauthService {
     private final OauthClientHelper oauthClientHelper;
 
     private final JwtUtil jwtUtil;
+    private final ForbiddenTokenService forbiddenTokenService;
+
     private final OIDCTokenService oidcTokenService;
     private final SmsProvider smsProvider;
-    private final SmsRedisProvider smsRedisProvider;
+    private final SmsRedisHelper smsRedisHelper;
 
     @Transactional
     public Jwt signInByOIDC(Long id, String idToken, ProviderType provider, String nonce) {
@@ -68,16 +73,26 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt signUpByOIDC(Long id, ProviderType provider, OauthSignUpReq req) {
+    public Jwt signUpByOIDC(Long id, ProviderType provider, String requestAccessToken, OauthSignUpReq req) {
+        String accessToken = jwtUtil.resolveToken(requestAccessToken);
+        String topic = jwtUtil.getPhoneNumberFromToken(accessToken);
+        validateToken(accessToken, topic, provider);
+
+        String phone = getPhoneByTopic(topic);
         String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
         OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
 
-        Member member = (memberSearchService.isExistByPhone(req.phone()))
-                ? memberSearchService.findByPhone(req.phone())
+        Member member = (memberSearchService.isExistByPhone(phone))
+                ? memberSearchService.findByPhone(phone)
                 : Member.builder().uid(req.uid()).name(req.name())
-                .phone(req.phone()).isOauth(Boolean.TRUE).role(RoleType.USER).build();
+                .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER).build();
         memberSaveService.saveMember(member);
         OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email(), member);
+
+        forbiddenTokenService.register(
+                AccessToken.of(accessToken, jwtUtil.getUserIdFromToken(accessToken),
+                        jwtUtil.getExpiryDate(accessToken), false)
+        );
 
         log.info("success oauth signup member id : {} - oauth id : {} [provider: {}]",
                 member.getId(), oauthAccount.getOauthId(), oauthAccount.getProvider());
@@ -85,26 +100,25 @@ public class OauthService {
     }
 
     @Transactional
-    public SmsRes sendCode(SmsReq dto, Long id, ProviderType provider, SmsPrefix prefix) {
+    public SmsRes sendCode(SmsReq dto, Long id, ProviderType provider) {
         SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto);
+        String key = makeTopic(dto.to(), provider);
 
-        smsRedisProvider.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
-        LocalDateTime expireTime = smsRedisProvider.getExpiredTime(dto.to(), prefix);
+        smsRedisHelper.saveSmsAuthToken(key, smsInfo.code(), SmsPrefix.OAUTH);
+        LocalDateTime expireTime = smsRedisHelper.getExpiredTime(key, SmsPrefix.OAUTH);
         log.info("인증번호 만료 시간: {}", expireTime);
         return SmsRes.of(dto.to(), smsInfo.requestTime(), expireTime);
     }
 
     @Transactional
-    public String checkCertificationNumber(SmsReq req, Long id, String code) {
-        if (!smsRedisProvider.isCorrectCode(req.to(), code, SmsPrefix.REGISTER)) {
+    public String checkCertificationNumber(SmsReq req, Long id, String code, ProviderType provider) {
+        String key = makeTopic(req.to(), provider);
+        if (!smsRedisHelper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
             log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", code);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
-
-        String token = jwtUtil.generateSmsOauthToken(SmsAuthInfo.of(id, req.to()));
-        smsRedisProvider.saveSmsAuthToken(req.to(), token, SmsPrefix.OAUTH);
-
-        return token;
+        smsRedisHelper.removeCode(key, SmsPrefix.OAUTH);
+        return jwtUtil.generateSmsOauthToken(SmsAuthInfo.of(id, key));
     }
 
     private OIDCDecodePayload getPayload(ProviderType provider, String idToken, String nonce) {
@@ -124,6 +138,27 @@ public class OauthService {
         if (!id.equals(sub)) {
             throw new GlobalErrorException(OauthException.INVALID_OAUTH_ID);
         }
+    }
+
+    private String makeTopic(String phoneNumber, ProviderType provider) {
+        return provider.name() + "@" + phoneNumber;
+    }
+
+    private void validateToken(String accessToken, String value, ProviderType provider) {
+        if (forbiddenTokenService.isForbidden(accessToken))
+            throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
+
+        ProviderType tokenProvider = getProviderByTopic(value);
+        if (!provider.equals(tokenProvider))
+            throw new GlobalErrorException(OauthException.INVALID_OAUTH_PROVIDER);
+    }
+
+    private ProviderType getProviderByTopic(String topic) {
+        return ProviderType.valueOf(topic.split("@")[0].toUpperCase());
+    }
+
+    private String getPhoneByTopic(String topic) {
+        return topic.split("@")[1];
     }
 
     private Jwt generateToken(JwtUserInfo jwtUserInfo) {

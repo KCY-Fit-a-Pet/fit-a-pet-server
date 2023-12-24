@@ -60,8 +60,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
+    public RedisTemplate<String, ?> redisTemplate() {
+        RedisTemplate<String, ?> template = new RedisTemplate<>();
 
         template.setConnectionFactory(redisConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());
