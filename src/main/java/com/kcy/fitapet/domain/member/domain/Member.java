@@ -38,7 +38,7 @@ public class Member extends Auditable {
     private String profileImg;
     @Column(name = "account_locked") @ColumnDefault("false")
     private Boolean accountLocked;
-    @Column(name = "is_oauth") @ColumnDefault("false")
+    @Column(name = "is_oauth") @ColumnDefault("false") @Getter
     private Boolean isOauth;
     @Convert(converter = RoleTypeConverter.class)
     @Getter
@@ -119,5 +119,9 @@ public class Member extends Auditable {
 
     public void updateNotificationFromType(NotificationType type) {
         this.notificationSetting.updateNotificationFromType(type);
+    }
+
+    public void updateOathToOriginAccount() {
+        this.isOauth = Boolean.FALSE;
     }
 }

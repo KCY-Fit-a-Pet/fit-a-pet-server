@@ -3,6 +3,7 @@ package com.kcy.fitapet.domain.member.api;
 import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
 import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
+import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
@@ -67,7 +68,7 @@ public class AuthApi {
     @PostMapping("/register")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUp(@RequestHeader("Authorization") @NotBlank String accessToken, @RequestBody @Valid SignUpReq dto) {
-        Map<String, String> tokens = memberAuthService.register(accessToken, dto);
+        Jwt tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
     }
 
@@ -91,13 +92,20 @@ public class AuthApi {
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        String token = memberAuthService.checkCodeForRegister(dto, code);
-        if (!StringUtils.hasText(token))
+        Jwt token = memberAuthService.checkCodeForRegister(dto, code);
+        if (token == null)
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
+        else if (token.refreshToken() == null)
+            return ResponseEntity.ok()
+                    .header(ACCESS_TOKEN.getValue(), token.accessToken())
+                    .body(SuccessResponse.noContent());
+
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), token.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
-                    .header(ACCESS_TOKEN.getValue(), token)
-                    .body(SuccessResponse.noContent());
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(ACCESS_TOKEN.getValue(), token.accessToken())
+                .body(SuccessResponse.from(Map.of("member", "등록된 oauth 계정 연동 성공")));
     }
 
     @Operation(summary = "ID/PW 찾기 전화번호 인증")
@@ -139,7 +147,7 @@ public class AuthApi {
     public ResponseEntity<?> signIn(@RequestHeader(value = "Authorization", required = false) String accessToken, @RequestBody @Valid SignInReq dto) {
         if (accessToken != null)
             throw new GlobalErrorException(ErrorCode.ALREADY_LOGIN_USER);
-        Map<String, String> tokens = memberAuthService.login(dto);
+        Jwt tokens = memberAuthService.login(dto);
         return getResponseEntity(tokens);
     }
 
@@ -184,7 +192,7 @@ public class AuthApi {
     })
     @GetMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
-        Map<String, String> tokens = memberAuthService.refresh(refreshToken);
+        Jwt tokens = memberAuthService.refresh(refreshToken);
         return getResponseEntity(tokens);
     }
 
@@ -193,12 +201,12 @@ public class AuthApi {
      * @param tokens : 액세스 토큰과 리프레시 토큰
      * @return ResponseEntity<?>
      */
-    private ResponseEntity<?> getResponseEntity(Map<String, String> tokens) {
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.get(REFRESH_TOKEN.getValue()), 60 * 60 * 24 * 7);
+    private ResponseEntity<?> getResponseEntity(Jwt tokens) {
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), tokens.get(ACCESS_TOKEN.getValue()))
+                .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
                 .body(SuccessResponse.noContent());
     }
 }
