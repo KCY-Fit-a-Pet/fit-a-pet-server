@@ -12,7 +12,6 @@ import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
 import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
-import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import lombok.RequiredArgsConstructor;
@@ -126,13 +125,13 @@ public class MemberAccountService {
      * @param prefix : 인증번호 타입
      */
     private void validatePhone(String phone, String code, SmsPrefix prefix) {
-        if (!smsCertificationService.existsCertificationNumber(phone, prefix)) {
+        if (!smsCertificationService.existsCode(phone, prefix)) {
             StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
 
-        if (!smsCertificationService.isCorrectCertificationNumber(phone, code, prefix)) {
+        if (!smsCertificationService.isCorrectCode(phone, code, prefix)) {
             StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);

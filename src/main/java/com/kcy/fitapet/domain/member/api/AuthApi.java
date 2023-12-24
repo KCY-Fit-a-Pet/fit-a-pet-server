@@ -87,11 +87,11 @@ public class AuthApi {
             @RequestParam(value = "code", required = false) String code,
             @RequestBody @Valid SmsReq dto) {
         if (code == null) {
-            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto, SmsPrefix.REGISTER);
+            SmsRes smsRes = memberAuthService.sendCode(dto, SmsPrefix.REGISTER);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        String token = memberAuthService.checkCertificationForRegister(dto, code);
+        String token = memberAuthService.checkCodeForRegister(dto, code);
         if (!StringUtils.hasText(token))
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
 
@@ -118,10 +118,10 @@ public class AuthApi {
         @RequestBody @Valid SmsReq dto
     ) {
         if (code == null) {
-            SmsRes smsRes = memberAuthService.sendCertificationNumber(dto, type);
+            SmsRes smsRes = memberAuthService.sendCode(dto, type);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
-        memberAuthService.checkCertificationForSearch(dto, code, type);
+        memberAuthService.checkCodeForSearch(dto, code, type);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 

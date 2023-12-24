@@ -23,19 +23,19 @@ public class SmsCertificationServiceImpl implements SmsCertificationService {
     }
 
     @Override
-    public boolean isCorrectCertificationNumber(String phoneNumber, String requestCertificationNumber, SmsPrefix prefix) {
+    public boolean isCorrectCode(String phoneNumber, String code, SmsPrefix prefix) {
         Optional<SmsCertification> smsCertification = smsCertificationRepository.findById(prefix.getTopic(phoneNumber));
 
-        return smsCertification.map(certification -> certification.getCertificationNumber().equals(requestCertificationNumber)).orElse(false);
+        return smsCertification.map(certification -> certification.getCertificationNumber().equals(code)).orElse(false);
     }
 
     @Override
-    public boolean existsCertificationNumber(String phoneNumber, SmsPrefix prefix) {
+    public boolean existsCode(String phoneNumber, SmsPrefix prefix) {
         return smsCertificationRepository.existsById(prefix.getTopic(phoneNumber));
     }
 
     @Override
-    public void removeCertificationNumber(String phoneNumber, SmsPrefix prefix) {
+    public void removeCode(String phoneNumber, SmsPrefix prefix) {
         smsCertificationRepository.deleteById(prefix.getTopic(phoneNumber));
     }
 

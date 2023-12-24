@@ -1,9 +1,11 @@
 package com.kcy.fitapet.domain.oauth.api;
 
+import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignInReq;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
 import com.kcy.fitapet.domain.oauth.service.component.OauthService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
+import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
@@ -35,6 +37,7 @@ import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TO
 @RequestMapping("/api/v1/auth/oauth")
 @Slf4j
 public class OauthApi {
+    private final MemberAuthService memberAuthService;
     private final OauthService oAuthService;
     private final CookieUtil cookieUtil;
 
@@ -94,14 +97,13 @@ public class OauthApi {
         @RequestBody @Valid SmsReq req
     ) {
         if (code == null) {
-            SmsRes smsRes = oAuthService.sendCertificationNumber(req);
+            SmsRes smsRes = memberAuthService.sendCode(req, SmsPrefix.OAUTH);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        String token = oAuthService.checkCertificationForRegister(req, code);
-        if (!StringUtils.hasText(token)) {
+        String token = oAuthService.checkCertificationNumber(req, code);
+        if (!StringUtils.hasText(token))
             return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build();
-        }
 
         return ResponseEntity.ok()
                 .header(ACCESS_TOKEN.getValue(), token)

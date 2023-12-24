@@ -1,6 +1,7 @@
 package com.kcy.fitapet.domain.oauth.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
+import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.RoleType;
@@ -12,16 +13,20 @@ import com.kcy.fitapet.domain.oauth.service.module.OauthClientHelper;
 import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
 import com.kcy.fitapet.global.common.redis.oauth.OIDCTokenService;
+import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
+import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.security.oauth.OauthApplicationConfig;
 import com.kcy.fitapet.global.common.security.oauth.OauthClient;
 import com.kcy.fitapet.global.common.security.oauth.OauthOIDCHelper;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
-import com.kcy.fitapet.global.common.security.oauth.kakao.KakaoOauthClient;
+import com.kcy.fitapet.global.common.util.sms.SmsProvider;
+import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,6 +46,8 @@ public class OauthService {
 
     private final JwtUtil jwtUtil;
     private final OIDCTokenService oidcTokenService;
+    private final SmsProvider smsProvider;
+    private final SmsCertificationService smsCertificationService;
 
     @Transactional
     public Jwt signInByOIDC(Long id, String idToken, ProviderType provider, String nonce) {
@@ -71,6 +78,19 @@ public class OauthService {
         log.info("success oauth signup member id : {} - oauth id : {} [provider: {}]",
                 member.getId(), oauthAccount.getOauthId(), oauthAccount.getProvider());
         return generateToken(JwtUserInfo.from(member));
+    }
+
+    @Transactional
+    public String checkCertificationNumber(SmsReq req, String code) {
+        if (!smsCertificationService.isCorrectCode(req.to(), code, SmsPrefix.REGISTER)) {
+            log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", code);
+            throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
+        }
+
+        String token = jwtUtil.generateSmsOauthToken(SmsAuthInfo.of(1L, req.to()));
+        smsCertificationService.saveSmsAuthToken(req.to(), token, SmsPrefix.OAUTH);
+
+        return token;
     }
 
     private OIDCDecodePayload getPayload(ProviderType provider, String idToken, String nonce) {

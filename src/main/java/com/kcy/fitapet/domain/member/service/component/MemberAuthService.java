@@ -8,7 +8,6 @@ import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.global.common.resolver.access.AccessToken;
-import com.kcy.fitapet.global.common.response.code.ErrorCode;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
@@ -20,7 +19,7 @@ import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
 import com.kcy.fitapet.global.common.redis.sms.SmsCertificationService;
 import com.kcy.fitapet.global.common.redis.sms.SmsPrefix;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
-import com.kcy.fitapet.global.common.util.sms.dto.SensRes;
+import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +56,7 @@ public class MemberAuthService {
         String accessToken = jwtUtil.resolveToken(requestAccessToken);
 
         String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken);
-        smsCertificationService.removeCertificationNumber(authenticatedPhone, SmsPrefix.REGISTER);
+        smsCertificationService.removeCode(authenticatedPhone, SmsPrefix.REGISTER);
 
         Member requestMember = dto.toEntity(authenticatedPhone);
         requestMember.encodePassword(bCryptPasswordEncoder);
@@ -97,29 +96,20 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public SmsRes sendCertificationNumber(SmsReq dto, SmsPrefix prefix) {
+    public SmsRes sendCode(SmsReq dto, SmsPrefix prefix) {
         validateForSms(prefix, dto);
-        String certificationNumber = smsProvider.issueCertificationNumber(dto.to());
+        SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto);
 
-        SensRes sensRes;
-        try {
-            sensRes = smsProvider.sendCertificationNumber(dto, certificationNumber);
-        } catch (Exception e) {
-            log.warn("SMS 발송 실패: {}", e.getMessage());
-            throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
-        }
-        checkSmsStatus(dto.to(), sensRes);
-
-        smsCertificationService.saveSmsAuthToken(dto.to(), certificationNumber, prefix);
+        smsCertificationService.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
         LocalDateTime expireTime = smsCertificationService.getExpiredTime(dto.to(), prefix);
         log.info("인증번호 만료 시간: {}", expireTime);
-        return SmsRes.of(dto.to(), sensRes.requestTime(), expireTime);
+        return SmsRes.of(dto.to(), smsInfo.requestTime(), expireTime);
     }
 
     @Transactional
-    public String checkCertificationForRegister(SmsReq smsReq, String requestCertificationNumber) {
-        if (!smsCertificationService.isCorrectCertificationNumber(smsReq.to(), requestCertificationNumber, SmsPrefix.REGISTER)) {
-            log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", requestCertificationNumber);
+    public String checkCodeForRegister(SmsReq smsReq, String requestCode) {
+        if (!smsCertificationService.isCorrectCode(smsReq.to(), requestCode, SmsPrefix.REGISTER)) {
+            log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", requestCode);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
 
@@ -130,14 +120,14 @@ public class MemberAuthService {
     }
 
     @Transactional(readOnly = true)
-    public void checkCertificationForSearch(SmsReq req, String code, SmsPrefix prefix) {
-        if (!smsCertificationService.existsCertificationNumber(req.to(), prefix)) {
+    public void checkCodeForSearch(SmsReq req, String code, SmsPrefix prefix) {
+        if (!smsCertificationService.existsCode(req.to(), prefix)) {
             StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
 
-        if (!smsCertificationService.isCorrectCertificationNumber(req.to(), code, prefix)) {
+        if (!smsCertificationService.isCorrectCode(req.to(), code, prefix)) {
             StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
@@ -161,17 +151,6 @@ public class MemberAuthService {
                 throw new GlobalErrorException(AccountErrorCode.MISSMATCH_PHONE_AND_UID_ERROR);
             }
         }
-    }
-
-    private void checkSmsStatus(String requestPhone, SensRes sensRes) {
-        if (sensRes.statusCode().equals("404")) {
-            log.warn("존재하지 않는 수신자: {}", requestPhone);
-            throw new GlobalErrorException(SmsErrorCode.INVALID_RECEIVER);
-        } else if (sensRes.statusName().equals("fail")) {
-            log.warn("SMS API 응답 실패: {}", sensRes);
-            throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
-        }
-        log.info("SMS 발송 성공");
     }
 
     private void validateMember(Member member) {

@@ -2,7 +2,11 @@ package com.kcy.fitapet.global.common.util.sms.snes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
+import com.kcy.fitapet.global.common.response.code.ErrorCode;
+import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
+import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
 import com.kcy.fitapet.global.common.util.sms.dto.SensReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SensRes;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
@@ -51,7 +55,22 @@ public class SnesProvider implements SmsProvider {
     }
 
     @Override
-    public SensRes sendCertificationNumber(SmsReq smsReq, String certificationNumber)
+    public SensInfo sendCodeByPhoneNumber(SmsReq dto) throws GlobalErrorException {
+        String certificationNumber = issueCertificationNumber(dto.to());
+
+        SensRes sensRes;
+        try {
+            sensRes = sendCertificationNumber(dto, certificationNumber);
+        } catch (Exception e) {
+            log.warn("SMS 발송 실패: {}", e.getMessage());
+            throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
+        }
+        checkSmsStatus(dto.to(), sensRes);
+
+        return SensInfo.from(sensRes, certificationNumber);
+    }
+
+    private SensRes sendCertificationNumber(SmsReq smsReq, String certificationNumber)
             throws JsonProcessingException, RestClientException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         long now = System.currentTimeMillis();
 
@@ -74,7 +93,7 @@ public class SnesProvider implements SmsProvider {
         return restTemplate.postForObject("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages", httpEntity, SensRes.class);
     }
 
-    public String issueCertificationNumber(String phoneNumber) {
+    private String issueCertificationNumber(String phoneNumber) {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < 6; i++) {
@@ -83,6 +102,17 @@ public class SnesProvider implements SmsProvider {
         String code = sb.toString();
 
         return code;
+    }
+
+    private void checkSmsStatus(String phoneNumber, SensRes sensRes) {
+        if (sensRes.statusCode().equals("404")) {
+            log.warn("존재하지 않는 수신자: {}", phoneNumber);
+            throw new GlobalErrorException(SmsErrorCode.INVALID_RECEIVER);
+        } else if (sensRes.statusName().equals("fail")) {
+            log.warn("SMS API 응답 실패: {}", sensRes);
+            throw new GlobalErrorException(ErrorCode.SMS_SEND_ERROR);
+        }
+        log.info("SMS 발송 성공");
     }
 
     private String makeSignature(long now) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException {

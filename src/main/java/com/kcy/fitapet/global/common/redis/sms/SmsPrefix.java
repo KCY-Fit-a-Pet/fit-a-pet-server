@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum SmsPrefix {
     REGISTER("register"),
     PASSWORD("password"),
-    UID("uid");
+    UID("uid"),
+    OAUTH("oauth");
 
     private final String prefix;
 
