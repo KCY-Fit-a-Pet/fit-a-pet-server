@@ -9,8 +9,8 @@ import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
 import com.kcy.fitapet.domain.oauth.dto.OauthSmsReq;
 import com.kcy.fitapet.domain.oauth.exception.OauthException;
-import com.kcy.fitapet.domain.oauth.service.module.OauthApplicationConfigHelper;
-import com.kcy.fitapet.domain.oauth.service.module.OauthClientHelper;
+import com.kcy.fitapet.global.common.security.oauth.OauthApplicationConfigMapper;
+import com.kcy.fitapet.global.common.security.oauth.OauthClientMapper;
 import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
@@ -31,7 +31,6 @@ import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +48,8 @@ public class OauthService {
     private final MemberSearchService memberSearchService;
 
     private final OauthOIDCHelper oauthOIDCHelper;
-    private final OauthApplicationConfigHelper oauthApplicationConfigHelper;
-    private final OauthClientHelper oauthClientHelper;
+    private final OauthApplicationConfigMapper oauthApplicationConfigMapper;
+    private final OauthClientMapper oauthClientMapper;
 
     private final JwtUtil jwtUtil;
     private final ForbiddenTokenService forbiddenTokenService;
@@ -135,8 +134,8 @@ public class OauthService {
      * idToken을 통해 payload를 가져온다.
      */
     private OIDCDecodePayload getPayload(ProviderType provider, String idToken, String nonce) {
-        OauthClient oauthClient = oauthClientHelper.getOauthClient(provider);
-        OauthApplicationConfig oauthApplicationConfig = oauthApplicationConfigHelper.getOauthApplicationConfig(provider);
+        OauthClient oauthClient = oauthClientMapper.getOauthClient(provider);
+        OauthApplicationConfig oauthApplicationConfig = oauthApplicationConfigMapper.getOauthApplicationConfig(provider);
         OIDCPublicKeyResponse oidcPublicKeyResponse = oauthClient.getOIDCPublicKey();
 
         return oauthOIDCHelper.getPayloadFromIdToken(

@@ -1,4 +1,4 @@
-package com.kcy.fitapet.domain.oauth.service.module;
+package com.kcy.fitapet.global.common.security.oauth;
 
 import com.kcy.fitapet.domain.oauth.exception.OauthException;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OauthClientHelper {
+public class OauthClientMapper {
     private final KakaoOauthClient kakaoOauthClient;
 
     public OauthClient getOauthClient(ProviderType provider) {

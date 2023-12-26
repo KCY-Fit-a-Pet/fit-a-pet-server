@@ -56,7 +56,7 @@ public class OauthApi {
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
-            jwt = oAuthService.signInByOIDC(req.id(), req.id_token(), provider, req.nonce());
+            jwt = oAuthService.signInByOIDC(req.id(), req.idToken(), provider, req.nonce());
         }
 
         return (jwt == null)
@@ -89,6 +89,12 @@ public class OauthApi {
         return getJwtResponseEntity(jwt);
     }
 
+    @Operation(summary = "OAuth 회원가입 전화번호 인증")
+    @Parameters({
+            @Parameter(name = "id", description = "OAuth 제공자에서 발급받은 ID"),
+            @Parameter(name = "provider", description = "OAuth 제공자"),
+            @Parameter(name = "req", description = "OAuth 회원가입 전화번호 인증 요청 정보")
+    })
     @PostMapping("/{id}/sms")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUpSmsAuthorization(

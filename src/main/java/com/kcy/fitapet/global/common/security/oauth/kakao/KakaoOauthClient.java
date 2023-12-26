@@ -15,6 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public interface KakaoOauthClient extends OauthClient {
     @Override
     @Cacheable(value = "KakaoOauth", cacheManager = "oidcCacheManger")
-    @GetMapping("/.well-knowm/jwks.json")
+    @GetMapping("/.well-known/jwks.json")
     OIDCPublicKeyResponse getOIDCPublicKey();
 }
