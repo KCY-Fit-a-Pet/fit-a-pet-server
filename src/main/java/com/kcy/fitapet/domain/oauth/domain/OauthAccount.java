@@ -27,20 +27,27 @@ public class OauthAccount extends Auditable {
     private Member member;
 
     @Builder
-    public OauthAccount(Long id, Long oauthId, ProviderType provider, String email, Member member) {
+    public OauthAccount(Long id, Long oauthId, ProviderType provider, String email) {
         this.id = id;
         this.oauthId = oauthId;
         this.provider = provider;
         this.email = email;
-        this.member = member;
     }
 
-    public static OauthAccount of(Long oauthId, ProviderType provider, String email, Member member) {
+    public static OauthAccount of(Long oauthId, ProviderType provider, String email) {
         return OauthAccount.builder()
                 .oauthId(oauthId)
                 .provider(provider)
                 .email(email)
-                .member(member)
                 .build();
+    }
+
+    public void updateMember(Member member) {
+        if (this.member != null) {
+            this.member.getOauthAccounts().remove(this);
+        }
+
+        this.member = member;
+        member.getOauthAccounts().add(this);
     }
 }

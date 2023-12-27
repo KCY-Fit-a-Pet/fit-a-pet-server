@@ -56,6 +56,8 @@ public class Member extends Auditable {
     private List<Notification> notifications = new ArrayList<>();
     @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL) @Getter
     private List<Manager> underCares = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) @Getter
+    private List<OauthAccount> oauthAccounts = new ArrayList<>();
 
     @Builder
     private Member(String uid, String name, String password, String phone,

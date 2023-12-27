@@ -113,14 +113,14 @@ public class OauthApi {
         else if (token.refreshToken() == null)
             return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), token.accessToken())
-                    .body(SuccessResponse.noContent());
+                    .body(SuccessResponse.from(Map.of("member", "신규 회원")));
 
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), token.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), token.accessToken())
-                .body(SuccessResponse.from(Map.of("member", "등록된 oauth 계정 연동 성공")));
+                .body(SuccessResponse.noContent());
     }
 
     private ResponseEntity<?> getJwtResponseEntity(Jwt jwt) {

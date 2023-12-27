@@ -1,6 +1,7 @@
 package com.kcy.fitapet.domain.oauth.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
+import com.kcy.fitapet.domain.member.domain.NotificationSetting;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
@@ -9,8 +10,6 @@ import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
 import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
 import com.kcy.fitapet.domain.oauth.dto.OauthSmsReq;
 import com.kcy.fitapet.domain.oauth.exception.OauthException;
-import com.kcy.fitapet.global.common.security.oauth.OauthApplicationConfigMapper;
-import com.kcy.fitapet.global.common.security.oauth.OauthClientMapper;
 import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
@@ -24,12 +23,9 @@ import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
 import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.oauth.OauthApplicationConfig;
-import com.kcy.fitapet.global.common.security.oauth.OauthClient;
-import com.kcy.fitapet.global.common.security.oauth.OauthOIDCHelper;
+import com.kcy.fitapet.global.common.security.oauth.*;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
-import com.kcy.fitapet.global.common.security.oauth.kakao.KakaoOauthClient;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
@@ -87,9 +83,14 @@ public class OauthService {
         OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
 
         Member member = Member.builder().uid(req.uid()).name(req.name())
-                .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER).build();
+                .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER)
+                .accountLocked(Boolean.FALSE).notificationSetting(NotificationSetting.of(
+                        Boolean.TRUE, Boolean.TRUE, Boolean.TRUE
+                )).build();
         memberSaveService.saveMember(member);
-        OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email(), member);
+        OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
+        oauthAccount.updateMember(member);
+        oidcTokenService.deleteOIDCToken(req.idToken());
 
         forbiddenTokenService.register(
                 AccessToken.of(accessToken, jwtUtil.getUserIdFromToken(accessToken),
@@ -115,6 +116,7 @@ public class OauthService {
     @Transactional
     public Jwt checkCertificationNumber(OauthSmsReq req, Long id, String code, ProviderType provider) {
         String key = makeTopic(req.to(), provider);
+        log.info("key: {}", key);
         if (!smsRedisHelper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
             log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", code);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
@@ -125,7 +127,9 @@ public class OauthService {
             Member member = memberSearchService.findByPhone(req.to());
             String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
             OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
-            OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email(), member);
+            OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
+            oauthAccount.updateMember(member);
+            oidcTokenService.deleteOIDCToken(req.idToken());
 
             return generateToken(JwtUserInfo.from(member));
         }

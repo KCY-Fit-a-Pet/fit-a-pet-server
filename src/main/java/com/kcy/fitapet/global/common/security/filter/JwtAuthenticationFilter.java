@@ -48,8 +48,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
 
+    private List<String> jwtIgnoreUrls = List.of(
+            "/api/v1/auth/oauth/**"
+    );
+
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+        if (shouldIgnoreRequest(request)) {
+            log.info("Ignoring request: {}", request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (isAnonymousRequest(request)) {
             filterChain.doFilter(request, response);
             return;
@@ -60,6 +70,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         UserDetails userDetails = getUserDetails(accessToken);
         authenticateUser(userDetails, request);
         filterChain.doFilter(request, response);
+    }
+
+    private boolean shouldIgnoreRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
+
+        boolean isIgnored = jwtIgnoreUrls.stream()
+                .anyMatch(pattern -> matchesPattern(uri, pattern));
+        return isIgnored || "OPTIONS".equals(method);
+    }
+
+    private boolean matchesPattern(String uri, String pattern) {
+        return Pattern.matches(pattern.replace("**", ".*"), uri) ||
+                Pattern.matches(pattern.replace("/**", ""), uri);
     }
 
     private boolean isAnonymousRequest(HttpServletRequest request) {
