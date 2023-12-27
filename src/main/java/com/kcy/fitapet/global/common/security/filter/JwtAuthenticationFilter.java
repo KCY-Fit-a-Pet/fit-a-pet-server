@@ -33,7 +33,10 @@ import java.util.regex.Pattern;
 import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
 
 /**
- * 지정한 URL 별로 JWT 유효성 검증을 수행하며, 직접적인 사용자 인증을 확인합니다.
+ * JWT 인증 필터 <br/>
+ * 만약, 액세스 토큰과 리프레시 토큰이 모두 없다면 익명 사용자로 간주한다. <br/>
+ * 액세스 토큰이 없다면(혹은 만료) 리프레시 토큰을 이용해 액세스 토큰을 재발급한다. <br/>
+ * 액세스 토큰과 리프레시 토큰 모두 만료되었다면, 예외 응답을 전송하여 재로그인 하도록 유도한다. <br/>
  */
 @RequiredArgsConstructor
 @Slf4j
@@ -48,7 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         if (isAnonymousRequest(request)) {
-            log.info("Anonymous request: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
@@ -65,11 +67,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String refreshToken = request.getHeader(REFRESH_TOKEN.getValue());
 
         return accessToken == null && refreshToken == null;
-    }
-
-    private boolean matchesPattern(String uri, String pattern) {
-        return Pattern.matches(pattern.replace("**", ".*"), uri) ||
-                Pattern.matches(pattern.replace("/**", ""), uri);
     }
 
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
