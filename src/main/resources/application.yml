@@ -38,30 +38,35 @@ spring:
     resources:
       add-mappings: false
 
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 10000
+            loggerLevel: full
+
 oauth2:
   client:
     provider:
       kakao:
-        authorization-uri: ${KAKAO_AUTH_URI}
+        jwks-uri: ${KAKAO_JWKS_URI}
         client-id: ${KAKAO_CLIENT_ID}
         client-secret: ${KAKAO_CLIENT_SECRET}
         client-name: Kakao
-        scope:
-          - profile_nickname
-          - profile_image
-          - account_email
-
-feign:
-  okhttp:
-    enabled: true
-  client:
-    config:
-        default:
-            connectTimeout: 5000
-            readTimeout: 10000
-            loggerLevel: full
-  httpclient:
-    max-connections: 1000
+      google:
+        jwks-uri: ${GOOGLE_JWKS_URI}
+        client-id: "client-id"
+        client-secret: "client-secret"
+        client-name: Google
+      apple:
+        jwks-uri: ${APPLE_JWKS_URI}
+        client-id: "client-id"
+        client-secret: "client-secret"
+        client-name: Apple
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -136,6 +141,17 @@ spring:
   web:
     resources:
       add-mappings: false
+
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 10000
+            loggerLevel: full
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8

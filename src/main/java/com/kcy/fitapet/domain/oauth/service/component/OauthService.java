@@ -29,6 +29,7 @@ import com.kcy.fitapet.global.common.security.oauth.OauthClient;
 import com.kcy.fitapet.global.common.security.oauth.OauthOIDCHelper;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
+import com.kcy.fitapet.global.common.security.oauth.kakao.KakaoOauthClient;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
@@ -141,7 +142,7 @@ public class OauthService {
         OIDCPublicKeyResponse oidcPublicKeyResponse = oauthClient.getOIDCPublicKey();
 
         return oauthOIDCHelper.getPayloadFromIdToken(
-                idToken, oauthApplicationConfig.getAuthorizationUri(),
+                idToken, oauthApplicationConfig.getJwksUri(),
                 oauthApplicationConfig.getClientSecret(), nonce, oidcPublicKeyResponse);
     }
 

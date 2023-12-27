@@ -30,7 +30,6 @@ public class OauthOIDCProviderImpl implements OauthOIDCProvider {
     @Override
     public OIDCDecodePayload getOIDCTokenBody(String token, String modulus, String exponent) {
         Claims body = getOIDCTokenJws(token, modulus, exponent).getBody();
-        log.info("body : {}", body);
 
         return new OIDCDecodePayload(
                 body.getIssuer(),
