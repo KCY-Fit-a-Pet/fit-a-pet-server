@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -59,16 +60,17 @@ public class OauthService {
     private final SmsRedisHelper smsRedisHelper;
 
     @Transactional
-    public Jwt signInByOIDC(Long id, String idToken, ProviderType provider, String nonce) {
+    public Optional<Jwt> signInByOIDC(Long id, String idToken, ProviderType provider, String nonce) {
         OIDCDecodePayload payload = getPayload(provider, idToken, nonce);
+        log.info("payload : {}", payload);
         isValidRequestId(id, Long.parseLong(payload.sub()));
 
         if (oauthSearchService.isExistMember(id, provider)) {
             Member member = oauthSearchService.findMemberByOauthIdAndProvider(id, provider);
-            return generateToken(JwtUserInfo.from(member));
+            return Optional.of(generateToken(JwtUserInfo.from(member)));
         } else {
             oidcTokenService.saveOIDCToken(idToken, provider, id);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -99,7 +101,7 @@ public class OauthService {
     }
 
     @Transactional
-    public SmsRes sendCode(OauthSmsReq dto, Long id, ProviderType provider) {
+    public SmsRes sendCode(OauthSmsReq dto, ProviderType provider) {
         SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto.toSmsReq());
         String key = makeTopic(dto.to(), provider);
 
@@ -140,7 +142,7 @@ public class OauthService {
 
         return oauthOIDCHelper.getPayloadFromIdToken(
                 idToken, oauthApplicationConfig.getAuthorizationUri(),
-                oauthApplicationConfig.getClientId(), nonce, oidcPublicKeyResponse);
+                oauthApplicationConfig.getClientSecret(), nonce, oidcPublicKeyResponse);
     }
 
     /**
@@ -153,7 +155,7 @@ public class OauthService {
     }
 
     private String makeTopic(String phoneNumber, ProviderType provider) {
-        return provider.name() + "@" + phoneNumber;
+        return provider.name() + "_" + phoneNumber;
     }
 
     private void validateToken(String accessToken, String value, ProviderType provider) {
@@ -166,11 +168,11 @@ public class OauthService {
     }
 
     private ProviderType getProviderByTopic(String topic) {
-        return ProviderType.valueOf(topic.split("@")[0].toUpperCase());
+        return ProviderType.valueOf(topic.split("_")[0].toUpperCase());
     }
 
     private String getPhoneByTopic(String topic) {
-        return topic.split("@")[1];
+        return topic.split("_")[1];
     }
 
     private Jwt generateToken(JwtUserInfo jwtUserInfo) {

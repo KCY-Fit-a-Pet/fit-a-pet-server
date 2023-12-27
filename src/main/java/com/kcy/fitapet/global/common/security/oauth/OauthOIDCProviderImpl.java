@@ -30,6 +30,7 @@ public class OauthOIDCProviderImpl implements OauthOIDCProvider {
     @Override
     public OIDCDecodePayload getOIDCTokenBody(String token, String modulus, String exponent) {
         Claims body = getOIDCTokenJws(token, modulus, exponent).getBody();
+        log.info("body : {}", body);
 
         return new OIDCDecodePayload(
                 body.getIssuer(),
@@ -47,7 +48,7 @@ public class OauthOIDCProviderImpl implements OauthOIDCProvider {
             return Jwts.parserBuilder()
                     .requireAudience(aud)
                     .requireIssuer(iss)
-                    .require("nonce", nonce)
+//                    .require("nonce", nonce)
                     .build()
                     .parseClaimsJwt(getUnsignedToken(token));
         } catch (JwtException e) {
@@ -72,6 +73,7 @@ public class OauthOIDCProviderImpl implements OauthOIDCProvider {
      */
     private Jws<Claims> getOIDCTokenJws(String token, String modulus, String exponent) {
         try {
+            log.info("token : {}", token);
             return Jwts.parserBuilder()
                     .setSigningKey(getRSAPublicKey(modulus, exponent))
                     .build()
