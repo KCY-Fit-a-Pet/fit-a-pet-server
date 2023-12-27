@@ -16,7 +16,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private final MemberRepository userRepository;
 
     @Override
-    @Cacheable(value = "securityUser", key = "#userId", unless = "#result == null")
+    @Cacheable(value = "securityUser", key = "#userId", unless = "#result == null", cacheManager = "securityUserCacheManager")
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         log.debug("loadUserByUsername userId : {}", userId);
         return userRepository.findById(Long.parseLong(userId))

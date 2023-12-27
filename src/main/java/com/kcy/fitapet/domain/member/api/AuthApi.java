@@ -134,9 +134,7 @@ public class AuthApi {
     }
 
     @Operation(summary = "로그인", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
-    @Parameters({
-            @Parameter(name = "dto", description = "로그인 정보", schema = @Schema(implementation = SignInReq.class))
-    })
+    @Parameter(name = "dto", description = "로그인 정보", schema = @Schema(implementation = SignInReq.class))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "로그인 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),

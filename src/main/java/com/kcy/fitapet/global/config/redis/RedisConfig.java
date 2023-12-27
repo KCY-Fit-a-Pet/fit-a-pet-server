@@ -30,25 +30,6 @@ public class RedisConfig {
     private int port;
 
     @Bean
-    @Primary
-    public CacheManager redisCacheManager(
-            @RedisCacheConnectionFactory RedisConnectionFactory cf) {
-        RedisCacheConfiguration redisCacheConfiguration =
-                RedisCacheConfiguration.defaultCacheConfig()
-                        .serializeKeysWith(
-                                RedisSerializationContext.SerializationPair.fromSerializer(
-                                        new StringRedisSerializer()))
-                        .serializeValuesWith(
-                                RedisSerializationContext.SerializationPair.fromSerializer(
-                                        new GenericJackson2JsonRedisSerializer()))
-                        .entryTtl(Duration.ofHours(1L));
-
-        return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)
-                .cacheDefaults(redisCacheConfiguration)
-                .build();
-    }
-
-    @Bean
     @RedisCacheConnectionFactory
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
@@ -65,22 +46,5 @@ public class RedisConfig {
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
         return template;
-    }
-
-    @Bean
-    @OidcCacheManager
-    public CacheManager oidcCacheManger(RedisConnectionFactory cf) {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(
-                                new StringRedisSerializer()
-                        ))
-                .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(
-                                new GenericJackson2JsonRedisSerializer()
-                        ))
-                .entryTtl(Duration.ofDays(3));
-
-        return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf).cacheDefaults(config).build();
     }
 }
