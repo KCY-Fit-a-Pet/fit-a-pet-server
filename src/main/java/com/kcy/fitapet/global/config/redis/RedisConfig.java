@@ -1,7 +1,5 @@
-package com.kcy.fitapet.global.config;
+package com.kcy.fitapet.global.config.redis;
 
-import com.kcy.fitapet.global.config.feign.OidcCacheManager;
-import com.kcy.fitapet.global.config.feign.RedisCacheConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;

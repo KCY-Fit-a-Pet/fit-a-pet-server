@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.config.feign;
+package com.kcy.fitapet.global.config.redis;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 

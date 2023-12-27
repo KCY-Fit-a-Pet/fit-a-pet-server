@@ -165,7 +165,7 @@ public class AuthApi {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> signOut(
             @AccessTokenInfo AccessToken accessToken,
-            @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
+            @CookieValue(value = "refreshToken") @Valid String refreshToken,
             HttpServletRequest request, HttpServletResponse response) {
         if (accessToken.isReissued()) {
             refreshToken = response.getHeader(HttpHeaders.SET_COOKIE).substring(AuthConstants.REFRESH_TOKEN.getValue().length() + 1);
@@ -191,6 +191,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/refresh")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
         Jwt tokens = memberAuthService.refresh(refreshToken);
         return getResponseEntity(tokens);

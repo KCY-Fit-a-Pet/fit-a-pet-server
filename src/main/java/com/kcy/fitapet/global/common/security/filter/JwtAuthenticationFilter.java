@@ -45,24 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
 
-    private final List<String> jwtIgnoreUrls = List.of(
-            "/api/v1/test", "/api/v1/test/**",
-            "/api/v1/auth/register", "/api/v1/auth/login",
-            "/api/v1/auth/refresh",
-            "/api/v1/auth/register-sms/**", "/api/v1/auth/search-sms/**",
-            "/api/v1/accounts/search", "/api/v1/accounts/search/**",
-            "/api/v1/accounts/exists", "/api/v1/accounts/exists/**",
-
-            "/api/v1/auth/oauth", "/api/v1/auth/oauth/**",
-
-            "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
-            "/favicon.ico"
-    );
-
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
-        if (shouldIgnoreRequest(request)) {
-            log.info("Ignoring request: {}", request.getRequestURI());
+        if (isAnonymousRequest(request)) {
+            log.info("Anonymous request: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
@@ -74,13 +60,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean shouldIgnoreRequest(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        String method = request.getMethod();
+    private boolean isAnonymousRequest(HttpServletRequest request) {
+        String accessToken = request.getHeader(AUTH_HEADER.getValue());
+        String refreshToken = request.getHeader(REFRESH_TOKEN.getValue());
 
-        boolean isIgnored = jwtIgnoreUrls.stream()
-                .anyMatch(pattern -> matchesPattern(uri, pattern));
-        return isIgnored || "OPTIONS".equals(method);
+        return accessToken == null && refreshToken == null;
     }
 
     private boolean matchesPattern(String uri, String pattern) {
