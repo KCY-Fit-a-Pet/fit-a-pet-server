@@ -142,9 +142,7 @@ public class AuthApi {
     })
     @PostMapping("/login")
     @PreAuthorize("isAnonymous()")
-    public ResponseEntity<?> signIn(@RequestHeader(value = "Authorization", required = false) String accessToken, @RequestBody @Valid SignInReq dto) {
-        if (accessToken != null)
-            throw new GlobalErrorException(ErrorCode.ALREADY_LOGIN_USER);
+    public ResponseEntity<?> signIn(@RequestBody @Valid SignInReq dto) {
         Jwt tokens = memberAuthService.login(dto);
         return getResponseEntity(tokens);
     }
