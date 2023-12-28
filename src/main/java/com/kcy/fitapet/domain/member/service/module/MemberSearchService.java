@@ -33,8 +33,8 @@ public class MemberSearchService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isExistByUidOrEmailOrPhone(String uid, String email, String phone) {
-        return memberRepository.existsByUidOrEmailOrPhone(uid, email, phone);
+    public boolean isExistByUidOrPhone(String uid, String phone) {
+        return memberRepository.existsByUidOrPhone(uid, phone);
     }
 
     @Transactional(readOnly = true)

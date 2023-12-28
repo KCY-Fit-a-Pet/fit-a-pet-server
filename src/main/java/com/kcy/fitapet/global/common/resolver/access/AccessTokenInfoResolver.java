@@ -1,7 +1,8 @@
 package com.kcy.fitapet.global.common.resolver.access;
 
 import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
+import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @Component
 public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -50,7 +51,7 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
 
         String accessToken;
         if (!StringUtils.hasText(reissuedAccessToken)) {
-            accessToken = jwtUtil.resolveToken(httpServletRequest.getHeader(AuthConstants.AUTH_HEADER.getValue()));
+            accessToken = jwtProvider.resolveToken(httpServletRequest.getHeader(AuthConstants.AUTH_HEADER.getValue()));
 
             if (!StringUtils.hasText(accessToken)) {
                 log.error("Access Token is empty");
@@ -61,10 +62,10 @@ public class AccessTokenInfoResolver implements HandlerMethodArgumentResolver {
             isReissued = true;
         }
 
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
-        LocalDateTime expiryDate = jwtUtil.getExpiryDate(accessToken);
+        JwtSubInfo subs = jwtProvider.getSubInfoFromToken(accessToken);
+        LocalDateTime expiryDate = jwtProvider.getExpiryDate(accessToken);
         log.info("access token expiryDate : {}", expiryDate);
 
-        return AccessToken.of(accessToken, userId, expiryDate, isReissued);
+        return AccessToken.of(accessToken, subs.id(), expiryDate, isReissued);
     }
 }

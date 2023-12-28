@@ -2,6 +2,7 @@ package com.kcy.fitapet.global.common.security.jwt.strategy;
 
 import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
@@ -57,6 +58,11 @@ public class SmsAuthTokenProvider implements JwtProvider {
                 .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, tokenExpiration.toMillis()))
                 .compact();
+    }
+
+    public JwtSubInfo getSubInfoFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return SmsAuthInfo.of(1L, claims.get(PHONE_NUMBER.getValue(), String.class));
     }
 
     @Override

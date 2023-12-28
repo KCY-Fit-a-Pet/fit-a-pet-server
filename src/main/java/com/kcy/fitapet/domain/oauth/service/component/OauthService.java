@@ -18,8 +18,10 @@ import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
+import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
+import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
 import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
@@ -37,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -49,7 +53,7 @@ public class OauthService {
     private final OauthApplicationConfigMapper oauthApplicationConfigMapper;
     private final OauthClientMapper oauthClientMapper;
 
-    private final JwtUtil jwtUtil;
+    private final JwtProviderMapper jwtMapper;
     private final ForbiddenTokenService forbiddenTokenService;
 
     private final OIDCTokenService oidcTokenService;
@@ -72,29 +76,26 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt signUpByOIDC(Long id, ProviderType provider, String requestAccessToken, OauthSignUpReq req) {
-        String accessToken = jwtUtil.resolveToken(requestAccessToken);
-        String topic = jwtUtil.getPhoneNumberFromToken(accessToken);
-        String phone = getPhoneByTopic(topic);
+    public Jwt signUpByOIDC(Long id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
+        String accessToken = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).resolveToken(requestOauthAccessToken);
+        JwtSubInfo subs = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).getSubInfoFromToken(accessToken);
+        String phone = getPhoneByTopic(subs.phoneNumber());
 
-        validateToken(accessToken, topic, provider);
+        validateToken(accessToken, subs.phoneNumber(), provider);
 
         String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
         OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
 
         Member member = Member.builder().uid(req.uid()).name(req.name())
-                .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER)
-                .accountLocked(Boolean.FALSE).notificationSetting(NotificationSetting.of(
-                        Boolean.TRUE, Boolean.TRUE, Boolean.TRUE
-                )).build();
+                .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER).build();
         memberSaveService.saveMember(member);
         OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
         oauthAccount.updateMember(member);
         oidcTokenService.deleteOIDCToken(req.idToken());
 
         forbiddenTokenService.register(
-                AccessToken.of(accessToken, jwtUtil.getUserIdFromToken(accessToken),
-                        jwtUtil.getExpiryDate(accessToken), false)
+                AccessToken.of(accessToken, subs.id(),
+                        jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).getExpiryDate(accessToken), false)
         );
 
         log.info("success oauth signup member id : {} - oauth id : {} [provider: {}]",
@@ -134,7 +135,7 @@ public class OauthService {
             return generateToken(JwtUserInfo.from(member));
         }
 
-        return Jwt.of(jwtUtil.generateSmsOauthToken(SmsAuthInfo.of(id, key)), null);
+        return Jwt.of(jwtMapper.getProvider(SMS_OAUTH_TOKEN).generateToken(SmsAuthInfo.of(id, key)), null);
     }
 
     /**
@@ -180,10 +181,10 @@ public class OauthService {
         return topic.split("_")[1];
     }
 
-    private Jwt generateToken(JwtUserInfo jwtUserInfo) {
+    private Jwt generateToken(JwtSubInfo jwtSubInfo) {
         return Jwt.builder()
-                .accessToken(jwtUtil.generateAccessToken(jwtUserInfo))
-                .refreshToken(jwtUtil.generateRefreshToken(jwtUserInfo))
+                .accessToken(jwtMapper.getProvider(ACCESS_TOKEN).generateToken(jwtSubInfo))
+                .refreshToken(jwtMapper.getProvider(REFRESH_TOKEN).generateToken(jwtSubInfo))
                 .build();
     }
 }

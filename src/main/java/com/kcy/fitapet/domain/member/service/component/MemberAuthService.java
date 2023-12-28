@@ -8,18 +8,19 @@ import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
-import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
-import com.kcy.fitapet.global.common.resolver.access.AccessToken;
-import com.kcy.fitapet.global.common.response.code.StatusCode;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
+import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
+import com.kcy.fitapet.global.common.resolver.access.AccessToken;
+import com.kcy.fitapet.global.common.response.code.StatusCode;
+import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
+import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
@@ -33,10 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_TOKEN;
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.SMS_AUTH_TOKEN;
 
 @Slf4j
 @Service
@@ -44,7 +44,6 @@ import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_T
 public class MemberAuthService {
     private final MemberSearchService memberSearchService;
     private final MemberSaveService memberSaveService;
-    private final OauthSearchService oauthSearchService;
 
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
@@ -52,27 +51,27 @@ public class MemberAuthService {
     private final SmsRedisHelper smsRedisHelper;
 
     private final SmsProvider smsProvider;
-    private final JwtUtil jwtUtil;
+    private final JwtProviderMapper jwtMapper;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Jwt register(String requestAccessToken, SignUpReq dto) {
-        String accessToken = jwtUtil.resolveToken(requestAccessToken);
+    public Jwt register(String requestSmsAccessToken, SignUpReq dto) {
+        String accessToken = jwtMapper.getProvider(SMS_AUTH_TOKEN).resolveToken(requestSmsAccessToken);
         if (forbiddenTokenService.isForbidden(accessToken))
             throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
 
-        String authenticatedPhone = jwtUtil.getPhoneNumberFromToken(accessToken);
-        smsRedisHelper.removeCode(authenticatedPhone, SmsPrefix.REGISTER);
+        JwtSubInfo jwtSubInfo = jwtMapper.getProvider(SMS_AUTH_TOKEN).getSubInfoFromToken(accessToken);
+        smsRedisHelper.removeCode(jwtSubInfo.phoneNumber(), SmsPrefix.REGISTER);
 
-        Member requestMember = dto.toEntity(authenticatedPhone);
+        Member requestMember = dto.toEntity(jwtSubInfo.phoneNumber());
         requestMember.encodePassword(bCryptPasswordEncoder);
         validateMember(requestMember);
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
         forbiddenTokenService.register(
-                AccessToken.of(accessToken, jwtUtil.getUserIdFromToken(accessToken),
-                        jwtUtil.getExpiryDate(accessToken), false)
+                AccessToken.of(accessToken, jwtSubInfo.id(),
+                        jwtMapper.getProvider(SMS_AUTH_TOKEN).getExpiryDate(accessToken), false)
         );
 
         return generateToken(JwtUserInfo.from(registeredMember));
@@ -101,7 +100,7 @@ public class MemberAuthService {
 
         Long memberId = refreshToken.getUserId();
         JwtUserInfo dto = JwtUserInfo.from(memberSearchService.findById(memberId));
-        String accessToken = jwtUtil.generateAccessToken(dto);
+        String accessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(dto);
 
         return Jwt.of(accessToken, refreshToken.getToken());
     }
@@ -133,7 +132,7 @@ public class MemberAuthService {
             }
         }
 
-        return Jwt.of(jwtUtil.generateSmsAuthToken(SmsAuthInfo.of(1L, smsReq.to())), null);
+        return Jwt.of(jwtMapper.getProvider(SMS_AUTH_TOKEN).generateToken(SmsAuthInfo.of(1L, smsReq.to())), null);
     }
 
     @Transactional(readOnly = true)
@@ -173,12 +172,12 @@ public class MemberAuthService {
     }
 
     private void validateMember(Member member) {
-        if (memberSearchService.isExistByUidOrEmailOrPhone(member.getUid(), member.getEmail(), member.getPhone()))
+        if (memberSearchService.isExistByUidOrPhone(member.getUid(), member.getPhone()))
             throw new GlobalErrorException(AccountErrorCode.DUPLICATE_USER_INFO_ERROR);
     }
 
     private Jwt generateToken(JwtUserInfo jwtUserInfo) {
-        String accessToken = jwtUtil.generateAccessToken(jwtUserInfo);
+        String accessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(jwtUserInfo);
         String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
         log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 

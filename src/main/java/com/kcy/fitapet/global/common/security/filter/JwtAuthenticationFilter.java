@@ -1,14 +1,14 @@
 package com.kcy.fitapet.global.common.security.filter;
 
-import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
-import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
+import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
+import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -45,10 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final JwtUtil jwtUtil;
+    private final JwtProviderMapper jwtMapper;
     private final CookieUtil cookieUtil;
 
     private List<String> jwtIgnoreUrls = List.of(
+            "/api/v1/auth/register",
             "/api/v1/auth/oauth/**"
     );
 
@@ -96,14 +97,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         String authHeader = request.getHeader(AUTH_HEADER.getValue());
 
-        String token = jwtUtil.resolveToken(authHeader);
+        String token = jwtMapper.getProvider(ACCESS_TOKEN).resolveToken(authHeader);
         if (!StringUtils.hasText(token))
             handleAuthException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
 
         if (forbiddenTokenService.isForbidden(token))
             handleAuthException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "더 이상 사용할 수 없는 토큰입니다.");
 
-        if (jwtUtil.isTokenExpired(token)) {
+        if (jwtMapper.getProvider(ACCESS_TOKEN).isTokenExpired(token)) {
             log.warn("Expired JWT access token: {}", token);
             return reissueAccessToken(request, response);
         }
@@ -120,14 +121,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), reissuedRefreshToken.getToken(), refreshTokenCookie.getMaxAge());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        JwtUserInfo userInfo = jwtUtil.getUserInfoFromToken(requestRefreshToken);
-        String reissuedAccessToken = jwtUtil.generateAccessToken(userInfo);
+        JwtSubInfo userInfo = jwtMapper.getProvider(ACCESS_TOKEN).getSubInfoFromToken(requestRefreshToken);
+        String reissuedAccessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(userInfo);
         response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
         return reissuedAccessToken;
     }
 
     private UserDetails getUserDetails(final String accessToken) {
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
+        Long userId = jwtMapper.getProvider(ACCESS_TOKEN).getSubInfoFromToken(accessToken).id();
         return userDetailServiceImpl.loadUserByUsername(userId.toString());
     }
 

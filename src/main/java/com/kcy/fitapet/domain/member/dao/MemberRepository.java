@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface MemberRepository extends ExtendedRepository<Member, Long> {
     Optional<Member> findByUid(String uid);
     Optional<Member> findByPhone(String phone);
-    boolean existsByUidOrEmailOrPhone(String uid, String email, String phone);
+    boolean existsByUidOrPhone(String uid, String phone);
     boolean existsByPhone(String phone);
     boolean existsByUid(String uid);
     boolean existsByPhoneAndUid(String phone, String uid);

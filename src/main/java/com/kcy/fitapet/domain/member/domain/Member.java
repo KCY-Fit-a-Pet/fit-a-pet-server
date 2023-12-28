@@ -9,6 +9,7 @@ import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.Set;
 @Entity
 @Table(name = "MEMBER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicInsert
 @ToString(of = {"id", "name", "phone", "email", "role"})
 public class Member extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

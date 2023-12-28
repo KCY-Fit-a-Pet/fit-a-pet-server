@@ -1,7 +1,9 @@
 package com.kcy.fitapet.global.common.security.jwt.strategy;
 
+import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
@@ -22,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.kcy.fitapet.global.common.security.jwt.JwtField.ROLE;
 import static com.kcy.fitapet.global.common.security.jwt.JwtField.USER_ID;
@@ -58,6 +61,22 @@ public class RefreshTokenProvider implements JwtProvider {
                 .signWith(signatureKey, signatureAlgorithm)
                 .setExpiration(createExpireDate(now, tokenExpiration.toMillis()))
                 .compact();
+    }
+
+    @Override
+    public JwtSubInfo getSubInfoFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        String role = claims.get(ROLE.getValue(), String.class);
+        RoleType roleType = Stream.of(RoleType.values())
+                .filter(r -> r.getRole().equals(role))
+                .findFirst().orElseThrow(
+                        () -> new AuthErrorException(AuthErrorCode.FAILED_AUTHENTICATION, "Invalid Role")
+                );
+
+        return JwtUserInfo.builder()
+                .id(claims.get(USER_ID.getValue(), Long.class))
+                .role(roleType)
+                .build();
     }
 
     @Override

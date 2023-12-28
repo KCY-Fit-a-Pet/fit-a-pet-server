@@ -1,6 +1,7 @@
 package com.kcy.fitapet.global.common.security.jwt;
 
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import io.jsonwebtoken.Claims;
 import org.springframework.util.StringUtils;
@@ -26,6 +27,14 @@ public interface JwtProvider {
      * @return String : 토큰
      */
     String generateToken(JwtSubInfo subs);
+
+    /**
+     * 토큰으로 부터 사용자 정보를 추출하여 JwtUserInfo 객체로 반환하는 메서드
+     * @param token String : 토큰
+     * @return JwtUserInfo : 사용자 정보
+     * @throws AuthErrorException : 토큰이 유효하지 않을 경우
+     */
+    JwtSubInfo getSubInfoFromToken(String token);
 
     /**
      * 토큰으로 부터 사용자 정보를 추출하는 메서드
