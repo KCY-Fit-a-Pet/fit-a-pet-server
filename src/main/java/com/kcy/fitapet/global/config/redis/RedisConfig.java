@@ -17,12 +17,16 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.sql.SQLException;
 import java.time.Duration;
 
 @Configuration
 @EnableRedisRepositories
-@EnableCaching
+@EnableTransactionManagement
 public class RedisConfig {
     @Value("${spring.data.redis.host}")
     private String host;
@@ -47,4 +51,5 @@ public class RedisConfig {
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
         return template;
     }
+
 }
