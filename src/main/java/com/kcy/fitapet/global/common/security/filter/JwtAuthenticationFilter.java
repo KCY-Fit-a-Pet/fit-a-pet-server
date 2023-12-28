@@ -48,6 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProviderMapper jwtMapper;
     private final CookieUtil cookieUtil;
 
+    /**
+     * JWT 인증 필터에서 무시할 URL 패턴 <br/>
+     * ex. SMS 인증을 위한 jwt를 사용하는 경우
+     */
     private List<String> jwtIgnoreUrls = List.of(
             "/api/v1/auth/register",
             "/api/v1/auth/oauth/**"
