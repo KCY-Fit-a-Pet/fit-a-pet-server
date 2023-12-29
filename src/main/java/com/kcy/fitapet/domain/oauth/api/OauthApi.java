@@ -9,7 +9,6 @@ import com.kcy.fitapet.domain.oauth.type.ProviderType;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,13 +22,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
 import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
+import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Tag(name = "OAuth API")
 @RestController
@@ -52,16 +51,16 @@ public class OauthApi {
             @RequestParam("provider") ProviderType provider,
             @RequestBody @Valid OauthSignInReq req
     ) {
-        Jwt jwt = null;
+        Optional<Jwt> jwt;
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
-            jwt = oAuthService.signInByOIDC(req.id(), req.id_token(), provider, req.nonce());
+            jwt = oAuthService.signInByOIDC(req.id(), req.idToken(), provider, req.nonce());
         }
 
-        return (jwt == null)
-                ? ResponseEntity.ok(SuccessResponse.from(Map.of("id", req.id())))
-                : getJwtResponseEntity(jwt);
+        return jwt.isPresent()
+                ? getJwtResponseEntity(jwt.get())
+                : ResponseEntity.ok(SuccessResponse.from(Map.of("id", req.id())));
     }
 
     @Operation(summary = "OAuth 회원가입", description = "/{id}/sms로 전화번호 인증 후, accessToken 발급이 선행되어야 한다.")
@@ -79,7 +78,7 @@ public class OauthApi {
             @RequestHeader("Authorization") String accessToken,
             @RequestBody @Valid OauthSignUpReq req
     ) {
-        Jwt jwt = null;
+        Jwt jwt;
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
@@ -89,6 +88,12 @@ public class OauthApi {
         return getJwtResponseEntity(jwt);
     }
 
+    @Operation(summary = "OAuth 회원가입 전화번호 인증")
+    @Parameters({
+            @Parameter(name = "id", description = "OAuth 제공자에서 발급받은 ID"),
+            @Parameter(name = "provider", description = "OAuth 제공자"),
+            @Parameter(name = "req", description = "OAuth 회원가입 전화번호 인증 요청 정보")
+    })
     @PostMapping("/{id}/sms")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUpSmsAuthorization(
@@ -98,7 +103,7 @@ public class OauthApi {
         @RequestBody @Valid OauthSmsReq req
     ) {
         if (code == null) {
-            SmsRes smsRes = oAuthService.sendCode(req, id, provider);
+            SmsRes smsRes = oAuthService.sendCode(req, provider);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
@@ -108,14 +113,14 @@ public class OauthApi {
         else if (token.refreshToken() == null)
             return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), token.accessToken())
-                    .body(SuccessResponse.noContent());
+                    .body(SuccessResponse.from(Map.of("member", "신규 회원")));
 
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), token.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), token.accessToken())
-                .body(SuccessResponse.from(Map.of("member", "등록된 oauth 계정 연동 성공")));
+                .body(SuccessResponse.noContent());
     }
 
     private ResponseEntity<?> getJwtResponseEntity(Jwt jwt) {

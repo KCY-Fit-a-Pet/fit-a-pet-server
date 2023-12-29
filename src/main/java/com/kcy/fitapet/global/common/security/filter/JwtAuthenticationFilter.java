@@ -1,14 +1,14 @@
 package com.kcy.fitapet.global.common.security.filter;
 
-import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
-import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
+import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
+import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
+import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -33,7 +33,10 @@ import java.util.regex.Pattern;
 import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
 
 /**
- * 지정한 URL 별로 JWT 유효성 검증을 수행하며, 직접적인 사용자 인증을 확인합니다.
+ * JWT 인증 필터 <br/>
+ * 만약, 액세스 토큰과 리프레시 토큰이 모두 없다면 익명 사용자로 간주한다. <br/>
+ * 액세스 토큰이 없다면(혹은 만료) 리프레시 토큰을 이용해 액세스 토큰을 재발급한다. <br/>
+ * 액세스 토큰과 리프레시 토큰 모두 만료되었다면, 예외 응답을 전송하여 재로그인 하도록 유도한다. <br/>
  */
 @RequiredArgsConstructor
 @Slf4j
@@ -42,27 +45,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final JwtUtil jwtUtil;
+    private final JwtProviderMapper jwtMapper;
     private final CookieUtil cookieUtil;
 
-    private final List<String> jwtIgnoreUrls = List.of(
-            "/api/v1/test", "/api/v1/test/**",
-            "/api/v1/auth/register", "/api/v1/auth/login",
-            "/api/v1/auth/refresh",
-            "/api/v1/auth/register-sms/**", "/api/v1/auth/search-sms/**",
-            "/api/v1/accounts/search", "/api/v1/accounts/search/**",
-            "/api/v1/accounts/exists", "/api/v1/accounts/exists/**",
-
-            "/api/v1/auth/oauth", "/api/v1/auth/oauth/**",
-
-            "/v3/api-docs/**", "/swagger-ui/**", "/swagger",
-            "/favicon.ico"
+    /**
+     * JWT 인증 필터에서 무시할 URL 패턴 <br/>
+     * ex. SMS 인증을 위한 jwt를 사용하는 경우
+     */
+    private List<String> jwtIgnoreUrls = List.of(
+            "/api/v1/auth/register",
+            "/api/v1/auth/oauth/**"
     );
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
         if (shouldIgnoreRequest(request)) {
             log.info("Ignoring request: {}", request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (isAnonymousRequest(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -88,17 +91,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Pattern.matches(pattern.replace("/**", ""), uri);
     }
 
+    private boolean isAnonymousRequest(HttpServletRequest request) {
+        String accessToken = request.getHeader(AUTH_HEADER.getValue());
+        String refreshToken = request.getHeader(REFRESH_TOKEN.getValue());
+
+        return accessToken == null && refreshToken == null;
+    }
+
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         String authHeader = request.getHeader(AUTH_HEADER.getValue());
 
-        String token = jwtUtil.resolveToken(authHeader);
+        String token = jwtMapper.getProvider(ACCESS_TOKEN).resolveToken(authHeader);
         if (!StringUtils.hasText(token))
             handleAuthException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
 
         if (forbiddenTokenService.isForbidden(token))
             handleAuthException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "더 이상 사용할 수 없는 토큰입니다.");
 
-        if (jwtUtil.isTokenExpired(token)) {
+        if (jwtMapper.getProvider(ACCESS_TOKEN).isTokenExpired(token)) {
             log.warn("Expired JWT access token: {}", token);
             return reissueAccessToken(request, response);
         }
@@ -115,14 +125,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), reissuedRefreshToken.getToken(), refreshTokenCookie.getMaxAge());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        JwtUserInfo userInfo = jwtUtil.getUserInfoFromToken(requestRefreshToken);
-        String reissuedAccessToken = jwtUtil.generateAccessToken(userInfo);
+        JwtSubInfo userInfo = jwtMapper.getProvider(ACCESS_TOKEN).getSubInfoFromToken(requestRefreshToken);
+        String reissuedAccessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(userInfo);
         response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
         return reissuedAccessToken;
     }
 
     private UserDetails getUserDetails(final String accessToken) {
-        Long userId = jwtUtil.getUserIdFromToken(accessToken);
+        Long userId = jwtMapper.getProvider(ACCESS_TOKEN).getSubInfoFromToken(accessToken).id();
         return userDetailServiceImpl.loadUserByUsername(userId.toString());
     }
 

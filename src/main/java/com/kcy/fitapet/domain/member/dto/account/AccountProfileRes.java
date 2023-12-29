@@ -39,10 +39,10 @@ public record AccountProfileRes(
                         .uid(member.getUid())
                         .email(member.getEmail())
                         .profileImage(member.getProfileImg())
-                        .isNotice(setting.isNotice())
-                        .isCare(setting.isCare())
-                        .isMemo(setting.isMemo())
-                        .isSchedule(setting.isSchedule())
+                        .isNotice(setting.getIsNotice())
+                        .isCare(setting.getIsCare())
+                        .isMemo(setting.getIsMemo())
+                        .isSchedule(setting.getIsSchedule())
                         .phone(member.getPhone())
                         .build();
         }

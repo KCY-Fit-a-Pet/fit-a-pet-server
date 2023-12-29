@@ -1,9 +1,11 @@
 package com.kcy.fitapet.global.common.redis.refresh;
 
-import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
+import com.kcy.fitapet.global.common.security.jwt.qualifier.AccessTokenQualifier;
+import com.kcy.fitapet.global.common.security.jwt.qualifier.RefreshTokenQualifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,26 +16,29 @@ import java.time.Duration;
 @Service
 public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtAccessTokenProvider;
+    private final JwtProvider jwtRefreshTokenProvider;
     private final Duration refreshTokenExpireTime;
 
     public RefreshTokenServiceImpl(
             RefreshTokenRepository refreshTokenRepository,
-            JwtUtil jwtUtil,
+            @AccessTokenQualifier JwtProvider jwtAccessTokenProvider,
+            @RefreshTokenQualifier JwtProvider jwtRefreshTokenProvider,
             @Value("${jwt.token.refresh-expiration-time}") Duration refreshTokenExpireTime)
     {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.jwtUtil = jwtUtil;
+        this.jwtAccessTokenProvider = jwtAccessTokenProvider;
+        this.jwtRefreshTokenProvider = jwtRefreshTokenProvider;
         this.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
     @Override
     public String issueRefreshToken(String accessToken) throws AuthErrorException {
-        final var user = jwtUtil.getUserInfoFromToken(accessToken);
+        JwtSubInfo subs = jwtAccessTokenProvider.getSubInfoFromToken(accessToken);
 
         final var refreshToken = RefreshToken.builder()
-                .userId(user.id())
-                .token(makeRefreshToken(user))
+                .userId(subs.id())
+                .token(makeRefreshToken(subs))
                 .ttl(getExpireTime())
                 .build();
 
@@ -44,12 +49,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken refresh(String requestRefreshToken) throws AuthErrorException {
-        final JwtUserInfo user = jwtUtil.getUserInfoFromToken(requestRefreshToken);
-        final RefreshToken refreshToken = findOrThrow(user.id());
+        JwtSubInfo subs = jwtRefreshTokenProvider.getSubInfoFromToken(requestRefreshToken);
+        RefreshToken refreshToken = findOrThrow(subs.id());
 
         validateToken(requestRefreshToken, refreshToken);
 
-        refreshToken.rotation(makeRefreshToken(user));
+        refreshToken.rotation(makeRefreshToken(subs));
         refreshTokenRepository.save(refreshToken);
 
         log.debug("refresh token reissued. : {}", refreshToken);
@@ -58,15 +63,15 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void logout(String requestRefreshToken) {
-        final Long userId = jwtUtil.getUserIdFromToken(requestRefreshToken);
-        final RefreshToken refreshToken = findOrThrow(userId);
+        JwtSubInfo subs = jwtRefreshTokenProvider.getSubInfoFromToken(requestRefreshToken);
+        RefreshToken refreshToken = findOrThrow(subs.id());
 
         refreshTokenRepository.delete(refreshToken);
         log.info("refresh token deleted. : {}", refreshToken);
     }
 
-    private String makeRefreshToken(JwtUserInfo user) {
-        return jwtUtil.generateRefreshToken(user);
+    private String makeRefreshToken(JwtSubInfo subs) {
+        return jwtRefreshTokenProvider.generateToken(subs);
     }
 
     private long getExpireTime() {

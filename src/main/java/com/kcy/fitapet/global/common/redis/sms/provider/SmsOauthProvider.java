@@ -30,7 +30,9 @@ public class SmsOauthProvider implements SmsRedisProvider {
 
     @Override
     public boolean isCorrectCode(String phoneNumber, String code, SmsPrefix prefix) {
+        log.info("phoneNumber: {}, code: {}", phoneNumber, code);
         Optional<SmsOauth> smsOauth = smsOauthRepository.findById(phoneNumber);
+        log.info("smsOauth: {}", smsOauth.get().getCode());
         return smsOauth.map(oauth -> oauth.getCode().equals(code)).orElse(false);
     }
 

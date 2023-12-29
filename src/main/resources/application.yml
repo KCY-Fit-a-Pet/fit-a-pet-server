@@ -38,30 +38,35 @@ spring:
     resources:
       add-mappings: false
 
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 10000
+            loggerLevel: full
+
 oauth2:
   client:
     provider:
       kakao:
-        authorization-uri: ${KAKAO_AUTH_URI}
+        jwks-uri: ${KAKAO_JWKS_URI}
         client-id: ${KAKAO_CLIENT_ID}
         client-secret: ${KAKAO_CLIENT_SECRET}
         client-name: Kakao
-        scope:
-          - profile_nickname
-          - profile_image
-          - account_email
-
-feign:
-  okhttp:
-    enabled: true
-  client:
-    config:
-        default:
-            connectTimeout: 5000
-            readTimeout: 10000
-            loggerLevel: full
-  httpclient:
-    max-connections: 1000
+      google:
+        jwks-uri: ${GOOGLE_JWKS_URI}
+        client-id: "client-id"
+        client-secret: "client-secret"
+        client-name: Google
+      apple:
+        jwks-uri: ${APPLE_JWKS_URI}
+        client-id: "client-id"
+        client-secret: "client-secret"
+        client-name: Apple
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
@@ -77,14 +82,16 @@ springdoc:
 
 jwt:
   secret:
-    default: ${JWT_SECRET}
+    access: ${JWT_SECRET_ACCESS}
+    refresh: ${JWT_SECRET_REFRESH}
     sms-auth: ${JWT_SECRET_SMS_AUTH}
     sms-oauth: ${JWT_SECRET_SMS_OAUTH}
   token:
     # milliseconds 단위
     access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
     refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
-    sms-auth-expiration-time: 180000 # 3m (3 * 60 * 1000)
+    sms-auth-expiration-time: 300000 # 5m (5 * 60 * 1000)
+    sms-oauth-expiration-time: 300000 # 5m (5 * 60 * 1000)
 
 logging:
   level:
@@ -136,6 +143,17 @@ spring:
   web:
     resources:
       add-mappings: false
+
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 10000
+            loggerLevel: full
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8

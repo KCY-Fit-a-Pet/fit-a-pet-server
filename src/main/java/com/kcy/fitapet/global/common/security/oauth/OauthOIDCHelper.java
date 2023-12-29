@@ -4,10 +4,12 @@ import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKey;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OauthOIDCHelper {
     private final OauthOIDCProvider oauthOIDCProvider;
 
@@ -28,7 +30,6 @@ public class OauthOIDCHelper {
                 .filter(k -> k.kid().equals(kid))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No matching key found"));
-
         return oauthOIDCProvider.getOIDCTokenBody(token, key.n(), key.e());
     }
 

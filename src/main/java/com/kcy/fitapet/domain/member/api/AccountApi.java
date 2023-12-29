@@ -44,9 +44,7 @@ public class AccountApi {
 
     @Operation(summary = "ID 존재 확인")
     @GetMapping("/exists")
-    @Parameters({
-            @Parameter(name = "uid", description = "확인할 ID", required = true)
-    })
+    @Parameter(name = "uid", description = "확인할 ID", required = true)
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> getExistsUid(@RequestParam("uid") @NotBlank String uid) {
         boolean exists = memberAccountService.existsUid(uid);

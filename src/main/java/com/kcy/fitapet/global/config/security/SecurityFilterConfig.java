@@ -1,13 +1,13 @@
 package com.kcy.fitapet.global.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
+import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
 import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
 import com.kcy.fitapet.global.common.security.filter.JwtAuthenticationFilter;
 import com.kcy.fitapet.global.common.security.filter.JwtExceptionFilter;
+import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.security.jwt.JwtUtil;
-import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
-import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ public class SecurityFilterConfig {
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final JwtUtil jwtUtil;
+    private final JwtProviderMapper jwtMapper;
     private final CookieUtil cookieUtil;
 
     private final ObjectMapper objectMapper;
@@ -32,6 +32,6 @@ public class SecurityFilterConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthorizationFilter() {
-        return new JwtAuthenticationFilter(userDetailServiceImpl, refreshTokenService, forbiddenTokenService, jwtUtil, cookieUtil);
+        return new JwtAuthenticationFilter(userDetailServiceImpl, refreshTokenService, forbiddenTokenService, jwtMapper, cookieUtil);
     }
 }

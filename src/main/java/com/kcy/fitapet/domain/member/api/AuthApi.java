@@ -134,9 +134,7 @@ public class AuthApi {
     }
 
     @Operation(summary = "로그인", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
-    @Parameters({
-            @Parameter(name = "dto", description = "로그인 정보", schema = @Schema(implementation = SignInReq.class))
-    })
+    @Parameter(name = "dto", description = "로그인 정보", schema = @Schema(implementation = SignInReq.class))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "로그인 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
@@ -144,9 +142,7 @@ public class AuthApi {
     })
     @PostMapping("/login")
     @PreAuthorize("isAnonymous()")
-    public ResponseEntity<?> signIn(@RequestHeader(value = "Authorization", required = false) String accessToken, @RequestBody @Valid SignInReq dto) {
-        if (accessToken != null)
-            throw new GlobalErrorException(ErrorCode.ALREADY_LOGIN_USER);
+    public ResponseEntity<?> signIn(@RequestBody @Valid SignInReq dto) {
         Jwt tokens = memberAuthService.login(dto);
         return getResponseEntity(tokens);
     }
@@ -165,7 +161,7 @@ public class AuthApi {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> signOut(
             @AccessTokenInfo AccessToken accessToken,
-            @CookieValue(value = "refreshToken", required = false) @Valid String refreshToken,
+            @CookieValue(value = "refreshToken") @Valid String refreshToken,
             HttpServletRequest request, HttpServletResponse response) {
         if (accessToken.isReissued()) {
             refreshToken = response.getHeader(HttpHeaders.SET_COOKIE).substring(AuthConstants.REFRESH_TOKEN.getValue().length() + 1);
@@ -191,6 +187,7 @@ public class AuthApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @GetMapping("/refresh")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
         Jwt tokens = memberAuthService.refresh(refreshToken);
         return getResponseEntity(tokens);

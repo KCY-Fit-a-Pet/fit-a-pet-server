@@ -1,7 +1,5 @@
-package com.kcy.fitapet.global.config;
+package com.kcy.fitapet.global.config.redis;
 
-import com.kcy.fitapet.global.config.feign.OidcCacheManager;
-import com.kcy.fitapet.global.config.feign.RedisCacheConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,36 +17,21 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.sql.SQLException;
 import java.time.Duration;
 
 @Configuration
 @EnableRedisRepositories
-@EnableCaching
+@EnableTransactionManagement
 public class RedisConfig {
     @Value("${spring.data.redis.host}")
     private String host;
     @Value("${spring.data.redis.port}")
     private int port;
-
-    @Bean
-    @Primary
-    public CacheManager redisCacheManager(
-            @RedisCacheConnectionFactory RedisConnectionFactory cf) {
-        RedisCacheConfiguration redisCacheConfiguration =
-                RedisCacheConfiguration.defaultCacheConfig()
-                        .serializeKeysWith(
-                                RedisSerializationContext.SerializationPair.fromSerializer(
-                                        new StringRedisSerializer()))
-                        .serializeValuesWith(
-                                RedisSerializationContext.SerializationPair.fromSerializer(
-                                        new GenericJackson2JsonRedisSerializer()))
-                        .entryTtl(Duration.ofHours(1L));
-
-        return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)
-                .cacheDefaults(redisCacheConfiguration)
-                .build();
-    }
 
     @Bean
     @RedisCacheConnectionFactory
@@ -69,20 +52,4 @@ public class RedisConfig {
         return template;
     }
 
-    @Bean
-    @OidcCacheManager
-    public CacheManager oidcCacheManger(RedisConnectionFactory cf) {
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(
-                                new StringRedisSerializer()
-                        ))
-                .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(
-                                new GenericJackson2JsonRedisSerializer()
-                        ))
-                .entryTtl(Duration.ofDays(3));
-
-        return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf).cacheDefaults(config).build();
-    }
 }

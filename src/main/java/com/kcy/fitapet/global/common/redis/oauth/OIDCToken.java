@@ -15,17 +15,16 @@ public class OIDCToken {
     private final long ttl;
 
     @Builder
-    public OIDCToken(String token, ProviderType provider, Long id, long ttl) {
+    public OIDCToken(String token, String providerWithId, long ttl) {
         this.token = token;
-        this.providerWithId = provider.name() + "@" + id;
+        this.providerWithId = providerWithId;
         this.ttl = ttl;
     }
 
     public static OIDCToken of(String token, ProviderType provider, Long id, long ttl) {
         return OIDCToken.builder()
                 .token(token)
-                .provider(provider)
-                .id(id)
+                .providerWithId(provider.name() + "@" + id)
                 .ttl(ttl)
                 .build();
     }
