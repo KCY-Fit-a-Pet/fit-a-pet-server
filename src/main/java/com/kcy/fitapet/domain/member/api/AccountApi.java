@@ -55,7 +55,6 @@ public class AccountApi {
     @Parameters({
             @Parameter(name = "id", description = "수정할 프로필 ID", required = true),
             @Parameter(name = "type", description = "수정할 프로필 타입", required = true),
-            @Parameter(name = "req", description = "수정할 프로필 정보")
     })
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
@@ -76,7 +75,6 @@ public class AccountApi {
     @Parameters({
             @Parameter(name = "type", description = "찾을 타입", example = "uid/password", required = true),
             @Parameter(name = "code", description = "인증번호", required = true),
-            @Parameter(name = "req", description = "uid(이름)/password(비밀번호)")
     })
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> postSearchIdOrPassword(

@@ -10,6 +10,7 @@ import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
+import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
 import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
@@ -26,7 +27,7 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
-    private final SmsRedisProvider smsRedisProvider;
+    private final SmsRedisHelper smsRedisHelper;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
@@ -56,8 +57,11 @@ public class MemberAccountService {
 
     @Transactional(readOnly = true)
     public UidRes getUidWhenSmsAuthenticated(String phone, String code, SmsPrefix prefix) {
+        log.info("phone: {}, code: {}, prefix: {}", phone, code, prefix);
         validatePhone(phone, code, prefix);
+        log.info("isValid");
         Member member = memberSearchService.findByPhone(phone);
+        smsRedisHelper.removeCode(phone, prefix);
         return UidRes.of(member.getUid(), member.getCreatedAt());
     }
 
@@ -72,6 +76,7 @@ public class MemberAccountService {
             throw new GlobalErrorException(errorCode);
         }
         member.updatePassword(req.newPassword(), bCryptPasswordEncoder);
+        smsRedisHelper.removeCode(req.phone(), prefix);
     }
 
     @Transactional
@@ -125,13 +130,13 @@ public class MemberAccountService {
      * @param prefix : 인증번호 타입
      */
     private void validatePhone(String phone, String code, SmsPrefix prefix) {
-        if (!smsRedisProvider.isExistsCode(phone, prefix)) {
+        if (!smsRedisHelper.isExistsCode(phone, prefix)) {
             StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
 
-        if (!smsRedisProvider.isCorrectCode(phone, code, prefix)) {
+        if (!smsRedisHelper.isCorrectCode(phone, code, prefix)) {
             StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
