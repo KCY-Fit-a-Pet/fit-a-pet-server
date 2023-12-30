@@ -1,23 +1,42 @@
 version: '3.7'
 services:
-  proxy:
-    image: nginx:latest
+  certbot:
+    container_name: certbot
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - /letsencrypt/certbot/conf:/etc/letsencrypt
+      - /letsencrypt/certbot/www:/var/www/certbot
+    depends_on:
+      - nginx
+    networks:
+      - was-net
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  nginx:
+    image: nginx:1.15-alpine
     container_name: nginx-proxy
     restart: always
+    volumes:
+      - ./proxy/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - /letsencrypt/certbot/conf:/etc/letsencrypt
+      - /letsencrypt/certbot/www:/var/www/certbot
+      - /var/log/nginx:/var/log/nginx/
     ports:
-      - "8083:80"
+      - "80:80"
       - "443:443"
     networks:
       - was-net
     depends_on:
       - server
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
 
   server:
     image: jaeseo/fitapet:latest
     container_name: fitapet-api
     restart: unless-stopped
     expose:
-      - "8080:8080"
+      - "8080"
     env_file:
       - .env
     environment:
@@ -27,5 +46,4 @@ services:
 
 networks:
   was-net:
-    name: was-net
     external: true
