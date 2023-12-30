@@ -115,12 +115,7 @@ public class OauthApi {
                     .header(ACCESS_TOKEN.getValue(), token.accessToken())
                     .body(SuccessResponse.from(Map.of("member", "신규 회원")));
 
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), token.refreshToken(), 60 * 60 * 24 * 7);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), token.accessToken())
-                .body(SuccessResponse.noContent());
+        return getJwtResponseEntity(token);
     }
 
     private ResponseEntity<?> getJwtResponseEntity(Jwt jwt) {
