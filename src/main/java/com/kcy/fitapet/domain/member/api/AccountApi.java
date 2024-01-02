@@ -13,6 +13,7 @@ import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class AccountApi {
     private final MemberAccountService memberAccountService;
 
     @Operation(summary = "프로필 조회")
+    @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> getProfile(
@@ -42,9 +44,9 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
-    @Operation(summary = "ID 존재 확인")
+    @Operation(summary = "닉네임 존재 확인")
     @GetMapping("/exists")
-    @Parameter(name = "uid", description = "확인할 ID", required = true)
+    @Parameter(name = "uid", description = "확인할 유저 닉네임", in = ParameterIn.QUERY, required = true)
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> getExistsUid(@RequestParam("uid") @NotBlank String uid) {
         boolean exists = memberAccountService.existsUid(uid);
@@ -53,8 +55,8 @@ public class AccountApi {
 
     @Operation(summary = "프로필(비밀번호/이름) 수정")
     @Parameters({
-            @Parameter(name = "id", description = "수정할 프로필 ID", required = true),
-            @Parameter(name = "type", description = "수정할 프로필 타입", required = true),
+            @Parameter(name = "id", description = "수정할 프로필 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "type", description = "수정할 프로필 타입", in = ParameterIn.QUERY, required = true),
     })
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
@@ -73,8 +75,8 @@ public class AccountApi {
     @Operation(summary = "ID/PW 찾기")
     @PostMapping("/search")
     @Parameters({
-            @Parameter(name = "type", description = "찾을 타입", example = "uid/password", required = true),
-            @Parameter(name = "code", description = "인증번호", required = true),
+            @Parameter(name = "type", description = "찾을 타입", example = "uid/password", in = ParameterIn.QUERY, required = true),
+            @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY, required = true),
     })
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> postSearchIdOrPassword(
@@ -93,7 +95,7 @@ public class AccountApi {
 
     @Operation(summary = "알림 on/off")
     @Parameters({
-            @Parameter(name = "id", description = "알림 설정할 ID", required = true),
+            @Parameter(name = "id", description = "알림 설정할 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "type", description = "알림 타입", example = "care or memo or schedule", required = true)
     })
     @GetMapping("/{id}/notify")
