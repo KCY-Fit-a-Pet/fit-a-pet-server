@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
 @OpenAPIDefinition(
@@ -59,5 +60,10 @@ public class SwaggerConfig {
                 .title("Fit a Pet API (" + activeProfile + ")")
                 .description("Fit a Pet Backend API Docs")
                 .version("1.0.0");
+    }
+
+    @Bean
+    ForwardedHeaderFilter forwardedHeaderFilter() {
+        return new ForwardedHeaderFilter();
     }
 }
