@@ -23,7 +23,7 @@ public class Manager extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member manager;
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_id")
@@ -41,8 +41,8 @@ public class Manager extends Auditable {
         this.hidden = false;
     }
 
-    private Manager(Member manager, Pet pet, boolean hidden, ManageType manageType) {
-        this.manager = manager;
+    private Manager(Member member, Pet pet, boolean hidden, ManageType manageType) {
+        this.member = member;
         this.pet = pet;
         this.hidden = hidden;
         this.manageType = manageType;
@@ -53,11 +53,11 @@ public class Manager extends Auditable {
     }
 
     public void updateManager(Member manager) {
-        if (this.manager != null) {
-            this.manager.getUnderCares().remove(this);
+        if (this.member != null) {
+            this.member.getUnderCares().remove(this);
         }
 
-        this.manager = manager;
+        this.member = manager;
 
         if (manager != null) {
             manager.getUnderCares().add(this);
