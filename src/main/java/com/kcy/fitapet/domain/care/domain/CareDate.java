@@ -1,45 +1,41 @@
 package com.kcy.fitapet.domain.care.domain;
 
+import com.kcy.fitapet.domain.care.type.WeekType;
+import com.kcy.fitapet.domain.care.type.WeekTypeConverter;
 import com.kcy.fitapet.domain.model.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Entity
 @Table(name = "CARE_DETAIL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CareDetail extends Auditable {
+public class CareDate extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(name = "care_detail_name")
     private String careDetailName;
+    @Convert(converter = WeekTypeConverter.class)
+    private WeekType week;
     @Temporal(TemporalType.TIME)
     @Column(name = "care_time")
     private LocalTime careTime;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "care_id")
     private Care care;
 
-    @OneToMany(mappedBy = "careDetail")
-    private List<CareLog> careLogs;
-
     @Builder
-    private CareDetail(String careDetailName, LocalTime careTime) {
-        this.careDetailName = careDetailName;
+    private CareDate(WeekType week, LocalTime careTime) {
+        this.week = week;
         this.careTime = careTime;
     }
 
-    public static CareDetail of(String careDetailName, LocalTime careTime, LocalTime limitTime, Boolean isDone, LocalDateTime clearedAt) {
-        return CareDetail.builder()
-                .careDetailName(careDetailName)
+    public static CareDate of(WeekType week, LocalTime careTime) {
+        return CareDate.builder()
+                .week(week)
                 .careTime(careTime)
                 .build();
     }
@@ -47,7 +43,7 @@ public class CareDetail extends Auditable {
     @Override public String toString() {
         return "CareDetail{" +
                 "id=" + id +
-                ", careDetailName='" + careDetailName + '\'' +
+                ", week='" + week + '\'' +
                 ", careTime=" + careTime +
                 '}';
     }

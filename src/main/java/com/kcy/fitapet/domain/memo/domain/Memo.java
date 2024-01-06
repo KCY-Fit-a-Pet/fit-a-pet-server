@@ -32,7 +32,7 @@ public class Memo extends Auditable {
     private List<MemoImage> memoImages;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-    private Category category;
+    private MemoCategory memoCategory;
 
     @Builder
     private Memo(String title, String content) {

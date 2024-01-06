@@ -3,7 +3,7 @@ package com.kcy.fitapet.domain.care.service;
 import com.kcy.fitapet.domain.care.dao.CareDetailRepository;
 import com.kcy.fitapet.domain.care.dao.CareRepository;
 import com.kcy.fitapet.domain.care.domain.Care;
-import com.kcy.fitapet.domain.care.domain.CareDetail;
+import com.kcy.fitapet.domain.care.domain.CareDate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class CareSaveService {
     }
 
     @Transactional
-    public void saveCareDetails(List<CareDetail> careDetails) {
-        careDetailRepository.saveAll(careDetails);
+    public void saveCareDetails(List<CareDate> careDates) {
+        careDetailRepository.saveAll(careDates);
     }
 }
