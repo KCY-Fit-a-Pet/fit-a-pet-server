@@ -6,12 +6,14 @@ import com.kcy.fitapet.domain.model.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "CARE_DETAIL")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CareDate extends Auditable {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
