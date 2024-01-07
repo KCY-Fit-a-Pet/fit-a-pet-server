@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
 @OpenAPIDefinition(
@@ -39,6 +40,11 @@ public class SwaggerConfig {
                 .addServersItem(new io.swagger.v3.oas.models.servers.Server().url(""))
                 .addSecurityItem(securityRequirement)
                 .components(securitySchemes());
+    }
+
+    @Bean
+    ForwardedHeaderFilter forwardedHeaderFilter() {
+        return new ForwardedHeaderFilter();
     }
 
     private Components securitySchemes() {

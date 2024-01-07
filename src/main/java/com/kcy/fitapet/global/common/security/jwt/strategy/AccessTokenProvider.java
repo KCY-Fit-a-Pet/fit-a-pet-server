@@ -86,15 +86,8 @@ public class AccessTokenProvider implements JwtProvider {
 
     @Override
     public boolean isTokenExpired(String token) {
-        try {
-            Claims claims = getClaimsFromToken(token);
-            return claims.getExpiration().before(new Date());
-        } catch (AuthErrorException e) {
-            if (e.getErrorCode().equals(AuthErrorCode.EXPIRED_TOKEN)) {
-                return true;
-            }
-            throw e;
-        }
+        Claims claims = getClaimsFromToken(token);
+        return claims.getExpiration().before(new Date());
     }
 
     @Override
