@@ -4,6 +4,7 @@ import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
 import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
+import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
 import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
@@ -42,11 +43,10 @@ import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailServiceImpl userDetailServiceImpl;
-    private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final JwtProviderMapper jwtMapper;
-    private final CookieUtil cookieUtil;
+    private final JwtProvider accessTokenProvider;
+
 
     /**
      * JWT 인증 필터에서 무시할 URL 패턴 <br/>
@@ -101,38 +101,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private String resolveAccessToken(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         String authHeader = request.getHeader(AUTH_HEADER.getValue());
 
-        String token = jwtMapper.getProvider(ACCESS_TOKEN).resolveToken(authHeader);
+        String token = accessTokenProvider.resolveToken(authHeader);
         if (!StringUtils.hasText(token))
             handleAuthException(AuthErrorCode.EMPTY_ACCESS_TOKEN, "액세스 토큰이 없습니다.");
 
         if (forbiddenTokenService.isForbidden(token))
             handleAuthException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "더 이상 사용할 수 없는 토큰입니다.");
 
-        if (jwtMapper.getProvider(ACCESS_TOKEN).isTokenExpired(token)) {
-            log.warn("Expired JWT access token: {}", token);
-            return reissueAccessToken(request, response);
-        }
-
+        accessTokenProvider.isTokenExpired(token);
         return token;
     }
 
-    private String reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
-        Cookie refreshTokenCookie = cookieUtil.getCookieFromRequest(request, REFRESH_TOKEN.getValue())
-                .orElseThrow(() -> new AuthErrorException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND, "Refresh token not found"));
-        String requestRefreshToken = refreshTokenCookie.getValue();
-
-        RefreshToken reissuedRefreshToken = refreshTokenService.refresh(requestRefreshToken);
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), reissuedRefreshToken.getToken(), refreshTokenCookie.getMaxAge());
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        JwtSubInfo userInfo = jwtMapper.getProvider(ACCESS_TOKEN).getSubInfoFromToken(requestRefreshToken);
-        String reissuedAccessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(userInfo);
-        response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
-        return reissuedAccessToken;
-    }
 
     private UserDetails getUserDetails(final String accessToken) {
-        Long userId = jwtMapper.getProvider(ACCESS_TOKEN).getSubInfoFromToken(accessToken).id();
+        Long userId = accessTokenProvider.getSubInfoFromToken(accessToken).id();
         return userDetailServiceImpl.loadUserByUsername(userId.toString());
     }
 

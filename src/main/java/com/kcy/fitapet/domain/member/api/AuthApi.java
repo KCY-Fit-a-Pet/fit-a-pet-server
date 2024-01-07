@@ -103,7 +103,10 @@ public class AuthApi {
     }
 
     @Operation(summary = "ID/PW 찾기 전화번호 인증")
-    @Parameter(name = "type", description = "인증 타입(uid, password)", in = ParameterIn.QUERY, required = true)
+    @Parameters({
+            @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY),
+            @Parameter(name = "type", description = "인증 타입(uid, password)", in = ParameterIn.QUERY, required = true)
+    })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인증번호 전송 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "200", description = "인증번호 전송 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),

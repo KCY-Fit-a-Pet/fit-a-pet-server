@@ -1,6 +1,6 @@
 package com.kcy.fitapet.domain.memo.domain;
 
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "CATEGORY")
+@Table(name = "MEMO_CATEGORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"categoryName"})
-public class Category extends Auditable {
+public class MemoCategory extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "category_name")
@@ -22,19 +22,19 @@ public class Category extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    private Category parent;
+    private MemoCategory parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private List<Category> children = new ArrayList<>();
+    private List<MemoCategory> children = new ArrayList<>();
 
     @Builder
-    private Category(String categoryName, Category parent) {
+    private MemoCategory(String categoryName, MemoCategory parent) {
         this.categoryName = categoryName;
         this.parent = parent;
     }
 
-    public static Category of(String categoryName, Category parent) {
-        return Category.builder()
+    public static MemoCategory of(String categoryName, MemoCategory parent) {
+        return MemoCategory.builder()
                 .categoryName(categoryName)
                 .parent(parent)
                 .build();

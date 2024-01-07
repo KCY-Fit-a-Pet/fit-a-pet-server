@@ -1,18 +1,17 @@
 package com.kcy.fitapet.domain.pet.domain;
 
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.schedule.domain.Schedule;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Entity
 @Table(name = "PET_SCHEDULE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class PetSchedule extends Auditable {
+public class PetSchedule extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

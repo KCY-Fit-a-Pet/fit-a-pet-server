@@ -42,6 +42,11 @@ public class SwaggerConfig {
                 .components(securitySchemes());
     }
 
+    @Bean
+    ForwardedHeaderFilter forwardedHeaderFilter() {
+        return new ForwardedHeaderFilter();
+    }
+
     private Components securitySchemes() {
         final var securitySchemeAccessToken = new SecurityScheme()
                 .name(JWT)
@@ -60,10 +65,5 @@ public class SwaggerConfig {
                 .title("Fit a Pet API (" + activeProfile + ")")
                 .description("Fit a Pet Backend API Docs")
                 .version("1.0.0");
-    }
-
-    @Bean
-    ForwardedHeaderFilter forwardedHeaderFilter() {
-        return new ForwardedHeaderFilter();
     }
 }

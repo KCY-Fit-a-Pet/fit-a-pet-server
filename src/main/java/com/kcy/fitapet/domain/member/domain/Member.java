@@ -2,7 +2,7 @@ package com.kcy.fitapet.domain.member.domain;
 
 import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.domain.member.type.converter.RoleTypeConverter;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.notification.domain.Notification;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
@@ -22,7 +22,7 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 @ToString(of = {"id", "name", "phone", "email", "role"})
-public class Member extends Auditable {
+public class Member extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     private Long id;
@@ -56,7 +56,7 @@ public class Member extends Auditable {
     private Set<MemberNickname> toMemberNickname = new HashSet<>();
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Notification> notifications = new ArrayList<>();
-    @OneToMany(mappedBy = "manager", cascade = CascadeType.ALL) @Getter
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) @Getter
     private List<Manager> underCares = new ArrayList<>();
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) @Getter
     private List<OauthAccount> oauthAccounts = new ArrayList<>();

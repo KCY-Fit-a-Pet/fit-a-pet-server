@@ -6,6 +6,7 @@ import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
 import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
 import com.kcy.fitapet.global.common.security.filter.JwtAuthenticationFilter;
 import com.kcy.fitapet.global.common.security.filter.JwtExceptionFilter;
+import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
 import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
 import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
 import lombok.AccessLevel;
@@ -17,11 +18,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SecurityFilterConfig {
     private final UserDetailServiceImpl userDetailServiceImpl;
-    private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final JwtProviderMapper jwtMapper;
-    private final CookieUtil cookieUtil;
+    private final JwtProvider accessTokenProvider;
 
     private final ObjectMapper objectMapper;
 
@@ -32,6 +31,6 @@ public class SecurityFilterConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthorizationFilter() {
-        return new JwtAuthenticationFilter(userDetailServiceImpl, refreshTokenService, forbiddenTokenService, jwtMapper, cookieUtil);
+        return new JwtAuthenticationFilter(userDetailServiceImpl, forbiddenTokenService, accessTokenProvider);
     }
 }

@@ -20,9 +20,9 @@ public class JwtErrorCodeUtil {
 
     // 추가된 예외 유형에 대한 기본 오류 코드를 설정합니다.
     static {
-        ERROR_CODE_MAP.put(ExpiredJwtException.class, AuthErrorCode.EXPIRED_ACCESS_TOKEN);
-        ERROR_CODE_MAP.put(MalformedJwtException.class, AuthErrorCode.MALFORMED_ACCESS_TOKEN);
-        ERROR_CODE_MAP.put(SignatureException.class, AuthErrorCode.TAMPERED_ACCESS_TOKEN);
+        ERROR_CODE_MAP.put(ExpiredJwtException.class, AuthErrorCode.EXPIRED_TOKEN);
+        ERROR_CODE_MAP.put(MalformedJwtException.class, AuthErrorCode.MALFORMED_TOKEN);
+        ERROR_CODE_MAP.put(SignatureException.class, AuthErrorCode.TAMPERED_TOKEN);
         ERROR_CODE_MAP.put(UnsupportedJwtException.class, AuthErrorCode.UNSUPPORTED_JWT_TOKEN);
     }
 

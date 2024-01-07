@@ -1,6 +1,6 @@
 package com.kcy.fitapet.domain.member.domain;
 
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,7 +8,7 @@ import lombok.*;
 @Table(name = "MEMBER_NICKNAME")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "nickname"})
-public class MemberNickname extends Auditable {
+public class MemberNickname extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nickname;
