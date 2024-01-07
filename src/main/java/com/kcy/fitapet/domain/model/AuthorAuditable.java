@@ -1,9 +1,8 @@
 package com.kcy.fitapet.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kcy.fitapet.domain.member.domain.Member;
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -26,10 +25,14 @@ public class AuthorAuditable {
     private LocalDateTime updatedAt;
 
     @CreatedBy
-    @Column(name = "author_id", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false, updatable = false)
+    @JsonIgnore
     private Member author;
 
     @LastModifiedBy
-    @Column(name = "last_modified_id", nullable = false)
-    private Member lastModifiedId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_editor_id", nullable = false)
+    @JsonIgnore
+    private Member lastEditorId;
 }

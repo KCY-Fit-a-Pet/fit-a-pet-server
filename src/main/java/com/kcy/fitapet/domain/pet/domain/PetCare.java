@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "PET_CARE")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
 public class PetCare extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,15 +22,6 @@ public class PetCare extends DateAuditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "care_id")
     private Care care;
-
-    private PetCare(Pet pet, Care care) {
-        this.pet = pet;
-        this.care = care;
-    }
-
-    public static PetCare of(Pet pet, Care care) {
-        return new PetCare(pet, care);
-    }
 
     public void updatePet(Pet pet) {
         if (this.pet != null) {
@@ -54,5 +45,10 @@ public class PetCare extends DateAuditable {
         if (care != null) {
             care.getPets().add(this);
         }
+    }
+
+    public void updateMapping(Pet pet, Care care) {
+        updatePet(pet);
+        updateCare(care);
     }
 }

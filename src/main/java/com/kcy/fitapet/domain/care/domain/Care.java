@@ -1,6 +1,7 @@
 package com.kcy.fitapet.domain.care.domain;
 
 import com.kcy.fitapet.domain.member.domain.Member;
+import com.kcy.fitapet.domain.model.AuthorAuditable;
 import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.domain.PetCare;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"careName"})
 @Getter
-public class Care extends DateAuditable {
+public class Care extends AuthorAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "care_name")

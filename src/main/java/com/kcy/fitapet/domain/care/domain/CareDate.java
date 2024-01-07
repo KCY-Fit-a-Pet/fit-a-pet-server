@@ -12,14 +12,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "CARE_DETAIL")
+@Table(name = "CARE_DATE")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CareDate extends DateAuditable {
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "care_detail_name")
-    private String careDetailName;
     @Convert(converter = WeekTypeConverter.class)
     private WeekType week;
     @Temporal(TemporalType.TIME)
@@ -40,6 +38,14 @@ public class CareDate extends DateAuditable {
                 .week(week)
                 .careTime(careTime)
                 .build();
+    }
+
+    public void updateCare(Care care) {
+        if (this.care != null) {
+            this.care.getCareDates().remove(this);
+        }
+        this.care = care;
+        care.getCareDates().add(this);
     }
 
     @Override public String toString() {

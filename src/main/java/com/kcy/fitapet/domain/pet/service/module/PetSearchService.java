@@ -14,12 +14,25 @@ public class PetSearchService {
     private final PetRepository petRepository;
 
     @Transactional(readOnly = true)
-    public boolean isExistPetById(Long petId) {
-        return petRepository.existsById(petId);
+    public Pet findPetById(Long id) {
+        return petRepository.findByIdOrElseThrow(id);
     }
 
     @Transactional(readOnly = true)
     public List<Pet> findPetsByIds(List<Long> petIds) {
         return petRepository.findAllById(petIds);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistPetById(Long petId) {
+        return petRepository.existsById(petId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistPetByIds(List<Long> petIds) {
+        for (Long petId : petIds) {
+            if (!petRepository.existsById(petId)) return false;
+        }
+        return true;
     }
 }

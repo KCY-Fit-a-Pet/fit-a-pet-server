@@ -64,8 +64,8 @@ public class CareSaveDto {
             @NotNull
             Integer limitTime
     ) {
-        public Care toCare(Member member, CareCategory category) {
-            return Care.of(careName, limitTime, member, category);
+        public Care toCare(CareCategory category) {
+            return Care.of(careName, limitTime, category);
         }
 
         public List<CareDate> toCareDateEntity() {

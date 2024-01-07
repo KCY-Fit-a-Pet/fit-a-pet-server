@@ -32,7 +32,7 @@ public class CareApi {
             @AuthenticationPrincipal CustomUserDetails user
             ) {
         log.info("request: {}", request);
-        careManageService.saveCare(user.getUserId(), request);
+        careManageService.saveCare(user.getUserId(), petId, request);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
