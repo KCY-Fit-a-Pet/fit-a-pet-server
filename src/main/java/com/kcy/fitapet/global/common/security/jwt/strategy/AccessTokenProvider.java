@@ -1,7 +1,6 @@
 package com.kcy.fitapet.global.common.security.jwt.strategy;
 
 import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.global.common.security.jwt.JwtField;
 import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
@@ -90,8 +89,11 @@ public class AccessTokenProvider implements JwtProvider {
         try {
             Claims claims = getClaimsFromToken(token);
             return claims.getExpiration().before(new Date());
-        } catch (ExpiredJwtException e) {
-            return true;
+        } catch (AuthErrorException e) {
+            if (e.getErrorCode().equals(AuthErrorCode.EXPIRED_TOKEN)) {
+                return true;
+            }
+            throw e;
         }
     }
 

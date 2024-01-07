@@ -125,9 +125,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), reissuedRefreshToken.getToken(), refreshTokenCookie.getMaxAge());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        JwtSubInfo userInfo = jwtMapper.getProvider(ACCESS_TOKEN).getSubInfoFromToken(requestRefreshToken);
+        JwtSubInfo userInfo = jwtMapper.getProvider(REFRESH_TOKEN).getSubInfoFromToken(requestRefreshToken);
         String reissuedAccessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(userInfo);
         response.addHeader(REISSUED_ACCESS_TOKEN.getValue(), reissuedAccessToken);
+
+        log.info("Reissued JWT access token: user-id {}", userInfo.id());
         return reissuedAccessToken;
     }
 
