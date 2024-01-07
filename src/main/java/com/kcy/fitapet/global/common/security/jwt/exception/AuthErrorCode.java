@@ -21,9 +21,9 @@ public enum AuthErrorCode implements StatusCode {
      * 401 UNAUTHORIZED: 인증되지 않은 사용자
      */
     FAILED_AUTHENTICATION(UNAUTHORIZED, "인증에 실패하였습니다"),
-    TAMPERED_ACCESS_TOKEN(UNAUTHORIZED, "서명이 조작된 토큰입니다"),
-    EXPIRED_ACCESS_TOKEN(UNAUTHORIZED, "사용기간이 만료된 토큰입니다"),
-    MALFORMED_ACCESS_TOKEN(UNAUTHORIZED, "비정상적인 토큰입니다"),
+    TAMPERED_TOKEN(UNAUTHORIZED, "서명이 조작된 토큰입니다"),
+    EXPIRED_TOKEN(UNAUTHORIZED, "사용기간이 만료된 토큰입니다"),
+    MALFORMED_TOKEN(UNAUTHORIZED, "비정상적인 토큰입니다"),
     WRONG_JWT_TOKEN(UNAUTHORIZED, "잘못된 토큰입니다(default)"),
     UNSUPPORTED_JWT_TOKEN(UNAUTHORIZED, "지원하지 않는 토큰입니다"),
     REFRESH_TOKEN_NOT_FOUND(UNAUTHORIZED, "없거나 삭제된 리프래시 토큰입니다."),

@@ -1,18 +1,17 @@
 package com.kcy.fitapet.domain.pet.domain;
 
 import com.kcy.fitapet.domain.care.domain.Care;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Entity
 @Table(name = "PET_CARE")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
-public class PetCare extends Auditable {
+public class PetCare extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -23,15 +22,6 @@ public class PetCare extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "care_id")
     private Care care;
-
-    private PetCare(Pet pet, Care care) {
-        this.pet = pet;
-        this.care = care;
-    }
-
-    public static PetCare of(Pet pet, Care care) {
-        return new PetCare(pet, care);
-    }
 
     public void updatePet(Pet pet) {
         if (this.pet != null) {
@@ -55,5 +45,10 @@ public class PetCare extends Auditable {
         if (care != null) {
             care.getPets().add(this);
         }
+    }
+
+    public void updateMapping(Pet pet, Care care) {
+        updatePet(pet);
+        updateCare(care);
     }
 }

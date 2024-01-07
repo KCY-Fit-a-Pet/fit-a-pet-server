@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.notification.domain;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.domain.notification.type.converter.NotificationTypeConverter;
 import jakarta.persistence.*;
@@ -12,7 +12,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "NOTIFICATION")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"title", "content", "ctype", "checked"})
-public class Notification extends Auditable {
+public class Notification extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String title;
     private String content;

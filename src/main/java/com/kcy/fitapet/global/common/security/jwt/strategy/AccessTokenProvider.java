@@ -1,7 +1,6 @@
 package com.kcy.fitapet.global.common.security.jwt.strategy;
 
 import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.global.common.security.jwt.JwtField;
 import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
@@ -10,10 +9,7 @@ import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
 import com.kcy.fitapet.global.common.security.jwt.qualifier.AccessTokenQualifier;
 import com.kcy.fitapet.global.common.util.DateUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +79,25 @@ public class AccessTokenProvider implements JwtProvider {
     }
 
     @Override
+    public LocalDateTime getExpiryDate(String token) throws AuthErrorException {
+        Claims claims = getClaimsFromToken(token);
+        return DateUtil.toLocalDateTime(claims.getExpiration());
+    }
+
+    @Override
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return claims.getExpiration().before(new Date());
+        } catch (AuthErrorException e) {
+            if (e.getErrorCode().equals(AuthErrorCode.EXPIRED_TOKEN)) {
+                return true;
+            }
+            throw e;
+        }
+    }
+
+    @Override
     public Claims getClaimsFromToken(String token) {
         try {
             return Jwts.parserBuilder()
@@ -95,18 +110,6 @@ public class AccessTokenProvider implements JwtProvider {
             log.warn("Error code : {}, Error - {},  {}", errorCode, e.getClass(), e.getMessage());
             throw new AuthErrorException(errorCode, e.toString());
         }
-    }
-
-    @Override
-    public LocalDateTime getExpiryDate(String token) throws AuthErrorException {
-        Claims claims = getClaimsFromToken(token);
-        return DateUtil.toLocalDateTime(claims.getExpiration());
-    }
-
-    @Override
-    public boolean isTokenExpired(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims.getExpiration().before(new Date());
     }
 
     private Map<String, Object> createHeader() {

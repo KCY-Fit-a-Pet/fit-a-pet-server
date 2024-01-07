@@ -2,7 +2,7 @@ package com.kcy.fitapet.domain.member.domain;
 
 import com.kcy.fitapet.domain.member.type.ManageType;
 import com.kcy.fitapet.domain.member.type.converter.ManageTypeConverter;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -14,7 +14,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Getter
 @Table(name = "MANAGER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Manager extends Auditable {
+public class Manager extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -23,7 +23,7 @@ public class Manager extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member manager;
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_id")
@@ -41,8 +41,8 @@ public class Manager extends Auditable {
         this.hidden = false;
     }
 
-    private Manager(Member manager, Pet pet, boolean hidden, ManageType manageType) {
-        this.manager = manager;
+    private Manager(Member member, Pet pet, boolean hidden, ManageType manageType) {
+        this.member = member;
         this.pet = pet;
         this.hidden = hidden;
         this.manageType = manageType;
@@ -53,11 +53,11 @@ public class Manager extends Auditable {
     }
 
     public void updateManager(Member manager) {
-        if (this.manager != null) {
-            this.manager.getUnderCares().remove(this);
+        if (this.member != null) {
+            this.member.getUnderCares().remove(this);
         }
 
-        this.manager = manager;
+        this.member = manager;
 
         if (manager != null) {
             manager.getUnderCares().add(this);

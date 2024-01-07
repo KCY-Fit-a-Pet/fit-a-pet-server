@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.member.service.module;
 
+import com.kcy.fitapet.domain.member.dao.ManagerRepository;
 import com.kcy.fitapet.domain.member.dao.MemberRepository;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
@@ -8,10 +9,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MemberSearchService {
     private final MemberRepository memberRepository;
+    private final ManagerRepository managerRepository;
 
     @Transactional(readOnly = true)
     public Member findById(Long id) {
@@ -50,5 +55,24 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public boolean isExistByPhoneAndUid(String phone, String uid) {
         return memberRepository.existsByPhoneAndUid(phone, uid);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isManager(Long memberId, Long petId) {
+        return managerRepository.existsByMember_IdAndPet_Id(memberId, petId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isManagerAll(Long memberId, List<Long> petIds) {
+        if (petIds.isEmpty()) {
+            return false;
+        }
+
+        for (Long petId : petIds) {
+            if (!isManager(memberId, petId)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
