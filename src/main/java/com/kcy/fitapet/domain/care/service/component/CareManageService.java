@@ -36,34 +36,36 @@ public class CareManageService {
         CareSaveDto.CareInfoDto careInfoDto = request.care();
         List<Long> petIds = request.pets();
 
-        // TODO: CREATE인데 이미 존재하는 카테고리 이름을 제외할 것인가?
-        CareCategory category = (categoryDto.state().equals(CareSaveDto.CategoryState.EXIST))
-                ? careSearchService.findCareCategoryById(categoryDto.categoryId())
-                : categoryDto.toCareCategory();
-        careSaveService.saveCareCategory(category);
-        log.info("category: {}", category);
-
-        Care care = (careInfoDto.toCare(category));
-        careSaveService.saveCare(care);
-        log.info("care: {}", care);
-
-        List<CareDate> dates = careInfoDto.toCareDateEntity();
-        for (CareDate date : dates) date.updateCare(care);
-        log.info("dates: {}", dates);
-
-        PetCare petCare = new PetCare();
-        petCare.updateMapping(petSearchService.findPetById(petId), care);
+        persistAboutCare(categoryDto, careInfoDto, petSearchService.findPetById(petId));
         petIds.remove(petId);
 
-        // TODO: 존재하지 않는 반려동물 id 요청하면?
         if (memberSearchService.isManagerAll(userId, petIds)) {
-            List<Pet> additionalPets = petSearchService.findPetsByIds(petIds);
-            for (Pet pet : additionalPets) {
-                PetCare additionalPetCare = new PetCare();
-                additionalPetCare.updateMapping(pet, care);
+            List<Pet> pets = petSearchService.findPetsByIds(petIds);
+            for (Pet pet : pets) {
+                persistAboutCare(categoryDto, careInfoDto, pet);
             }
         } else {
             throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
         }
+    }
+
+    private void persistAboutCare(CareSaveDto.CategoryDto categoryDto, CareSaveDto.CareInfoDto careInfoDto, Pet pet) {
+        CareCategory category = saveCareCategory(categoryDto);
+
+        Care care = careInfoDto.toCare(category);
+        careSaveService.saveCare(care);
+
+        List<CareDate> dates = careInfoDto.toCareDateEntity();
+        for (CareDate date : dates) date.updateCare(care);
+
+        PetCare petCare = new PetCare();
+        petCare.updateMapping(pet, care);
+    }
+
+    private CareCategory saveCareCategory(CareSaveDto.CategoryDto categoryDto) {
+        CareCategory category = (categoryDto.state().equals(CareSaveDto.CategoryState.EXIST))
+                ? careSearchService.findCareCategoryById(categoryDto.categoryId())
+                : categoryDto.toCareCategory();
+        return careSaveService.saveCareCategory(category);
     }
 }

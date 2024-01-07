@@ -39,7 +39,7 @@ public class CareSaveService {
     }
 
     @Transactional
-    public void saveCareCategory(CareCategory careCategory) {
-        careCategoryRepository.save(careCategory);
+    public CareCategory saveCareCategory(CareCategory careCategory) {
+        return careCategoryRepository.save(careCategory);
     }
 }
