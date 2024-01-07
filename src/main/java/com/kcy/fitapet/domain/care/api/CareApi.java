@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.care.api;
 
 import com.kcy.fitapet.domain.care.dto.CareSaveDto;
-import com.kcy.fitapet.domain.care.service.CareSaveService;
+import com.kcy.fitapet.domain.care.service.component.CareManageService;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/pets/{pet_id}/cares")
 @RequiredArgsConstructor
 public class CareApi {
+    private final CareManageService careManageService;
 
     @Operation(summary = "케어 등록")
     @Parameter(name = "pet_id", description = "등록할 반려동물 ID", required = true)
@@ -31,6 +32,7 @@ public class CareApi {
             @AuthenticationPrincipal CustomUserDetails user
             ) {
         log.info("request: {}", request);
+        careManageService.saveCare(user.getUserId(), request);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }

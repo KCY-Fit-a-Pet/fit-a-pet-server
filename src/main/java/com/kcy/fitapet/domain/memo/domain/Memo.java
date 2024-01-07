@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.memo.domain;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +12,7 @@ import java.util.List;
 @Table(name = "MEMO")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Memo extends Auditable {
+public class Memo extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

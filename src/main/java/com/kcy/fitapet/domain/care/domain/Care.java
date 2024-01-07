@@ -1,12 +1,11 @@
 package com.kcy.fitapet.domain.care.domain;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.domain.PetCare;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,21 +14,14 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"careName"})
 @Getter
-public class Care extends Auditable {
+public class Care extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "care_name")
     private String careName;
     @Column(name = "limit_time")
-    @Temporal(TemporalType.TIME)
-    private LocalTime limitTime;
+    private Integer limitTime;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", updatable = false)
-    private Member author;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "last_editor_id")
-    private Member lastEditor;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private CareCategory category;
@@ -40,18 +32,16 @@ public class Care extends Auditable {
     private List<CareDate> careDates = new ArrayList<>();
 
     @Builder
-    private Care(String careName, LocalTime limitTime, Member author, CareCategory category) {
+    private Care(String careName, Integer limitTime, CareCategory category) {
         this.careName = careName;
         this.limitTime = limitTime;
-        this.author = author;
         this.category = category;
     }
 
-    public static Care of(String careName, LocalTime limitTime, Member author, CareCategory category) {
+    public static Care of(String careName, Integer limitTime, CareCategory category) {
         return Care.builder()
                 .careName(careName)
                 .limitTime(limitTime)
-                .author(author)
                 .category(category)
                 .build();
     }

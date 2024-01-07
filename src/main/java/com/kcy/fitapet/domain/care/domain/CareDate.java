@@ -2,7 +2,7 @@ package com.kcy.fitapet.domain.care.domain;
 
 import com.kcy.fitapet.domain.care.type.WeekType;
 import com.kcy.fitapet.domain.care.type.WeekTypeConverter;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.time.LocalTime;
 @Table(name = "CARE_DETAIL")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CareDate extends Auditable {
+public class CareDate extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(name = "care_detail_name")

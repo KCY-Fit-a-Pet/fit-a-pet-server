@@ -93,8 +93,7 @@ public class SmsOauthTokenProvider implements JwtProvider {
 
     @Override
     public boolean isTokenExpired(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims.getExpiration().before(new Date());
+        throw new UnsupportedOperationException();
     }
 
     private Map<String, Object> createHeader() {

@@ -1,8 +1,6 @@
 package com.kcy.fitapet.global.common.security.authorization;
 
 import com.kcy.fitapet.domain.member.dao.ManagerRepository;
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
-import com.kcy.fitapet.domain.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

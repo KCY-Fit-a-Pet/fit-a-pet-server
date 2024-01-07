@@ -1,6 +1,6 @@
 package com.kcy.fitapet.domain.care.domain;
 
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.util.List;
 @Table(name = "CARE_CATEGORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class CareCategory extends Auditable {
+public class CareCategory extends DateAuditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

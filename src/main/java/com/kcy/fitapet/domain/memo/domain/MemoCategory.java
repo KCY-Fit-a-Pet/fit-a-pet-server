@@ -1,6 +1,6 @@
 package com.kcy.fitapet.domain.memo.domain;
 
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "MEMO_CATEGORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"categoryName"})
-public class MemoCategory extends Auditable {
+public class MemoCategory extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "category_name")

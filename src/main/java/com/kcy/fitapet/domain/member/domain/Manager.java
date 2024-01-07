@@ -2,7 +2,7 @@ package com.kcy.fitapet.domain.member.domain;
 
 import com.kcy.fitapet.domain.member.type.ManageType;
 import com.kcy.fitapet.domain.member.type.converter.ManageTypeConverter;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -14,7 +14,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Getter
 @Table(name = "MANAGER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Manager extends Auditable {
+public class Manager extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

@@ -1,9 +1,8 @@
 package com.kcy.fitapet.domain.pet.domain;
 
 import com.kcy.fitapet.domain.member.domain.Manager;
-import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.memo.domain.Memo;
-import com.kcy.fitapet.domain.model.Auditable;
+import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.type.GenderType;
 import com.kcy.fitapet.domain.pet.type.GenderTypeConverter;
 import jakarta.persistence.*;
@@ -19,7 +18,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"petName", "gender", "birthDate", "species"})
-public class Pet extends Auditable {
+public class Pet extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "pet_name")
