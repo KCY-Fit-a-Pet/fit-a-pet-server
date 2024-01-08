@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ import java.util.Map;
 @Tag(name = "프로필 API")
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/v2/accounts")
 @RequiredArgsConstructor
 public class AccountApi {
     private final MemberAccountService memberAccountService;
@@ -63,8 +64,8 @@ public class AccountApi {
     public ResponseEntity<?> putProfile(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam("type") @NotBlank MemberAttrType type,
-            @RequestBody ProfilePatchReq req
+            @RequestParam("type") MemberAttrType type,
+            @RequestBody @Valid ProfilePatchReq req
     ) {
         log.info("type: {}", type);
         memberAccountService.updateProfile(id, user.getUserId(), req, type);
@@ -82,7 +83,7 @@ public class AccountApi {
     public ResponseEntity<?> postSearchIdOrPassword(
             @RequestParam("type") @NotBlank SmsPrefix type,
             @RequestParam("code") @NotBlank String code,
-            @RequestBody AccountSearchReq req
+            @RequestBody @Valid AccountSearchReq req
     ) {
         if (type.equals(SmsPrefix.UID)) {
             UidRes res = memberAccountService.getUidWhenSmsAuthenticated(req.phone(), code, type);

@@ -112,7 +112,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return token;
     }
 
-
     private UserDetails getUserDetails(final String accessToken) {
         Long userId = accessTokenProvider.getSubInfoFromToken(accessToken).id();
         return userDetailServiceImpl.loadUserByUsername(userId.toString());

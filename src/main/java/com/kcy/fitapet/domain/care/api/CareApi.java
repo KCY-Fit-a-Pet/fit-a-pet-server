@@ -7,6 +7,7 @@ import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Care", description = "케어 API")
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/pets/{pet_id}/cares")
+@RequestMapping("/api/v2/pets/{pet_id}/cares")
 @RequiredArgsConstructor
 public class CareApi {
     private final CareManageService careManageService;
@@ -28,7 +29,7 @@ public class CareApi {
     @PreAuthorize("isAuthenticated() && @careAuthorizeManager.isManager(#petId, principal.userId)")
     public ResponseEntity<?> saveCare(
             @PathVariable("pet_id") Long petId,
-            @RequestBody CareSaveDto.Request request,
+            @RequestBody @Valid CareSaveDto.Request request,
             @AuthenticationPrincipal CustomUserDetails user
             ) {
         log.info("request: {}", request);
