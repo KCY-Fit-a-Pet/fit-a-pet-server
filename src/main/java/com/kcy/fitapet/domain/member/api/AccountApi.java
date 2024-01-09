@@ -13,7 +13,9 @@ import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +29,13 @@ import java.util.Map;
 @Tag(name = "프로필 API")
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/v2/accounts")
 @RequiredArgsConstructor
 public class AccountApi {
     private final MemberAccountService memberAccountService;
 
     @Operation(summary = "프로필 조회")
+    @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> getProfile(
@@ -42,9 +45,9 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
-    @Operation(summary = "ID 존재 확인")
+    @Operation(summary = "닉네임 존재 확인")
     @GetMapping("/exists")
-    @Parameter(name = "uid", description = "확인할 ID", required = true)
+    @Parameter(name = "uid", description = "확인할 유저 닉네임", in = ParameterIn.QUERY, required = true)
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> getExistsUid(@RequestParam("uid") @NotBlank String uid) {
         boolean exists = memberAccountService.existsUid(uid);
@@ -53,16 +56,16 @@ public class AccountApi {
 
     @Operation(summary = "프로필(비밀번호/이름) 수정")
     @Parameters({
-            @Parameter(name = "id", description = "수정할 프로필 ID", required = true),
-            @Parameter(name = "type", description = "수정할 프로필 타입", required = true),
+            @Parameter(name = "id", description = "수정할 프로필 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "type", description = "수정할 프로필 타입", in = ParameterIn.QUERY, required = true),
     })
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> putProfile(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam("type") @NotBlank MemberAttrType type,
-            @RequestBody ProfilePatchReq req
+            @RequestParam("type") MemberAttrType type,
+            @RequestBody @Valid ProfilePatchReq req
     ) {
         log.info("type: {}", type);
         memberAccountService.updateProfile(id, user.getUserId(), req, type);
@@ -73,14 +76,14 @@ public class AccountApi {
     @Operation(summary = "ID/PW 찾기")
     @PostMapping("/search")
     @Parameters({
-            @Parameter(name = "type", description = "찾을 타입", example = "uid/password", required = true),
-            @Parameter(name = "code", description = "인증번호", required = true),
+            @Parameter(name = "type", description = "찾을 타입", example = "uid/password", in = ParameterIn.QUERY, required = true),
+            @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY, required = true),
     })
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> postSearchIdOrPassword(
             @RequestParam("type") @NotBlank SmsPrefix type,
             @RequestParam("code") @NotBlank String code,
-            @RequestBody AccountSearchReq req
+            @RequestBody @Valid AccountSearchReq req
     ) {
         if (type.equals(SmsPrefix.UID)) {
             UidRes res = memberAccountService.getUidWhenSmsAuthenticated(req.phone(), code, type);
@@ -93,7 +96,7 @@ public class AccountApi {
 
     @Operation(summary = "알림 on/off")
     @Parameters({
-            @Parameter(name = "id", description = "알림 설정할 ID", required = true),
+            @Parameter(name = "id", description = "알림 설정할 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "type", description = "알림 타입", example = "care or memo or schedule", required = true)
     })
     @GetMapping("/{id}/notify")

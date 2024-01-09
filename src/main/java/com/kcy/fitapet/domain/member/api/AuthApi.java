@@ -56,10 +56,7 @@ public class AuthApi {
     private final CookieUtil cookieUtil;
 
     @Operation(summary = "회원가입", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
-    @Parameters({
-            @Parameter(name = "Authorization", description = "전화번호 인증 후 받은 토큰", in = ParameterIn.HEADER),
-            @Parameter(name = "dto", description = "회원가입 정보", schema = @Schema(implementation = SignUpReq.class))
-    })
+    @Parameter(name = "Authorization", description = "액세스 토큰", in = ParameterIn.HEADER)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "회원가입 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
@@ -73,10 +70,7 @@ public class AuthApi {
     }
 
     @Operation(summary = "회원가입 전화번호 인증")
-    @Parameters({
-            @Parameter(name = "phone", description = "전화번호", in = ParameterIn.QUERY, required = true),
-            @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY)
-    })
+    @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인증번호 전송 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "200", description = "인증번호 전송 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
@@ -110,8 +104,8 @@ public class AuthApi {
 
     @Operation(summary = "ID/PW 찾기 전화번호 인증")
     @Parameters({
-            @Parameter(name = "type", description = "인증 타입(uid, password)", in = ParameterIn.QUERY, required = true),
-            @Parameter(name = "dto", description = "전화번호", schema = @Schema(implementation = SmsReq.class))
+            @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY),
+            @Parameter(name = "type", description = "인증 타입(uid, password)", in = ParameterIn.QUERY, required = true)
     })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "인증번호 전송 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
@@ -134,7 +128,6 @@ public class AuthApi {
     }
 
     @Operation(summary = "로그인", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")
-    @Parameter(name = "dto", description = "로그인 정보", schema = @Schema(implementation = SignInReq.class))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = SuccessResponse.class))),
             @ApiResponse(responseCode = "400", description = "로그인 실패", content = @Content(schema = @Schema(implementation = FailureResponse.class))),
