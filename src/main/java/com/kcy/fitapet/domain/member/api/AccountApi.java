@@ -42,6 +42,15 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
+    @Operation(summary = "작성한 카테고리 목록 조회")
+    @GetMapping("/{use_id}/categories")
+    @PreAuthorize("isAuthenticated() and #use_id == principal.userId")
+    public ResponseEntity<?> getCategories(
+            @PathVariable("use_id") Long useId,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        return ResponseEntity.ok(SuccessResponse.from(memberAccountService.getCategories(useId, user.getUserId())));
+    }
+
     @Operation(summary = "ID 존재 확인")
     @GetMapping("/exists")
     @Parameter(name = "uid", description = "확인할 ID", required = true)

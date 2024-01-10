@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "반려동물 관리 API")
 @RestController
-@RequestMapping("/api/v1/pets")
+@RequestMapping("/api/v2/pets")
 @RequiredArgsConstructor
 @Slf4j
 public class PetManageApi {
@@ -39,6 +40,7 @@ public class PetManageApi {
             @ApiResponse(responseCode = "4xx", description = "에러", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
     })
     @PostMapping("")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> savePet(@RequestBody @Valid PetRegisterReq req, @AuthenticationPrincipal CustomUserDetails user) {
         petManageService.savePet(req.toPetEntity(), user.getUserId());
 
