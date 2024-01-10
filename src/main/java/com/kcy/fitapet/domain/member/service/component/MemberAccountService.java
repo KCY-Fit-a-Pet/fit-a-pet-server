@@ -1,17 +1,13 @@
 package com.kcy.fitapet.domain.member.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
-import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
-import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
-import com.kcy.fitapet.domain.member.dto.account.UidRes;
+import com.kcy.fitapet.domain.member.dto.account.*;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
-import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
@@ -35,6 +31,12 @@ public class MemberAccountService {
     public AccountProfileRes getProfile(Long requestId, Long userId) {
         Member member = memberSearchService.findById(userId);
         return AccountProfileRes.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public Object findCareCategoryNamesById(Long userId) {
+        Member member = memberSearchService.findById(userId);
+        return CareCategoryNamesRes.of(member.getCareCategories());
     }
 
     @Transactional(readOnly = true)

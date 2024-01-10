@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Care", description = "케어 API")
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/pets/{pet_id}/cares")
+@RequestMapping("/api/v2/pets/{pet_id}/cares")
 @RequiredArgsConstructor
 public class CareApi {
     private final CareManageService careManageService;

@@ -27,7 +27,7 @@ import java.util.Map;
 @Tag(name = "프로필 API")
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/v2/accounts")
 @RequiredArgsConstructor
 public class AccountApi {
     private final MemberAccountService memberAccountService;
@@ -42,13 +42,13 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
-    @Operation(summary = "작성한 카테고리 목록 조회")
-    @GetMapping("/{use_id}/categories")
-    @PreAuthorize("isAuthenticated() and #use_id == principal.userId")
-    public ResponseEntity<?> getCategories(
-            @PathVariable("use_id") Long useId,
+    @Operation(summary = "작성한 케어 카테고리 목록 조회")
+    @GetMapping("/{user_id}/care-categories")
+    @PreAuthorize("isAuthenticated() and #user_id == principal.userId")
+    public ResponseEntity<?> getCareCategoryNames(
+            @PathVariable("user_id") Long userId,
             @AuthenticationPrincipal CustomUserDetails user) {
-        return ResponseEntity.ok(SuccessResponse.from(memberAccountService.getCategories(useId, user.getUserId())));
+        return ResponseEntity.ok(SuccessResponse.from(memberAccountService.findCareCategoryNamesById(userId)));
     }
 
     @Operation(summary = "ID 존재 확인")
