@@ -48,7 +48,7 @@ public class AccountApi {
     @GetMapping("/{id}/care-categories")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId")
     public ResponseEntity<?> getCareCategoryNames(@PathVariable("id") Long userId) {
-        List<String> careCategories = memberAccountService.findCareCategoryNamesById(userId);
+        List<?> careCategories = memberAccountService.findCareCategoryNamesById(userId);
         return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
 

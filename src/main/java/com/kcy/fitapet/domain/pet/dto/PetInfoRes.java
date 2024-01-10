@@ -22,11 +22,13 @@ public class PetInfoRes {
 
     @Dto(name = "pet")
     private record PetSummaryInfo(
+            Long id,
             String petName,
             String petProfileImage
     ) {
         private static PetSummaryInfo of(Pet pet) {
             return new PetSummaryInfo(
+                    pet.getId(),
                     pet.getPetName(),
                     pet.getPetProfileImg()
             );
