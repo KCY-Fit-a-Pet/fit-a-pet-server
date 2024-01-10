@@ -28,6 +28,12 @@ public class SuccessResponse<T> {
         this.data = data;
     }
 
+    public static <T> SuccessResponse<T> from(String key, T data) {
+        return SuccessResponse.<T>builder()
+                .data(Map.of(key, data))
+                .build();
+    }
+
     /**
      * 전송할 Application Level Data를 설정한다.
      * @param data : 전송할 데이터
@@ -41,9 +47,7 @@ public class SuccessResponse<T> {
         }
         if (key == null) key = "data";
 
-        return SuccessResponse.<T>builder()
-                .data(Map.of(key, data))
-                .build();
+        return from(key, data);
     }
 
     /**

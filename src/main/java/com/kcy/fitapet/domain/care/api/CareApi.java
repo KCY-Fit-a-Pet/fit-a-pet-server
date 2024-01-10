@@ -26,7 +26,7 @@ public class CareApi {
     @Operation(summary = "케어 등록")
     @Parameter(name = "pet_id", description = "등록할 반려동물 ID", required = true)
     @PostMapping("")
-    @PreAuthorize("isAuthenticated() && @careAuthorizeManager.isManager(#petId, principal.userId)")
+    @PreAuthorize("isAuthenticated() && @managerAuthorize.isManager(#petId, principal.userId)")
     public ResponseEntity<?> saveCare(
             @PathVariable("pet_id") Long petId,
             @RequestBody @Valid CareSaveDto.Request request,

@@ -24,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Tag(name = "프로필 API")
@@ -38,20 +39,17 @@ public class AccountApi {
     @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
-    public ResponseEntity<?> getProfile(
-            @PathVariable("id") Long id,
-            @AuthenticationPrincipal CustomUserDetails user) {
-        AccountProfileRes member = memberAccountService.getProfile(id, user.getUserId());
+    public ResponseEntity<?> getProfile(@PathVariable("id") Long id) {
+        AccountProfileRes member = memberAccountService.getProfile(id);
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
     @Operation(summary = "작성한 케어 카테고리 목록 조회")
     @GetMapping("/{id}/care-categories")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId")
-    public ResponseEntity<?> getCareCategoryNames(
-            @PathVariable("id") Long userId,
-            @AuthenticationPrincipal CustomUserDetails user) {
-        return ResponseEntity.ok(SuccessResponse.from(memberAccountService.findCareCategoryNamesById(userId)));
+    public ResponseEntity<?> getCareCategoryNames(@PathVariable("id") Long userId) {
+        List<String> careCategories = memberAccountService.findCareCategoryNamesById(userId);
+        return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
 
     @Operation(summary = "닉네임 존재 확인")
@@ -72,12 +70,11 @@ public class AccountApi {
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> putProfile(
             @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam("type") MemberAttrType type,
             @RequestBody @Valid ProfilePatchReq req
     ) {
         log.info("type: {}", type);
-        memberAccountService.updateProfile(id, user.getUserId(), req, type);
+        memberAccountService.updateProfile(id, req, type);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }

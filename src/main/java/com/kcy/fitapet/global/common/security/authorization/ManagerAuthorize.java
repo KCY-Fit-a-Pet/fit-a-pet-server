@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Component("careAuthorizeManager")
+@Component("managerAuthorize")
 @RequiredArgsConstructor
 @Slf4j
-public class CareAuthorizeManager {
+public class ManagerAuthorize {
     private final ManagerRepository managerRepository;
     private final EntityManager em;
 
