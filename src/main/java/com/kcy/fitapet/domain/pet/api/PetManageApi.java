@@ -19,14 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "반려동물 관리 API")
 @RestController
-@RequestMapping("/api/v1/pets")
+@RequestMapping("/api/v2/users/{user_id}/pets")
 @RequiredArgsConstructor
 @Slf4j
 public class PetManageApi {
@@ -45,6 +44,15 @@ public class PetManageApi {
         petManageService.savePet(req.toPetEntity(), user.getUserId());
 
         return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "관리 중인 반려동물 목록 조회")
+    @Parameter(name = "user_id", description = "조회할 유저 ID", required = true)
+    @GetMapping("/summary")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
+    public ResponseEntity<?> findPets(@PathVariable("user_id") Long userId) {
+        List<?> pets = petManageService.findPetsSummaryByUserId(userId).getPets();
+        return ResponseEntity.ok(SuccessResponse.from("pets", pets));
     }
 
 

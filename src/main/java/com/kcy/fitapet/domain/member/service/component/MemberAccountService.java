@@ -1,17 +1,15 @@
 package com.kcy.fitapet.domain.member.service.component;
 
+import com.kcy.fitapet.domain.care.domain.CareCategory;
+import com.kcy.fitapet.domain.care.service.module.CareSearchService;
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
-import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
-import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
-import com.kcy.fitapet.domain.member.dto.account.UidRes;
+import com.kcy.fitapet.domain.member.dto.account.*;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
-import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
@@ -22,19 +20,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
+    private final CareSearchService careSearchService;
     private final SmsRedisHelper smsRedisHelper;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional(readOnly = true)
-    public AccountProfileRes getProfile(Long requestId, Long userId) {
+    public AccountProfileRes getProfile(Long userId) {
         Member member = memberSearchService.findById(userId);
         return AccountProfileRes.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> findCareCategoryNamesById(Long userId) {
+        return careSearchService.findAllCareCategoriesByUserId(userId)
+                .stream()
+                .map(CareCategory::getCategoryName)
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -43,7 +54,7 @@ public class MemberAccountService {
     }
 
     @Transactional
-    public void updateProfile(Long requestId, Long userId, ProfilePatchReq req, MemberAttrType type) {
+    public void updateProfile(Long userId, ProfilePatchReq req, MemberAttrType type) {
         Member member = memberSearchService.findById(userId);
 
         if (type == MemberAttrType.NAME) {

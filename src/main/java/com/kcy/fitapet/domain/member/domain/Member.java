@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.member.domain;
 
+import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.member.type.RoleType;
 import com.kcy.fitapet.domain.member.type.converter.RoleTypeConverter;
 import com.kcy.fitapet.domain.model.DateAuditable;
@@ -10,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+import org.springframework.aot.hint.MemberCategory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -60,6 +62,9 @@ public class Member extends DateAuditable {
     private List<Manager> underCares = new ArrayList<>();
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) @Getter
     private List<OauthAccount> oauthAccounts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL) @Getter
+    private List<CareCategory> careCategories = new ArrayList<>();
 
     @Builder
     private Member(String uid, String name, String password, String phone,

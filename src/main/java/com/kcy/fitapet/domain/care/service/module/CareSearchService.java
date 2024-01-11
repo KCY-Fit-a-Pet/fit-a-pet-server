@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CareSearchService {
@@ -18,5 +20,10 @@ public class CareSearchService {
     @Transactional(readOnly = true)
     public CareCategory findCareCategoryById(Long categoryId) {
         return careCategoryRepository.findByIdOrElseThrow(categoryId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CareCategory> findAllCareCategoriesByUserId(Long userId) {
+        return careCategoryRepository.findAllByAuthor_Id(userId);
     }
 }

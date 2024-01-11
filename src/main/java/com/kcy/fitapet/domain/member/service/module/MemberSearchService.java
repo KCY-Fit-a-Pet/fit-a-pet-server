@@ -2,6 +2,7 @@ package com.kcy.fitapet.domain.member.service.module;
 
 import com.kcy.fitapet.domain.member.dao.ManagerRepository;
 import com.kcy.fitapet.domain.member.dao.MemberRepository;
+import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
@@ -35,6 +36,11 @@ public class MemberSearchService {
         return memberRepository.findByPhone(phone).orElseThrow(
                 () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<Manager> findAllManagerByMemberId(Long memberId) {
+        return managerRepository.findAllByMember_Id(memberId);
     }
 
     @Transactional(readOnly = true)

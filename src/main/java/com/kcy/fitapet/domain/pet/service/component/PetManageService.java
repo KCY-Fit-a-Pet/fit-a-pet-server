@@ -1,14 +1,18 @@
 package com.kcy.fitapet.domain.pet.service.component;
 
+import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.ManageType;
 import com.kcy.fitapet.domain.pet.domain.Pet;
+import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
 import com.kcy.fitapet.domain.pet.service.module.PetSaveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,5 +29,9 @@ public class PetManageService {
         memberSaveService.mappingMemberAndPet(member, pet, ManageType.MASTER);
     }
 
-
+    @Transactional(readOnly = true)
+    public PetInfoRes findPetsSummaryByUserId(Long userId) {
+        List<Pet> pets = memberSearchService.findAllManagerByMemberId(userId).stream().map(Manager::getPet).toList();
+        return PetInfoRes.ofSummary(pets);
+    }
 }
