@@ -44,13 +44,14 @@ public class CareManageService {
         persistAboutCare(categoryDto, careInfoDto, petSearchService.findPetById(petId));
         petIds.remove(petId);
 
-        if (memberSearchService.isManagerAll(userId, petIds)) {
+        if (!petIds.isEmpty()) {
+            if (!memberSearchService.isManagerAll(userId, petIds))
+                throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
+
             List<Pet> pets = petSearchService.findPetsByIds(petIds);
             for (Pet pet : pets) {
                 persistAboutCare(categoryDto, careInfoDto, pet);
             }
-        } else {
-            throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
         }
     }
 

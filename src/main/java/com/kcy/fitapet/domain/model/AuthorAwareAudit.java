@@ -23,13 +23,11 @@ public class AuthorAwareAudit implements AuditorAware<Member> {
     @Override
     public Optional<Member> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("authentication: {}", authentication);
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
             return Optional.empty();
         }
-        log.info("authentication.getPrincipal(): {}", authentication.getPrincipal());
+
         Long userId = ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-        log.info("userId: {}", userId);
 
         return Optional.ofNullable(em.getReference(Member.class, userId));
     }
