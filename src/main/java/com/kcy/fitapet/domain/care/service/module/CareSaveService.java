@@ -6,8 +6,6 @@ import com.kcy.fitapet.domain.care.dao.CareRepository;
 import com.kcy.fitapet.domain.care.domain.Care;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.care.domain.CareDate;
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
-import com.kcy.fitapet.domain.member.domain.Member;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +24,21 @@ public class CareSaveService {
     @Transactional
     public void saveCare(Care care) {
         careRepository.save(care);
+    }
+
+    @Transactional
+    public void saveCareCategories(List<CareCategory> careCategories) {
+        careCategoryRepository.saveAll(careCategories);
+    }
+
+    @Transactional
+    public void saveCares(List<Care> cares) {
+        careRepository.saveAll(cares);
+    }
+
+    @Transactional
+    public void saveCareDates(List<CareDate> careDates) {
+        careDateRepository.saveAll(careDates);
     }
 
     @Transactional

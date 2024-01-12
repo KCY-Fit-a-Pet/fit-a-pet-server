@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CareCategoryRepository extends ExtendedRepository<CareCategory, Long> {
-    List<CareCategory> findAllByAuthor_Id(Long userId);
+    List<CareCategory> findAllByPet_Id(Long petId);
 }

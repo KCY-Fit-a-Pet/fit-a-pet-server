@@ -27,7 +27,7 @@ public class PetRegisterReq {
     private boolean neutralization;
     @Schema(description = "반려동물 생년월일", example = "yyyy-mm-dd") @NotNull(message = "생년월일을 입력해주세요.")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul") @Past(message = "생년월일은 과거 날짜여야 합니다.")
-    private LocalDate birthDate;
+    private LocalDate birthdate;
     @Schema(description = "반려동물 프로필 이미지", nullable = true)
     private String profileImg;
 
@@ -37,7 +37,7 @@ public class PetRegisterReq {
                 .species(species)
                 .gender(gender)
                 .neutered(neutralization)
-                .birthDate(birthDate)
+                .birthdate(birthdate)
                 .petProfileImg(profileImg)
                 .build();
     }

@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Care", description = "케어 API")
 @Slf4j
 @RestController
@@ -26,15 +28,22 @@ public class CareApi {
     @Operation(summary = "케어 등록")
     @Parameter(name = "pet_id", description = "등록할 반려동물 ID", required = true)
     @PostMapping("")
-    @PreAuthorize("isAuthenticated() && @managerAuthorize.isManager(#petId, principal.userId)")
+    @PreAuthorize("isAuthenticated() && @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> saveCare(
             @PathVariable("pet_id") Long petId,
             @RequestBody @Valid CareSaveDto.Request request,
             @AuthenticationPrincipal CustomUserDetails user
             ) {
-        log.info("request: {}", request);
         careManageService.saveCare(user.getUserId(), petId, request);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "작성한 케어 카테고리 목록 조회")
+    @GetMapping("/categories")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
+    public ResponseEntity<?> getCareCategoryNames(@PathVariable("pet_id") Long petId) {
+        List<?> careCategories = careManageService.findCareCategoryNamesByPetId(petId);
+        return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
 }

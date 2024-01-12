@@ -58,6 +58,7 @@ public class MemberAuthService {
     @Transactional
     public Jwt register(String requestSmsAccessToken, SignUpReq dto) {
         String accessToken = jwtMapper.getProvider(SMS_AUTH_TOKEN).resolveToken(requestSmsAccessToken);
+
         if (forbiddenTokenService.isForbidden(accessToken))
             throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
 
@@ -69,6 +70,7 @@ public class MemberAuthService {
         validateMember(requestMember);
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
+
         forbiddenTokenService.register(
                 AccessToken.of(accessToken, jwtSubInfo.id(),
                         jwtMapper.getProvider(SMS_AUTH_TOKEN).getExpiryDate(accessToken), false)

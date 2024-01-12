@@ -38,7 +38,7 @@ public class Member extends DateAuditable {
     private String phone;
     @Getter
     private String email;
-    @Column(name = "profile_img") @Getter
+    @Column(name = "profile_img") @ColumnDefault("NULL") @Getter
     private String profileImg;
     @Column(name = "account_locked") @ColumnDefault("false")
     private Boolean accountLocked;
@@ -62,9 +62,6 @@ public class Member extends DateAuditable {
     private List<Manager> underCares = new ArrayList<>();
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) @Getter
     private List<OauthAccount> oauthAccounts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL) @Getter
-    private List<CareCategory> careCategories = new ArrayList<>();
 
     @Builder
     private Member(String uid, String name, String password, String phone,

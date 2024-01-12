@@ -44,14 +44,6 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
-    @Operation(summary = "작성한 케어 카테고리 목록 조회")
-    @GetMapping("/{id}/care-categories")
-    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
-    public ResponseEntity<?> getCareCategoryNames(@PathVariable("id") Long userId) {
-        List<?> careCategories = memberAccountService.findCareCategoryNamesById(userId);
-        return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
-    }
-
     @Operation(summary = "닉네임 존재 확인")
     @GetMapping("/exists")
     @Parameter(name = "uid", description = "확인할 유저 닉네임", in = ParameterIn.QUERY, required = true)
