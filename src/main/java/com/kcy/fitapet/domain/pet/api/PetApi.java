@@ -28,7 +28,7 @@ import java.util.List;
 @RequestMapping("/api/v2/users/{user_id}/pets")
 @RequiredArgsConstructor
 @Slf4j
-public class PetManageApi {
+public class PetApi {
     private final PetManageService petManageService;
 
     @Operation(summary = "반려동물 등록")

@@ -7,9 +7,11 @@ import com.kcy.fitapet.domain.notification.type.converter.NotificationTypeConver
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Table(name = "NOTIFICATION")
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"title", "content", "ctype", "checked"})
 public class Notification extends DateAuditable {

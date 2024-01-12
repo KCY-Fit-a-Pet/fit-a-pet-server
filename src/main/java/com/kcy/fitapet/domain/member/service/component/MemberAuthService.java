@@ -57,22 +57,26 @@ public class MemberAuthService {
 
     @Transactional
     public Jwt register(String requestSmsAccessToken, SignUpReq dto) {
+        log.info("회원가입 요청: {}", dto);
         String accessToken = jwtMapper.getProvider(SMS_AUTH_TOKEN).resolveToken(requestSmsAccessToken);
+        log.info("accessToken: {}", accessToken);
         if (forbiddenTokenService.isForbidden(accessToken))
             throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
-
+        log.info("accessToken 유효성 검사 완료");
         JwtSubInfo jwtSubInfo = jwtMapper.getProvider(SMS_AUTH_TOKEN).getSubInfoFromToken(accessToken);
         smsRedisHelper.removeCode(jwtSubInfo.phoneNumber(), SmsPrefix.REGISTER);
-
+        log.info("인증번호 삭제 완료");
         Member requestMember = dto.toEntity(jwtSubInfo.phoneNumber());
         requestMember.encodePassword(bCryptPasswordEncoder);
         validateMember(requestMember);
-
+        log.info("회원가입 요청 유효성 검사 완료");
         Member registeredMember = memberSaveService.saveMember(requestMember);
+        log.info("회원가입 완료: {}", registeredMember);
         forbiddenTokenService.register(
                 AccessToken.of(accessToken, jwtSubInfo.id(),
                         jwtMapper.getProvider(SMS_AUTH_TOKEN).getExpiryDate(accessToken), false)
         );
+        log.info("forbidden 등록");
 
         return generateToken(JwtUserInfo.from(registeredMember));
     }

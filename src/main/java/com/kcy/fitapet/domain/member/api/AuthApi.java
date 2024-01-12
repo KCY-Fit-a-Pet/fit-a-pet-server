@@ -65,6 +65,7 @@ public class AuthApi {
     @PostMapping("/register")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUp(@RequestHeader("Authorization") @NotBlank String accessToken, @RequestBody @Valid SignUpReq dto) {
+        log.info("request: {}", dto);
         Jwt tokens = memberAuthService.register(accessToken, dto);
         return getResponseEntity(tokens);
     }

@@ -1,9 +1,6 @@
 package com.kcy.fitapet.domain.care.domain;
 
-import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.model.AuthorAuditable;
-import com.kcy.fitapet.domain.model.DateAuditable;
-import com.kcy.fitapet.domain.pet.domain.PetCare;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,34 +21,32 @@ public class Care extends AuthorAuditable {
     private Integer limitTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private CareCategory category;
+    @JoinColumn(name = "care_category_id")
+    private CareCategory careCategory;
 
-    @OneToMany(mappedBy = "care", cascade = CascadeType.ALL)
-    private List<PetCare> pets = new ArrayList<>();
     @OneToMany(mappedBy = "care", cascade = CascadeType.ALL)
     private List<CareDate> careDates = new ArrayList<>();
 
     @Builder
-    private Care(String careName, Integer limitTime, CareCategory category) {
+    private Care(String careName, Integer limitTime, CareCategory careCategory) {
         this.careName = careName;
         this.limitTime = limitTime;
-        this.category = category;
+        this.careCategory = careCategory;
     }
 
-    public static Care of(String careName, Integer limitTime, CareCategory category) {
+    public static Care of(String careName, Integer limitTime, CareCategory careCategory) {
         return Care.builder()
                 .careName(careName)
                 .limitTime(limitTime)
-                .category(category)
+                .careCategory(careCategory)
                 .build();
     }
 
-    public void updateCategory(CareCategory category) {
-        if (this.category != null) {
-            this.category.getCares().remove(this);
+    public void updateCareCategory(CareCategory careCategory) {
+        if (this.careCategory != null) {
+            this.careCategory.getCares().remove(this);
         }
-        this.category = category;
-        category.getCares().add(this);
+        this.careCategory = careCategory;
+        careCategory.getCares().add(this);
     }
 }

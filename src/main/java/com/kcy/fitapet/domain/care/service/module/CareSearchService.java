@@ -23,7 +23,7 @@ public class CareSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<CareCategory> findAllCareCategoriesByUserId(Long userId) {
-        return careCategoryRepository.findAllByAuthor_Id(userId);
+    public List<CareCategory> findAllCareCategoriesByPetId(Long petId) {
+        return careCategoryRepository.findAllByPet_Id(petId);
     }
 }

@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.pet.domain;
 
+import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.memo.domain.Memo;
 import com.kcy.fitapet.domain.model.DateAuditable;
@@ -17,7 +18,7 @@ import java.util.List;
 @Table(name = "PET")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(of = {"petName", "gender", "birthDate", "species"})
+@ToString(of = {"petName", "gender", "birthdate", "species"})
 public class Pet extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,9 +29,9 @@ public class Pet extends DateAuditable {
     @Column(name = "pet_profile_img")
     private String petProfileImg;
     @ColumnDefault("false")
-    private boolean neutered;
+    private boolean neutered = false;
     @Temporal(TemporalType.DATE)
-    private LocalDate birthDate;
+    private LocalDate birthdate;
     private String species;
     private String feed;
 
@@ -41,31 +42,31 @@ public class Pet extends DateAuditable {
     private List<PetSchedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
-    private List<PetCare> cares = new ArrayList<>();
+    private List<CareCategory> careCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
     private List<Memo> memos = new ArrayList<>();
 
     @Builder
-    private Pet(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDate birthDate,
+    private Pet(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDate birthdate,
                 String species, String feed) {
         this.petName = petName;
         this.gender = gender;
         this.petProfileImg = petProfileImg;
         this.neutered = neutered;
-        this.birthDate = birthDate;
+        this.birthdate = birthdate;
         this.species = species;
         this.feed = feed;
     }
 
-    public static Pet of(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDate birthDate,
+    public static Pet of(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDate birthdate,
                          String species, String feed) {
         return Pet.builder()
                 .petName(petName)
                 .gender(gender)
                 .petProfileImg(petProfileImg)
                 .neutered(neutered)
-                .birthDate(birthDate)
+                .birthdate(birthdate)
                 .species(species)
                 .feed(feed).build();
     }

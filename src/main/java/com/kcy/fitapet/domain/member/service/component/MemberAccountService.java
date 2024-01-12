@@ -1,9 +1,10 @@
 package com.kcy.fitapet.domain.member.service.component;
 
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.domain.care.service.module.CareSearchService;
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.account.*;
+import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
+import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
+import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
+import com.kcy.fitapet.domain.member.dto.account.UidRes;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
@@ -20,14 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
-    private final CareSearchService careSearchService;
     private final SmsRedisHelper smsRedisHelper;
 
     private final PasswordEncoder bCryptPasswordEncoder;
@@ -36,16 +34,6 @@ public class MemberAccountService {
     public AccountProfileRes getProfile(Long userId) {
         Member member = memberSearchService.findById(userId);
         return AccountProfileRes.from(member);
-    }
-
-    @Transactional(readOnly = true)
-    public List<String> findCareCategoryNamesById(Long userId) {
-        return careSearchService.findAllCareCategoriesByUserId(userId)
-                .stream()
-                .map(CareCategory::getCategoryName)
-                .distinct()
-                .sorted()
-                .toList();
     }
 
     @Transactional(readOnly = true)
