@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,36 +42,46 @@ public class CareManageService {
         CareSaveDto.CareInfoDto careInfoDto = request.care();
         List<Long> petIds = request.pets();
 
-        persistAboutCare(categoryDto, careInfoDto, petSearchService.findPetById(petId));
-        petIds.remove(petId);
+        if (!petIds.contains(petId)) petIds.add(petId);
 
-        if (!petIds.isEmpty()) {
-            if (!memberSearchService.isManagerAll(userId, petIds))
-                throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
+        List<Pet> pets = petSearchService.findPetsByIds(petIds);
 
-            List<Pet> pets = petSearchService.findPetsByIds(petIds);
-            for (Pet pet : pets) {
-                persistAboutCare(categoryDto, careInfoDto, pet);
-            }
+        if (!memberSearchService.isManagerAll(userId, petIds))
+            throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
+
+        persistAboutCare(categoryDto, careInfoDto, pets);
+    }
+
+    private void persistAboutCare(CareSaveDto.CategoryDto categoryDto, CareSaveDto.CareInfoDto careInfoDto, List<Pet> pets) {
+        List<CareCategory> categories = new ArrayList<>();
+        for (Pet pet : pets) {
+            CareCategory category = mappingCareCategory(categoryDto, pet);
+            categories.add(category);
         }
+        careSaveService.saveCareCategories(categories);
+
+        List<Care> cares = new ArrayList<>();
+        for (CareCategory category : categories) {
+            Care care = careInfoDto.toCare(category);
+            care.updateCareCategory(category);
+            cares.add(care);
+        }
+        careSaveService.saveCares(cares);
+
+        List<CareDate> dates = new ArrayList<>();
+        for (Care care : cares) {
+            List<CareDate> requestDates = careInfoDto.toCareDateEntity();
+            for (CareDate date : requestDates) date.updateCare(care);
+            dates.addAll(requestDates);
+        }
+        careSaveService.saveCareDates(dates);
     }
 
-    private void persistAboutCare(CareSaveDto.CategoryDto categoryDto, CareSaveDto.CareInfoDto careInfoDto, Pet pet) {
-        CareCategory category = saveCareCategory(categoryDto, pet);
-
-        Care care = careInfoDto.toCare(category);
-        care.updateCareCategory(category);
-        careSaveService.saveCare(care);
-
-        List<CareDate> dates = careInfoDto.toCareDateEntity();
-        for (CareDate date : dates) date.updateCare(care);
-    }
-
-    private CareCategory saveCareCategory(CareSaveDto.CategoryDto categoryDto, Pet pet) {
+    private CareCategory mappingCareCategory(CareSaveDto.CategoryDto categoryDto, Pet pet) {
         CareCategory category = (categoryDto.state().equals(CareSaveDto.CategoryState.EXIST))
                 ? careSearchService.findCareCategoryById(categoryDto.categoryId())
                 : categoryDto.toCareCategory();
         category.updatePet(pet);
-        return careSaveService.saveCareCategory(category);
+        return category;
     }
 }

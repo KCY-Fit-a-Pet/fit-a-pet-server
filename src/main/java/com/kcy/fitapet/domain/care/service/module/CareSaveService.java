@@ -27,6 +27,21 @@ public class CareSaveService {
     }
 
     @Transactional
+    public void saveCareCategories(List<CareCategory> careCategories) {
+        careCategoryRepository.saveAll(careCategories);
+    }
+
+    @Transactional
+    public void saveCares(List<Care> cares) {
+        careRepository.saveAll(cares);
+    }
+
+    @Transactional
+    public void saveCareDates(List<CareDate> careDates) {
+        careDateRepository.saveAll(careDates);
+    }
+
+    @Transactional
     public void saveCareDate(CareDate careDate) {
         careDateRepository.save(careDate);
     }
