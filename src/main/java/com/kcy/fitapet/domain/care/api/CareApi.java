@@ -1,6 +1,6 @@
 package com.kcy.fitapet.domain.care.api;
 
-import com.kcy.fitapet.domain.care.dto.CareSaveDto;
+import com.kcy.fitapet.domain.care.dto.CareSaveReq;
 import com.kcy.fitapet.domain.care.service.component.CareManageService;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
@@ -31,7 +31,7 @@ public class CareApi {
     @PreAuthorize("isAuthenticated() && @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> saveCare(
             @PathVariable("pet_id") Long petId,
-            @RequestBody @Valid CareSaveDto.Request request,
+            @RequestBody @Valid CareSaveReq.Request request,
             @AuthenticationPrincipal CustomUserDetails user
             ) {
         careManageService.saveCare(user.getUserId(), petId, request);

@@ -9,13 +9,10 @@ import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.care.domain.CareDate;
 import com.kcy.fitapet.domain.care.exception.CareErrorCode;
 import com.kcy.fitapet.domain.care.type.WeekType;
-import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -23,23 +20,20 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
-public class CareSaveDto {
+public class CareSaveReq {
     @Schema(description = "케어 등록 요청")
     public record Request(
             @NotNull
             CategoryDto category,
             @NotNull
             CareInfoDto care,
-            @Schema(description = "케어 동물 추가 (등록 중인 반려동물 제외)", example = "2, 3")
-            List<Long> pets
+            @NotNull
+            List<AdditionalPetDto> pets
     ) {
     }
 
     @Schema(description = "케어 등록 - 카테고리")
     public record CategoryDto(
-        @Schema(description = "카테고리 상태", example = "CREATE/EXIST")
-        @NotNull
-        CategoryState state,
         @Schema(description = "카테고리 ID", example = "1")
         @NotNull
         Long categoryId,
@@ -48,7 +42,6 @@ public class CareSaveDto {
         String categoryName
     ) {
         public CareCategory toCareCategory() {
-            if (state.equals(CategoryState.EXIST)) throw new GlobalErrorException(CareErrorCode.CATEGORY_STATUS_INVALID);
             return CareCategory.of(categoryName);
         }
     }
@@ -91,15 +84,17 @@ public class CareSaveDto {
     ) {
     }
 
-    public enum CategoryState {
-        CREATE, EXIST;
-
-        @JsonCreator
-        public static CategoryState from(String s) {
-            return Stream.of(CategoryState.values())
-                    .filter(v -> v.name().equalsIgnoreCase(s))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(String.format("존재하지 않는 상태입니다. : %s", s)));
+    @Schema(description = "케어 동물 추가 - 기존 카테고리에 묶을 거면 categoryId, 새로 만들 거면 0")
+    public record AdditionalPetDto(
+            @Schema(description = "반려동물 ID", example = "1")
+            @NotNull
+            Long petId,
+            @Schema(description = "기존 카테고리 ID", example = "1")
+            @NotNull
+            Long categoryId
+    ) {
+        public static AdditionalPetDto of(Long petId, Long categoryId) {
+            return new AdditionalPetDto(petId, categoryId);
         }
     }
 }

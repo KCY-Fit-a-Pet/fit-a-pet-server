@@ -71,7 +71,7 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public boolean isManagerAll(Long memberId, List<Long> petIds) {
         if (petIds.isEmpty()) {
-            return false;
+            return true;
         }
 
         for (Long petId : petIds) {

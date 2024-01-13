@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.pet.api;
 
+import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
 import com.kcy.fitapet.domain.pet.dto.PetRegisterReq;
 import com.kcy.fitapet.domain.pet.service.component.PetManageService;
 import com.kcy.fitapet.global.common.response.ErrorResponse;
@@ -8,6 +9,7 @@ import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,5 +57,13 @@ public class PetApi {
         return ResponseEntity.ok(SuccessResponse.from("pets", pets));
     }
 
+    @Operation(summary = "반려동물 케어 카테고리 유효성 검사")
+    @Parameter(name = "user_id", description = "조회할 유저 ID", in = ParameterIn.PATH, required = true)
+    @PostMapping("/categories-check")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
+    public ResponseEntity<?> checkCategoryExist(@PathVariable("user_id") Long userId, @RequestBody @Valid CareCategoryDto.CareCategoryExistRequest request) {
+        List<?> result = petManageService.checkCategoryExist(userId, request.categoryName(), request.pets());
+        return ResponseEntity.ok(SuccessResponse.from("categories", result));
+    }
 
 }
