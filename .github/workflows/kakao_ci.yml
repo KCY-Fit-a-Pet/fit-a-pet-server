@@ -6,6 +6,7 @@ on:
         branches: 
             - main
             - develop
+            - feat/71
     pull_request:
         types: [review_requested, opened, reopened, ready_for_review]
     pull_request_review:
