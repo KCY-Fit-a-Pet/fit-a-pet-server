@@ -12,7 +12,6 @@ import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.pet.exception.PetErrorCode;
 import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,9 +43,7 @@ public class CareManageService {
         List<CareSaveReq.AdditionalPetDto> additionalPetDtos = request.pets();
 
         List<Long> petIds = additionalPetDtos.stream().map(CareSaveReq.AdditionalPetDto::petId).toList();
-        log.info("추가 케어 등록 요청 - 반려 동물 ID: {}, 카테고리 이름: {}", petIds, categoryDto.categoryName());
         if (!memberSearchService.isManagerAll(userId, petIds)) {
-            log.warn("관리자 자격이 없는 반려 동물에 대한 케어 등록 요청");
             throw new GlobalErrorException(PetErrorCode.NOT_MANAGER_PET);
         }
 
@@ -62,35 +59,55 @@ public class CareManageService {
             CareSaveReq.CareInfoDto careInfoDto,
             List<CareSaveReq.AdditionalPetDto> additionalPetDtos
     ) {
-        List<CareCategory> categories = new ArrayList<>(careSearchService.findAllCareCategoriesById(
-                additionalPetDtos.stream().map(CareSaveReq.AdditionalPetDto::categoryId).filter(id -> !id.equals(0L)).toList()));
-
-        for (CareSaveReq.AdditionalPetDto dto : additionalPetDtos) {
-            if (dto.categoryId() != 0L) continue;
-
-            Pet pet = petSearchService.findPetById(dto.petId());
-            log.info("새로운 케어 카테고리 등록 - 반려 동물 ID: {}, 카테고리 이름: {}", pet.getId(), categoryDto.categoryName());
-            CareCategory category = categoryDto.toCareCategory();
-            category.updatePet(pet);
-            categories.add(category);
-        }
+        List<CareCategory> categories = findOrCreateCategories(categoryDto, additionalPetDtos);
         careSaveService.saveCareCategories(categories);
 
-        log.info("등록된 카테고리 목록: {}", categories);
-        List<Care> cares = new ArrayList<>();
-        for (CareCategory category : categories) {
-            Care care = careInfoDto.toCare(category);
-            care.updateCareCategory(category);
-            cares.add(care);
-        }
+        List<Care> cares = createCares(categoryDto, careInfoDto, categories);
         careSaveService.saveCares(cares);
 
-        List<CareDate> dates = new ArrayList<>();
-        for (Care care : cares) {
-            List<CareDate> requestDates = careInfoDto.toCareDateEntity();
-            for (CareDate date : requestDates) date.updateCare(care);
-            dates.addAll(requestDates);
-        }
+        List<CareDate> dates = createCareDates(careInfoDto, cares);
         careSaveService.saveCareDates(dates);
+    }
+
+    private List<CareCategory> findOrCreateCategories(
+            CareSaveReq.CategoryDto categoryDto,
+            List<CareSaveReq.AdditionalPetDto> additionalPetDtos
+    ) {
+        List<CareCategory> categories = new ArrayList<>(careSearchService.findAllCareCategoriesById(
+                additionalPetDtos.stream().map(CareSaveReq.AdditionalPetDto::categoryId)
+                        .filter(id -> !id.equals(0L)).toList()));
+
+        additionalPetDtos.stream()
+                .filter(dto -> dto.categoryId() == 0L)
+                .map(dto -> {
+                    Pet pet = petSearchService.findPetById(dto.petId());
+                    CareCategory category = categoryDto.toCareCategory();
+                    category.updatePet(pet);
+                    return category;
+                })
+                .forEach(categories::add);
+
+        return categories;
+    }
+
+    private List<Care> createCares(
+            CareSaveReq.CategoryDto categoryDto,
+            CareSaveReq.CareInfoDto careInfoDto,
+            List<CareCategory> categories
+    ) {
+        return categories.stream()
+                .map(category -> {
+                    Care care = careInfoDto.toCare(category);
+                    care.updateCareCategory(category);
+                    return care;
+                })
+                .toList();
+    }
+
+    private List<CareDate> createCareDates(CareSaveReq.CareInfoDto careInfoDto, List<Care> cares) {
+        return cares.stream()
+                .flatMap(care -> careInfoDto.toCareDateEntity().stream()
+                            .peek(date -> date.updateCare(care)))
+                .toList();
     }
 }
