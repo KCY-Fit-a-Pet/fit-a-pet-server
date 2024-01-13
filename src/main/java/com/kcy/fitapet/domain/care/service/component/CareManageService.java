@@ -4,14 +4,14 @@ import com.kcy.fitapet.domain.care.domain.Care;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.care.domain.CareDate;
 import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
-import com.kcy.fitapet.domain.care.dto.CareSaveDto;
+import com.kcy.fitapet.domain.care.dto.CareSaveReq;
 import com.kcy.fitapet.domain.care.service.module.CareSaveService;
 import com.kcy.fitapet.domain.care.service.module.CareSearchService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.pet.domain.Pet;
+import com.kcy.fitapet.domain.pet.exception.PetErrorCode;
 import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,51 +37,77 @@ public class CareManageService {
     }
 
     @Transactional
-    public void saveCare(Long userId, Long petId, CareSaveDto.Request request) {
-        CareSaveDto.CategoryDto categoryDto = request.category();
-        CareSaveDto.CareInfoDto careInfoDto = request.care();
-        List<Long> petIds = request.pets();
+    public void saveCare(Long userId, Long petId, CareSaveReq.Request request) {
+        CareSaveReq.CategoryDto categoryDto = request.category();
+        CareSaveReq.CareInfoDto careInfoDto = request.care();
+        List<CareSaveReq.AdditionalPetDto> additionalPetDtos = request.pets();
 
-        if (!petIds.contains(petId)) petIds.add(petId);
+        List<Long> petIds = additionalPetDtos.stream().map(CareSaveReq.AdditionalPetDto::petId).toList();
+        if (!memberSearchService.isManagerAll(userId, petIds)) {
+            throw new GlobalErrorException(PetErrorCode.NOT_MANAGER_PET);
+        }
 
-        List<Pet> pets = petSearchService.findPetsByIds(petIds);
+        if (!petIds.contains(petId))
+            additionalPetDtos.add(CareSaveReq.AdditionalPetDto.of(petId, categoryDto.categoryId()));
+        petSearchService.findPetsByIds(petIds);
 
-        if (!memberSearchService.isManagerAll(userId, petIds))
-            throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
-
-        persistAboutCare(categoryDto, careInfoDto, pets);
+        persistAboutCare(categoryDto, careInfoDto, additionalPetDtos);
     }
 
-    private void persistAboutCare(CareSaveDto.CategoryDto categoryDto, CareSaveDto.CareInfoDto careInfoDto, List<Pet> pets) {
-        List<CareCategory> categories = new ArrayList<>();
-        for (Pet pet : pets) {
-            CareCategory category = mappingCareCategory(categoryDto, pet);
-            categories.add(category);
-        }
+    private void persistAboutCare(
+            CareSaveReq.CategoryDto categoryDto,
+            CareSaveReq.CareInfoDto careInfoDto,
+            List<CareSaveReq.AdditionalPetDto> additionalPetDtos
+    ) {
+        List<CareCategory> categories = findOrCreateCategories(categoryDto, additionalPetDtos);
         careSaveService.saveCareCategories(categories);
 
-        List<Care> cares = new ArrayList<>();
-        for (CareCategory category : categories) {
-            Care care = careInfoDto.toCare(category);
-            care.updateCareCategory(category);
-            cares.add(care);
-        }
+        List<Care> cares = createCares(categoryDto, careInfoDto, categories);
         careSaveService.saveCares(cares);
 
-        List<CareDate> dates = new ArrayList<>();
-        for (Care care : cares) {
-            List<CareDate> requestDates = careInfoDto.toCareDateEntity();
-            for (CareDate date : requestDates) date.updateCare(care);
-            dates.addAll(requestDates);
-        }
+        List<CareDate> dates = createCareDates(careInfoDto, cares);
         careSaveService.saveCareDates(dates);
     }
 
-    private CareCategory mappingCareCategory(CareSaveDto.CategoryDto categoryDto, Pet pet) {
-        CareCategory category = (categoryDto.state().equals(CareSaveDto.CategoryState.EXIST))
-                ? careSearchService.findCareCategoryById(categoryDto.categoryId())
-                : categoryDto.toCareCategory();
-        category.updatePet(pet);
-        return category;
+    private List<CareCategory> findOrCreateCategories(
+            CareSaveReq.CategoryDto categoryDto,
+            List<CareSaveReq.AdditionalPetDto> additionalPetDtos
+    ) {
+        List<CareCategory> categories = new ArrayList<>(careSearchService.findAllCareCategoriesById(
+                additionalPetDtos.stream().map(CareSaveReq.AdditionalPetDto::categoryId)
+                        .filter(id -> !id.equals(0L)).toList()));
+
+        additionalPetDtos.stream()
+                .filter(dto -> dto.categoryId() == 0L)
+                .map(dto -> {
+                    Pet pet = petSearchService.findPetById(dto.petId());
+                    CareCategory category = categoryDto.toCareCategory();
+                    category.updatePet(pet);
+                    return category;
+                })
+                .forEach(categories::add);
+
+        return categories;
+    }
+
+    private List<Care> createCares(
+            CareSaveReq.CategoryDto categoryDto,
+            CareSaveReq.CareInfoDto careInfoDto,
+            List<CareCategory> categories
+    ) {
+        return categories.stream()
+                .map(category -> {
+                    Care care = careInfoDto.toCare(category);
+                    care.updateCareCategory(category);
+                    return care;
+                })
+                .toList();
+    }
+
+    private List<CareDate> createCareDates(CareSaveReq.CareInfoDto careInfoDto, List<Care> cares) {
+        return cares.stream()
+                .flatMap(care -> careInfoDto.toCareDateEntity().stream()
+                            .peek(date -> date.updateCare(care)))
+                .toList();
     }
 }

@@ -34,6 +34,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -136,8 +137,12 @@ public class AuthApi {
     @PostMapping("/login")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInReq dto) {
-        Jwt tokens = memberAuthService.login(dto);
-        return getResponseEntity(tokens);
+        Pair<Long, Jwt> result = memberAuthService.login(dto);
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), result.getValue().refreshToken(), 60 * 60 * 24 * 7);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(ACCESS_TOKEN.getValue(), result.getValue().accessToken())
+                .body(SuccessResponse.from(Map.of("userId", result.getKey())));
     }
 
     @Operation(summary = "로그아웃", description = "액세스 토큰과 리프레시 토큰을 만료시킵니다.")

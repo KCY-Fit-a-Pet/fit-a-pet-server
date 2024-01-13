@@ -7,7 +7,6 @@ import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
 import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
 import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
@@ -28,6 +27,7 @@ import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,12 +80,12 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public Jwt login(SignInReq dto) {
+    public Pair<Long, Jwt> login(SignInReq dto) {
         Member member = memberSearchService.findByUid(dto.uid());
         if (!member.checkPassword(dto.password(), bCryptPasswordEncoder))
             throw new GlobalErrorException(AccountErrorCode.NOT_MATCH_PASSWORD_ERROR);
 
-        return generateToken(JwtUserInfo.from(member));
+        return Pair.of(member.getId(), generateToken(JwtUserInfo.from(member)));
     }
 
     @Transactional
