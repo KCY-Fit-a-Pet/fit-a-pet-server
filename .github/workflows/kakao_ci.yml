@@ -9,9 +9,7 @@ on:
     pull_request:
         types: [review_requested, opened, reopened, ready_for_review]
     pull_request_review:
-        types: [submitted]
-    issue_comment:
-        types: [created, edited]
+        types: [submitted, edited]
     pull_request_review_comment:
         types: [created, edited]
 
