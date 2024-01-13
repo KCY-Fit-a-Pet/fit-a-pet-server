@@ -9,7 +9,9 @@ on:
     pull_request:
         types: [review_requested, opened, reopened, ready_for_review]
     pull_request_review:
-        types: [submitted]
+        types: [submitted, edited]
+    pull_request_review_comment:
+        types: [created, edited]
 
 jobs:
     build-and-notify:
@@ -35,8 +37,13 @@ jobs:
                   echo "TITLE=$TITLE" >> $env:GITHUB_OUTPUT
                   echo "DESC=$DESC" >> $env:GITHUB_OUTPUT
                 } elseif ( "${{github.event_name}}" -eq "pull_request_review" ) {
-                  $TITLE="${{github.actor}}]_${{ github.event_name }}"
+                  $TITLE="[${{github.actor}}]_${{ github.event_name }}"
                   $DESC="${{ github.event.pull_request.title }}".split("`n")[0]
+                  echo "TITLE=$TITLE" >> $env:GITHUB_OUTPUT
+                  echo "DESC=$DESC" >> $env:GITHUB_OUTPUT
+                } elseif ( "${{github.event_name}}" -eq "issue_comment" ) {
+                  $TITLE="[${{github.actor}}]_${{ github.event_name }}"
+                  $DESC="${{ github.event.comment.body }}".split("`n")[0]
                   echo "TITLE=$TITLE" >> $env:GITHUB_OUTPUT
                   echo "DESC=$DESC" >> $env:GITHUB_OUTPUT
                 }
@@ -56,6 +63,9 @@ jobs:
                 elif [ ${{github.event_name}} == 'pull_request_review' ]; then
                   echo "TITLE='[${{github.actor}}]_${{ github.event_name }}'" >> $GITHUB_OUTPUT
                   echo "DESC='$(echo '${{ github.event.pull_request.title }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
+                elif [ ${{github.event_name}} == 'issue_comment' ]; then
+                  echo "TITLE='[${{github.actor}}]_${{ github.event_name }}'" >> $GITHUB_OUTPUT
+                  echo "DESC='$(echo '${{ github.event.comment.body }}' | awk '{printf "%s", $0}')'" >> $GITHUB_OUTPUT
                 fi
                 echo "CHROME_PATH='$(echo "$(dirname "$(dirname "${GITHUB_WORKSPACE}")")/_tool/chromium/latest/x64/Chromium.app/Contents/MacOS/Chromium")'" >> $GITHUB_OUTPUT
               id: determine_event_type_mac
