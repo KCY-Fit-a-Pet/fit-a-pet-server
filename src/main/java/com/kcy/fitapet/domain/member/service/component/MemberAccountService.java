@@ -93,10 +93,10 @@ public class MemberAccountService {
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getPetIds(Long userId) {
+    public PetInfoRes getPetIds(Long userId) {
         List<Manager> managers = memberSearchService.findAllManagerByMemberId(userId);
         List<Pet> pets = managers.stream().map(Manager::getPet).toList();
-        return pets.stream().map(Pet::getId).toList();
+        return PetInfoRes.ofPetInfo(pets);
     }
 
     /**
