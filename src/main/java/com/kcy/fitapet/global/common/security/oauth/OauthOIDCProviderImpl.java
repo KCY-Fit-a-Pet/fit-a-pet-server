@@ -47,7 +47,7 @@ public class OauthOIDCProviderImpl implements OauthOIDCProvider {
             return Jwts.parserBuilder()
                     .requireAudience(aud)
                     .requireIssuer(iss)
-                    .require("nonce", nonce)
+//                    .require("nonce", nonce)
                     .build()
                     .parseClaimsJwt(getUnsignedToken(token));
         } catch (JwtException e) {

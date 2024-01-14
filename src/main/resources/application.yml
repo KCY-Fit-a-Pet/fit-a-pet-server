@@ -167,9 +167,10 @@ oauth2:
         client-secret: ${KAKAO_CLIENT_SECRET}
         client-name: Kakao
       google:
+        auth-uri: ${GOOGLE_AUTH_URI}
         jwks-uri: ${GOOGLE_JWKS_URI}
-        client-id: "client-id"
-        client-secret: "client-secret"
+        client-id: ${GOOGLE_CLIENT_ID}
+        client-secret: ${GOOGLE_CLIENT_SECRET}
         client-name: Google
       apple:
         jwks-uri: ${APPLE_JWKS_URI}
