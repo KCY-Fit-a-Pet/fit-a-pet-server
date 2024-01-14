@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 public interface JwtSubInfo {
     Long id();
-    BigInteger oauthId();
+    String oauthId();
     RoleType role();
     String phoneNumber();
 }

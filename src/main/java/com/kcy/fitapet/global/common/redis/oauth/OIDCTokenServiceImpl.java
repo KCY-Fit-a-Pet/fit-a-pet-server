@@ -18,7 +18,7 @@ public class OIDCTokenServiceImpl implements OIDCTokenService {
     private final OIDCTokenRepository oidcTokenRepository;
 
     @Override
-    public void saveOIDCToken(String token, ProviderType provider, BigInteger id) {
+    public void saveOIDCToken(String token, ProviderType provider, String id) {
         final long timeToLive = Duration.ofMinutes(3).toSeconds();
 
         log.info("oidc token ttl : {}", timeToLive);

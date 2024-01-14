@@ -23,7 +23,7 @@ public class OIDCToken {
         this.ttl = ttl;
     }
 
-    public static OIDCToken of(String token, ProviderType provider, BigInteger id, long ttl) {
+    public static OIDCToken of(String token, ProviderType provider, String id, long ttl) {
         return OIDCToken.builder()
                 .token(token)
                 .providerWithId(provider.name() + "@" + id)
@@ -39,7 +39,7 @@ public class OIDCToken {
         return providerWithId.split("@")[0];
     }
 
-    public Long getId() {
-        return Long.parseLong(providerWithId.split("@")[1]);
+    public String getId() {
+        return providerWithId.split("@")[1];
     }
 }

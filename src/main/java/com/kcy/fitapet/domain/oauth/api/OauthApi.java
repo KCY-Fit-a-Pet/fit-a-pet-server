@@ -13,6 +13,7 @@ import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,10 +43,7 @@ public class OauthApi {
     private final CookieUtil cookieUtil;
 
     @Operation(summary = "OAuth 로그인")
-    @Parameters({
-            @Parameter(name = "provider", description = "OAuth 제공자"),
-            @Parameter(name = "req", description = "OAuth 로그인 요청 정보")
-    })
+    @Parameter(name = "provider", description = "OAuth 제공자", required = true, in = ParameterIn.QUERY)
     @PostMapping("")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signIn(
@@ -66,15 +64,14 @@ public class OauthApi {
 
     @Operation(summary = "OAuth 회원가입", description = "/{id}/sms로 전화번호 인증 후, accessToken 발급이 선행되어야 한다.")
     @Parameters({
-            @Parameter(name = "id", description = "OAuth 제공자에서 발급받은 ID"),
-            @Parameter(name = "provider", description = "OAuth 제공자"),
-            @Parameter(name = "accessToken", description = "OAuth 전화번호 인증 시 발급받은 accessToken"),
-            @Parameter(name = "req", description = "OAuth 회원가입 요청 정보")
+            @Parameter(name = "id", description = "OAuth 제공자에서 발급받은 ID", required = true, in = ParameterIn.PATH),
+            @Parameter(name = "provider", description = "OAuth 제공자", required = true, in = ParameterIn.QUERY),
+            @Parameter(name = "accessToken", description = "OAuth 전화번호 인증 시 발급받은 accessToken", required = true, in = ParameterIn.HEADER),
     })
     @PostMapping("/{id}")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUp(
-            @PathVariable("id") BigInteger id,
+            @PathVariable("id") String id,
             @RequestParam("provider") ProviderType provider,
             @RequestHeader("Authorization") String accessToken,
             @RequestBody @Valid OauthSignUpReq req
@@ -91,14 +88,14 @@ public class OauthApi {
 
     @Operation(summary = "OAuth 회원가입 전화번호 인증")
     @Parameters({
-            @Parameter(name = "id", description = "OAuth 제공자에서 발급받은 ID"),
-            @Parameter(name = "provider", description = "OAuth 제공자"),
-            @Parameter(name = "req", description = "OAuth 회원가입 전화번호 인증 요청 정보")
+            @Parameter(name = "id", description = "OAuth 제공자에서 발급받은 ID", required = true, in = ParameterIn.PATH),
+            @Parameter(name = "provider", description = "OAuth 제공자", required = true, in = ParameterIn.QUERY),
+            @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY),
     })
     @PostMapping("/{id}/sms")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUpSmsAuthorization(
-        @PathVariable("id") BigInteger id,
+        @PathVariable("id") String id,
         @RequestParam("provider") ProviderType provider,
         @RequestParam(value = "code", required = false) String code,
         @RequestBody @Valid OauthSmsReq req

@@ -11,7 +11,7 @@ public interface OIDCTokenService {
      * @param provider : 제공자
      * @param id : 제공자의 유저 고유번호
      */
-    void saveOIDCToken(String token, ProviderType provider, BigInteger id);
+    void saveOIDCToken(String token, ProviderType provider, String id);
 
     /**
      * OIDC 토큰을 찾아서 반환

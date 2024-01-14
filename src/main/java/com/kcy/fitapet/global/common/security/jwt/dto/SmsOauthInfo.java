@@ -7,10 +7,10 @@ import java.math.BigInteger;
 
 @Builder
 public record SmsOauthInfo(
-        BigInteger oauthId,
+        String oauthId,
         String phoneNumber
 ) implements JwtSubInfo {
-    public static SmsOauthInfo of(BigInteger id, String phone) {
+    public static SmsOauthInfo of(String id, String phone) {
         return new SmsOauthInfo(id, phone);
     }
 

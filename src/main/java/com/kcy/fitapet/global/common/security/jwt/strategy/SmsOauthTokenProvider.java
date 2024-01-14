@@ -67,7 +67,7 @@ public class SmsOauthTokenProvider implements JwtProvider {
     public JwtSubInfo getSubInfoFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
         return SmsOauthInfo.of(
-                claims.get(USER_ID.getValue(), BigInteger.class),
+                claims.get(USER_ID.getValue(), String.class),
                 claims.get(PHONE_NUMBER.getValue(), String.class)
         );
     }

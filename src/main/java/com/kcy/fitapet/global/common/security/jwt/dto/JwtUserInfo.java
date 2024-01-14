@@ -20,7 +20,7 @@ public record JwtUserInfo  (
     }
 
     @Override
-    public BigInteger oauthId() {
+    public String oauthId() {
         throw new UnsupportedOperationException();
     }
     @Override

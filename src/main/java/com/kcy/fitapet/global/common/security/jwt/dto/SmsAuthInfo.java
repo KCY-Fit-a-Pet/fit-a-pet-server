@@ -15,7 +15,7 @@ public record SmsAuthInfo(
     }
 
     @Override
-    public BigInteger oauthId() {
+    public String oauthId() {
         throw new UnsupportedOperationException();
     }
     @Override

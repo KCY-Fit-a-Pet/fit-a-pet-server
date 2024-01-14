@@ -9,8 +9,8 @@ import java.math.BigInteger;
 @Schema(description = "Oauth Sign In Request")
 public record OauthSignInReq(
         @Schema(description = "Member Oauth Id")
-        @NotNull
-        BigInteger id,
+        @NotEmpty
+        String id,
         @Schema(description = "Member Oauth Id Token")
         @NotEmpty
         String idToken,

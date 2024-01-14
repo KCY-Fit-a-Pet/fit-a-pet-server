@@ -59,13 +59,13 @@ public class OauthService {
     private final SmsRedisHelper smsRedisHelper;
 
     @Transactional
-    public Optional<Jwt> signInByOIDC(BigInteger id, String idToken, ProviderType provider, String nonce) {
+    public Optional<Jwt> signInByOIDC(String id, String idToken, ProviderType provider, String nonce) {
         OIDCDecodePayload payload = getPayload(provider, idToken, nonce);
         log.info("payload : {}", payload);
-        isValidRequestId(id, new BigInteger(payload.sub()));
+        isValidRequestId(id, payload.sub());
 
-        if (oauthSearchService.isExistMember(id, provider)) {
-            Member member = oauthSearchService.findMemberByOauthIdAndProvider(id, provider);
+        if (oauthSearchService.isExistMember(new BigInteger(id), provider)) {
+            Member member = oauthSearchService.findMemberByOauthIdAndProvider(new BigInteger(id), provider);
             return Optional.of(generateToken(JwtUserInfo.from(member)));
         } else {
             oidcTokenService.saveOIDCToken(idToken, provider, id);
@@ -74,7 +74,7 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt signUpByOIDC(BigInteger id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
+    public Jwt signUpByOIDC(String id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
         String accessToken = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).resolveToken(requestOauthAccessToken);
         JwtSubInfo subs = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).getSubInfoFromToken(accessToken);
         String phone = getPhoneByTopic(subs.phoneNumber());
@@ -87,7 +87,7 @@ public class OauthService {
         Member member = Member.builder().uid(req.uid()).name(req.name())
                 .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER).build();
         memberSaveService.saveMember(member);
-        OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
+        OauthAccount oauthAccount = OauthAccount.of(new BigInteger(id), provider, payload.email());
         oauthAccount.updateMember(member);
         oidcTokenService.deleteOIDCToken(req.idToken());
 
@@ -113,7 +113,7 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt checkCertificationNumber(OauthSmsReq req, BigInteger id, String code, ProviderType provider) {
+    public Jwt checkCertificationNumber(OauthSmsReq req, String id, String code, ProviderType provider) {
         String key = makeTopic(req.to(), provider);
         log.info("key: {}", key);
         if (!smsRedisHelper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
@@ -126,7 +126,7 @@ public class OauthService {
             Member member = memberSearchService.findByPhone(req.to());
             String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
             OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
-            OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
+            OauthAccount oauthAccount = OauthAccount.of(new BigInteger(id), provider, payload.email());
             oauthAccount.updateMember(member);
             oidcTokenService.deleteOIDCToken(req.idToken());
 
@@ -152,7 +152,7 @@ public class OauthService {
     /**
      * 요청한 id와 idToken의 sub가 일치하는지 확인
      */
-    private void isValidRequestId(BigInteger id, BigInteger sub) {
+    private void isValidRequestId(String id, String sub) {
         if (!id.equals(sub)) {
             throw new GlobalErrorException(OauthException.INVALID_OAUTH_ID);
         }
