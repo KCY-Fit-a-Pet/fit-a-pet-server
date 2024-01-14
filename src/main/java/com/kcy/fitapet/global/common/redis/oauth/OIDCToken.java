@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import java.math.BigInteger;
+
 @RedisHash("oidcToken")
 public class OIDCToken {
     @Id
@@ -21,7 +23,7 @@ public class OIDCToken {
         this.ttl = ttl;
     }
 
-    public static OIDCToken of(String token, ProviderType provider, Long id, long ttl) {
+    public static OIDCToken of(String token, ProviderType provider, BigInteger id, long ttl) {
         return OIDCToken.builder()
                 .token(token)
                 .providerWithId(provider.name() + "@" + id)

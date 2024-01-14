@@ -4,6 +4,8 @@ import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.type.RoleType;
 import lombok.Builder;
 
+import java.math.BigInteger;
+
 @Builder
 public record JwtUserInfo  (
         Long id,
@@ -17,6 +19,10 @@ public record JwtUserInfo  (
         return new JwtUserInfo(member.getId(), member.getRole());
     }
 
+    @Override
+    public BigInteger oauthId() {
+        throw new UnsupportedOperationException();
+    }
     @Override
     public String phoneNumber() {
         throw new UnsupportedOperationException();

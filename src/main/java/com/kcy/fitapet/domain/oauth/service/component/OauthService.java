@@ -20,10 +20,7 @@ import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
 import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
-import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.*;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.oauth.*;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
@@ -36,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -61,10 +59,10 @@ public class OauthService {
     private final SmsRedisHelper smsRedisHelper;
 
     @Transactional
-    public Optional<Jwt> signInByOIDC(Long id, String idToken, ProviderType provider, String nonce) {
+    public Optional<Jwt> signInByOIDC(BigInteger id, String idToken, ProviderType provider, String nonce) {
         OIDCDecodePayload payload = getPayload(provider, idToken, nonce);
         log.info("payload : {}", payload);
-        isValidRequestId(id, Long.parseLong(payload.sub()));
+        isValidRequestId(id, new BigInteger(payload.sub()));
 
         if (oauthSearchService.isExistMember(id, provider)) {
             Member member = oauthSearchService.findMemberByOauthIdAndProvider(id, provider);
@@ -76,7 +74,7 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt signUpByOIDC(Long id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
+    public Jwt signUpByOIDC(BigInteger id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
         String accessToken = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).resolveToken(requestOauthAccessToken);
         JwtSubInfo subs = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).getSubInfoFromToken(accessToken);
         String phone = getPhoneByTopic(subs.phoneNumber());
@@ -115,7 +113,7 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt checkCertificationNumber(OauthSmsReq req, Long id, String code, ProviderType provider) {
+    public Jwt checkCertificationNumber(OauthSmsReq req, BigInteger id, String code, ProviderType provider) {
         String key = makeTopic(req.to(), provider);
         log.info("key: {}", key);
         if (!smsRedisHelper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
@@ -135,7 +133,7 @@ public class OauthService {
             return generateToken(JwtUserInfo.from(member));
         }
 
-        return Jwt.of(jwtMapper.getProvider(SMS_OAUTH_TOKEN).generateToken(SmsAuthInfo.of(id, key)), null);
+        return Jwt.of(jwtMapper.getProvider(SMS_OAUTH_TOKEN).generateToken(SmsOauthInfo.of(id, key)), null);
     }
 
     /**
@@ -154,7 +152,7 @@ public class OauthService {
     /**
      * 요청한 id와 idToken의 sub가 일치하는지 확인
      */
-    private void isValidRequestId(Long id, Long sub) {
+    private void isValidRequestId(BigInteger id, BigInteger sub) {
         if (!id.equals(sub)) {
             throw new GlobalErrorException(OauthException.INVALID_OAUTH_ID);
         }

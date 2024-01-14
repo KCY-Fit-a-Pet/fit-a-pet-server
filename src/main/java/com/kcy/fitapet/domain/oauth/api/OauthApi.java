@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,7 +74,7 @@ public class OauthApi {
     @PostMapping("/{id}")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUp(
-            @PathVariable("id") Long id,
+            @PathVariable("id") BigInteger id,
             @RequestParam("provider") ProviderType provider,
             @RequestHeader("Authorization") String accessToken,
             @RequestBody @Valid OauthSignUpReq req
@@ -97,7 +98,7 @@ public class OauthApi {
     @PostMapping("/{id}/sms")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUpSmsAuthorization(
-        @PathVariable("id") Long id,
+        @PathVariable("id") BigInteger id,
         @RequestParam("provider") ProviderType provider,
         @RequestParam(value = "code", required = false) String code,
         @RequestBody @Valid OauthSmsReq req

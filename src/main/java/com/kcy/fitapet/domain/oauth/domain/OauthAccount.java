@@ -7,6 +7,8 @@ import com.kcy.fitapet.domain.oauth.type.converter.ProviderTypeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
+
 @Entity
 @Getter
 @Table(name = "OAUTH")
@@ -17,7 +19,7 @@ public class OauthAccount extends DateAuditable {
     private Long id;
 
     @Column(name = "oauth_id")
-    private Long oauthId;
+    private BigInteger oauthId;
     @Convert(converter = ProviderTypeConverter.class)
     private ProviderType provider;
     private String email;
@@ -27,14 +29,14 @@ public class OauthAccount extends DateAuditable {
     private Member member;
 
     @Builder
-    public OauthAccount(Long id, Long oauthId, ProviderType provider, String email) {
+    public OauthAccount(Long id, BigInteger oauthId, ProviderType provider, String email) {
         this.id = id;
         this.oauthId = oauthId;
         this.provider = provider;
         this.email = email;
     }
 
-    public static OauthAccount of(Long oauthId, ProviderType provider, String email) {
+    public static OauthAccount of(BigInteger oauthId, ProviderType provider, String email) {
         return OauthAccount.builder()
                 .oauthId(oauthId)
                 .provider(provider)
