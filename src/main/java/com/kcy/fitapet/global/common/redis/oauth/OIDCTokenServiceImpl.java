@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -17,7 +18,7 @@ public class OIDCTokenServiceImpl implements OIDCTokenService {
     private final OIDCTokenRepository oidcTokenRepository;
 
     @Override
-    public void saveOIDCToken(String token, ProviderType provider, Long id) {
+    public void saveOIDCToken(String token, ProviderType provider, String id) {
         final long timeToLive = Duration.ofMinutes(3).toSeconds();
 
         log.info("oidc token ttl : {}", timeToLive);

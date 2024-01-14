@@ -6,18 +6,19 @@ import lombok.Builder;
 import java.math.BigInteger;
 
 @Builder
-public record SmsAuthInfo(
-        Long id,
+public record SmsOauthInfo(
+        String oauthId,
         String phoneNumber
 ) implements JwtSubInfo {
-    public static SmsAuthInfo of(Long id, String phoneNumber) {
-        return new SmsAuthInfo(id, phoneNumber);
+    public static SmsOauthInfo of(String id, String phone) {
+        return new SmsOauthInfo(id, phone);
     }
 
     @Override
-    public String oauthId() {
+    public Long id() {
         throw new UnsupportedOperationException();
     }
+
     @Override
     public RoleType role() {
         throw new UnsupportedOperationException();

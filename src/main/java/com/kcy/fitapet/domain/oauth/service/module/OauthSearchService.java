@@ -10,13 +10,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
+
 @Service
 @RequiredArgsConstructor
 public class OauthSearchService {
     private final OauthRepository oauthRepository;
 
     @Transactional(readOnly = true)
-    public boolean isExistMember(Long oauthId, ProviderType provider) {
+    public boolean isExistMember(BigInteger oauthId, ProviderType provider) {
         return oauthRepository.existsByOauthIdAndProvider(oauthId, provider);
     }
 
@@ -26,7 +28,7 @@ public class OauthSearchService {
     }
 
     @Transactional(readOnly = true)
-    public Member findMemberByOauthIdAndProvider(Long oauthId, ProviderType provider) {
+    public Member findMemberByOauthIdAndProvider(BigInteger oauthId, ProviderType provider) {
         OauthAccount oauthAccount = oauthRepository.findByOauthIdAndProvider(oauthId, provider)
                 .orElseThrow(() -> new GlobalErrorException(OauthException.NOT_FOUND_MEMBER));
         return oauthAccount.getMember();

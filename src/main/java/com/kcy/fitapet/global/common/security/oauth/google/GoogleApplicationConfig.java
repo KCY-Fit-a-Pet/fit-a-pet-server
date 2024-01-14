@@ -17,11 +17,20 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationPropertiesBinding
 public class GoogleApplicationConfig implements OauthApplicationConfig {
     @NotEmpty
-    private String jwksUri;
+    private String authUri;
     @NotEmpty
     private String clientId;
     @NotEmpty
     private String clientSecret;
     @NotEmpty
     private String clientName;
+
+    @Override
+    public String getJwksUri() {
+        return authUri;
+    }
+
+    public void setJwksUri(String jwksUri) {
+
+    }
 }

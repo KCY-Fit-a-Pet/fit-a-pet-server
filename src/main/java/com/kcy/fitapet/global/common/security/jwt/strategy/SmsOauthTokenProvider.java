@@ -3,6 +3,7 @@ package com.kcy.fitapet.global.common.security.jwt.strategy;
 import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
 import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
 import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsOauthInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigInteger;
 import java.security.Key;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -64,8 +66,8 @@ public class SmsOauthTokenProvider implements JwtProvider {
     @Override
     public JwtSubInfo getSubInfoFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        return SmsAuthInfo.of(
-                claims.get(USER_ID.getValue(), Long.class),
+        return SmsOauthInfo.of(
+                claims.get(USER_ID.getValue(), String.class),
                 claims.get(PHONE_NUMBER.getValue(), String.class)
         );
     }
@@ -103,7 +105,7 @@ public class SmsOauthTokenProvider implements JwtProvider {
     }
 
     private Map<String, Object> createClaims(JwtSubInfo dto) {
-        return Map.of(USER_ID.getValue(), dto.id(),
+        return Map.of(USER_ID.getValue(), dto.oauthId(),
                 PHONE_NUMBER.getValue(), dto.phoneNumber());
     }
 
