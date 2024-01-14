@@ -191,6 +191,14 @@ public class AuthApi {
         return getResponseEntity(tokens);
     }
 
+    @Operation(summary = "토큰 검증", description = "액세스 토큰의 유효성을 검사합니다.")
+    @Parameter(name = "Authorization", description = "액세스 토큰", in = ParameterIn.HEADER)
+    @GetMapping("/verify")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> verify(@AccessTokenInfo AccessToken accessToken) {
+        return ResponseEntity.ok(SuccessResponse.from("userId", accessToken.userId()));
+    }
+
     /**
      * 액세스 토큰과 리프레시 토큰을 반환합니다.
      * @param tokens : 액세스 토큰과 리프레시 토큰
