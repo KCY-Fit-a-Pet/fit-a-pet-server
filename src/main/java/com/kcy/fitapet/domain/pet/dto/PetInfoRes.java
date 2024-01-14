@@ -20,7 +20,12 @@ public class PetInfoRes {
         return petInfoRes;
     }
 
-    @Dto(name = "pet")
+    public static PetInfoRes ofPetIds(List<Pet> pets) {
+        PetInfoRes petInfoRes = new PetInfoRes();
+        petInfoRes.pets = pets.stream().map(PetIds::of).toList();
+        return petInfoRes;
+    }
+
     private record PetSummaryInfo(
             Long id,
             String petName,

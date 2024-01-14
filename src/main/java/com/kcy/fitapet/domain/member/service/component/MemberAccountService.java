@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.member.service.component;
 
+import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
 import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
@@ -10,6 +11,9 @@ import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
+import com.kcy.fitapet.domain.pet.domain.Pet;
+import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
+import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
 import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
@@ -21,11 +25,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
+    private final PetSearchService petSearchService;
+
     private final SmsRedisHelper smsRedisHelper;
 
     private final PasswordEncoder bCryptPasswordEncoder;
@@ -82,6 +90,13 @@ public class MemberAccountService {
     public void updateNotification(Long requestId, Long userId, NotificationType type) {
         Member member = memberSearchService.findById(userId);
         member.updateNotificationFromType(type);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> getPetIds(Long userId) {
+        List<Manager> managers = memberSearchService.findAllManagerByMemberId(userId);
+        List<Pet> pets = managers.stream().map(Manager::getPet).toList();
+        return pets.stream().map(Pet::getId).toList();
     }
 
     /**

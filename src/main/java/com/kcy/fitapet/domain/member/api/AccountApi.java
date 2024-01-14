@@ -7,6 +7,7 @@ import com.kcy.fitapet.domain.member.dto.account.UidRes;
 import com.kcy.fitapet.domain.member.service.component.MemberAccountService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
+import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
@@ -105,5 +106,13 @@ public class AccountApi {
             @RequestParam("type") @NotBlank NotificationType type) {
         memberAccountService.updateNotification(id, user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "관리 중인 반려동물 pk 리스트 조회")
+    @GetMapping("/{id}/pets")
+    @PreAuthorize("isAuthenticated() and #id == principal.userId")
+    public ResponseEntity<?> getPetIds(@PathVariable Long id) {
+        List<Long> petIds = memberAccountService.getPetIds(id);
+        return ResponseEntity.ok(SuccessResponse.from("pets", petIds));
     }
 }
