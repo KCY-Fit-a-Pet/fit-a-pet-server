@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.pet.api;
 
 import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
-import com.kcy.fitapet.domain.pet.dto.PetRegisterReq;
+import com.kcy.fitapet.domain.pet.dto.PetSaveReq;
 import com.kcy.fitapet.domain.pet.service.component.PetManageService;
 import com.kcy.fitapet.global.common.response.ErrorResponse;
 import com.kcy.fitapet.global.common.response.FailureResponse;
@@ -42,7 +42,7 @@ public class PetApi {
     })
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> savePet(@RequestBody @Valid PetRegisterReq req, @AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<?> savePet(@RequestBody @Valid PetSaveReq req, @AuthenticationPrincipal CustomUserDetails user) {
         petManageService.savePet(req.toPetEntity(), user.getUserId());
 
         return ResponseEntity.ok(SuccessResponse.noContent());
@@ -65,5 +65,4 @@ public class PetApi {
         List<?> result = petManageService.checkCategoryExist(userId, request.categoryName(), request.pets());
         return ResponseEntity.ok(SuccessResponse.from("categories", result));
     }
-
 }

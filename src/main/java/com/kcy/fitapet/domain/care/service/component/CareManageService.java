@@ -4,9 +4,11 @@ import com.kcy.fitapet.domain.care.domain.Care;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.care.domain.CareDate;
 import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
+import com.kcy.fitapet.domain.care.dto.CareInfoRes;
 import com.kcy.fitapet.domain.care.dto.CareSaveReq;
 import com.kcy.fitapet.domain.care.service.module.CareSaveService;
 import com.kcy.fitapet.domain.care.service.module.CareSearchService;
+import com.kcy.fitapet.domain.log.service.CareLogSearchService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.pet.exception.PetErrorCode;
@@ -17,6 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +33,9 @@ public class CareManageService {
     private final CareSaveService careSaveService;
 
     private final MemberSearchService memberSearchService;
-    private final CareSearchService careSearchService;
     private final PetSearchService petSearchService;
+    private final CareSearchService careSearchService;
+    private final CareLogSearchService careLogSearchService;
 
     @Transactional
     public List<?> findCareCategoryNamesByPetId(Long petId) {
@@ -52,6 +59,26 @@ public class CareManageService {
         petSearchService.findPetsByIds(petIds);
 
         persistAboutCare(categoryDto, careInfoDto, additionalPetDtos);
+    }
+
+    @Transactional(readOnly = true)
+    public CareInfoRes findCaresByPetId(Long petId) {
+        List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
+        for (CareCategory careCategory : careCategories) {
+            log.info("careCategory: {}", careCategory);
+            List<Care> cares = careCategory.getCares();
+
+            for (Care care : cares) {
+                log.info("care: {}", care);
+//                String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate today = LocalDate.now();
+                log.info("today: {}", today);
+
+                boolean isClear = careLogSearchService.existsByCareIdOnToday(care.getId(), today);
+                log.info("isClear: {}", isClear);
+            }
+        }
+        return null;
     }
 
     private void persistAboutCare(

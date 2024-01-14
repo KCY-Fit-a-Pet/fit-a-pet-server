@@ -10,13 +10,14 @@ import jakarta.validation.constraints.Past;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 
 @Schema(description = "반려동물 등록 요청")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class PetRegisterReq {
+public class PetSaveReq {
     @Schema(description = "반려동물 이름") @NotBlank(message = "반려동물 이름을 입력해주세요.")
     private String petName;
     @Schema(description = "반려동물 종류", example = "강아지") @NotBlank(message = "반려동물 종류를 입력해주세요.")
@@ -38,7 +39,7 @@ public class PetRegisterReq {
                 .gender(gender)
                 .neutered(neutralization)
                 .birthdate(birthdate)
-                .petProfileImg(profileImg)
+                .petProfileImg(StringUtils.hasText(profileImg) ? profileImg : null)
                 .build();
     }
 }

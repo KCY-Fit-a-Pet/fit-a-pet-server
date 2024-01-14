@@ -1,6 +1,7 @@
 package com.kcy.fitapet.domain.log.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kcy.fitapet.domain.care.domain.CareDate;
 import com.kcy.fitapet.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -23,19 +24,13 @@ public class CareLog {
     @Id @CreatedDate
     private LocalDateTime logDate;
 
-    private Long careDateId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "care_date_id", nullable = false, updatable = false)
+    private CareDate careDate;
 
     @CreatedBy
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     @JsonIgnore
     private Member author;
-
-    private CareLog(Long careDateId) {
-        this.careDateId = careDateId;
-    }
-
-    public static CareLog of(Long careDateId) {
-        return new CareLog(careDateId);
-    }
 }

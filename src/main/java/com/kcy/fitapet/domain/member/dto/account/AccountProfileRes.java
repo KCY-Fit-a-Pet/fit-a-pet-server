@@ -5,6 +5,7 @@ import com.kcy.fitapet.domain.member.domain.NotificationSetting;
 import com.kcy.fitapet.global.common.util.bind.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.springframework.util.StringUtils;
 
 @Schema(description = "회원 프로필 조회 응답")
 @Builder
@@ -37,8 +38,8 @@ public record AccountProfileRes(
                         .id(member.getId())
                         .name(member.getName())
                         .uid(member.getUid())
-                        .email(member.getEmail())
-                        .profileImage(member.getProfileImg())
+                        .email(StringUtils.hasText(member.getEmail()) ? member.getEmail() : "")
+                        .profileImage(StringUtils.hasText(member.getProfileImg()) ? member.getProfileImg() : "")
                         .isNotice(setting.getIsNotice())
                         .isCare(setting.getIsCare())
                         .isMemo(setting.getIsMemo())
