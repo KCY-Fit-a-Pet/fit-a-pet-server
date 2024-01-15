@@ -10,25 +10,30 @@ import java.util.List;
 public class CareInfoRes {
     private List<?> info = new ArrayList<>();
 
-    public static CareInfoRes from(List<CareCategory> careCategories) {
+    public static CareInfoRes from(List<CareCategoryDto> careCategories) {
         CareInfoRes careInfoRes = new CareInfoRes();
         careInfoRes.info = careCategories;
         return careInfoRes;
     }
 
     public record CareCategoryDto(
-        Long id,
+        Long careCategoryId,
         String categoryName,
         List<CareDto> cares
     ) {
-
+        public static CareCategoryDto of(Long id, String categoryName, List<CareDto> cares) {
+            return new CareCategoryDto(id, categoryName, cares);
+        }
     }
 
     public record CareDto(
-            Long id,
+            Long careId,
+            Long careDateId,
             String careName,
             boolean isClear
     ) {
-
+        public static CareDto of(Long careId, Long careDateId, String careName, boolean isClear) {
+            return new CareDto(careId, careDateId, careName, isClear);
+        }
     }
 }

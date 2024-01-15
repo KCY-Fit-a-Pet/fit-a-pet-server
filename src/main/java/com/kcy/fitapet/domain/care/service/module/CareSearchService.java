@@ -7,6 +7,7 @@ import com.kcy.fitapet.domain.care.domain.Care;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.care.domain.CareDate;
 import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
+import com.kcy.fitapet.domain.care.type.WeekType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,11 @@ public class CareSearchService {
     @Transactional(readOnly = true)
     public CareDate findCareDateById(Long careDateId) {
         return careDateRepository.findByIdOrElseThrow(careDateId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CareDate> findCareDatesCareIdAndWeek(Long careId, WeekType week) {
+        return careDateRepository.findAllByCare_IdAndWeek(careId, week);
     }
 
     @Transactional(readOnly = true)

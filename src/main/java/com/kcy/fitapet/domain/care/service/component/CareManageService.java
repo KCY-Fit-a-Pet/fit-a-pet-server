@@ -8,6 +8,7 @@ import com.kcy.fitapet.domain.care.dto.CareInfoRes;
 import com.kcy.fitapet.domain.care.dto.CareSaveReq;
 import com.kcy.fitapet.domain.care.service.module.CareSaveService;
 import com.kcy.fitapet.domain.care.service.module.CareSearchService;
+import com.kcy.fitapet.domain.care.type.WeekType;
 import com.kcy.fitapet.domain.log.domain.CareLog;
 import com.kcy.fitapet.domain.log.dto.CareLogInfo;
 import com.kcy.fitapet.domain.log.service.CareLogSaveService;
@@ -47,21 +48,31 @@ public class CareManageService {
     @Transactional(readOnly = true)
     public CareInfoRes findCaresByPetId(Long petId) {
         List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
+
+        List<CareInfoRes.CareCategoryDto> careCategoryDtos = new ArrayList<>();
         for (CareCategory careCategory : careCategories) {
             log.info("careCategory: {}", careCategory);
             List<Care> cares = careCategory.getCares();
 
+            List<CareInfoRes.CareDto> careDtos = new ArrayList<>();
             for (Care care : cares) {
-                for (CareDate careDate : care.getCareDates()) {
+                WeekType todayWeek = WeekType.fromLegacyType(LocalDateTime.now().getDayOfWeek().toString());
+                log.info("todayWeek: {}", todayWeek);
+                List<CareDate> careDates = careSearchService.findCareDatesCareIdAndWeek(care.getId(), todayWeek);
+                for (CareDate careDate : careDates) {
                     LocalDateTime today = LocalDateTime.now();
                     log.info("today: {}", today);
 
                     boolean isClear = careLogSearchService.existsByCareDateIdOnLogDate(careDate.getId(), today);
                     log.info("isClear: {}", isClear);
+
+                    careDtos.add(CareInfoRes.CareDto.of(care.getId(), careDate.getId(), care.getCareName(), isClear));
                 }
             }
+
+            careCategoryDtos.add(CareInfoRes.CareCategoryDto.of(careCategory.getId(), careCategory.getCategoryName(), careDtos));
         }
-        return null;
+        return CareInfoRes.from(careCategoryDtos);
     }
 
     @Transactional

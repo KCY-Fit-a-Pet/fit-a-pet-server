@@ -60,7 +60,7 @@ public class CareApi {
             @PathVariable("pet_id") Long petId
     ) {
         CareInfoRes res = careManageService.findCaresByPetId(petId);
-        return ResponseEntity.ok(SuccessResponse.from("cares", res.getInfo()));
+        return ResponseEntity.ok(SuccessResponse.from("careCategories", res.getInfo()));
     }
 
     @Operation(summary = "작성한 케어 카테고리 목록 조회")
