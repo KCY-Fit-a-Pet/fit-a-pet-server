@@ -32,7 +32,6 @@ import java.util.List;
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
-    private final PetSearchService petSearchService;
 
     private final SmsRedisHelper smsRedisHelper;
 
@@ -90,13 +89,6 @@ public class MemberAccountService {
     public void updateNotification(Long requestId, Long userId, NotificationType type) {
         Member member = memberSearchService.findById(userId);
         member.updateNotificationFromType(type);
-    }
-
-    @Transactional(readOnly = true)
-    public PetInfoRes getPetIds(Long userId) {
-        List<Manager> managers = memberSearchService.findAllManagerByMemberId(userId);
-        List<Pet> pets = managers.stream().map(Manager::getPet).toList();
-        return PetInfoRes.ofPetInfo(pets);
     }
 
     /**

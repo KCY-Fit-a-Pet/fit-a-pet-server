@@ -1,6 +1,7 @@
 package com.kcy.fitapet.domain.pet.api;
 
 import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
+import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
 import com.kcy.fitapet.domain.pet.dto.PetSaveReq;
 import com.kcy.fitapet.domain.pet.service.component.PetManageService;
 import com.kcy.fitapet.global.common.response.ErrorResponse;
@@ -48,6 +49,14 @@ public class PetApi {
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
+    @Operation(summary = "관리 중인 반려동물 리스트 조회")
+    @GetMapping("")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
+    public ResponseEntity<?> getPets(@PathVariable("user_id") Long userId) {
+        PetInfoRes pets = petManageService.getPets(userId);
+        return ResponseEntity.ok(SuccessResponse.from("pets", pets.getPets()));
+    }
+
     @Operation(summary = "관리 중인 반려동물 목록 조회")
     @Parameter(name = "user_id", description = "조회할 유저 ID", required = true)
     @GetMapping("/summary")
@@ -65,4 +74,6 @@ public class PetApi {
         List<?> result = petManageService.checkCategoryExist(userId, request.categoryName(), request.pets());
         return ResponseEntity.ok(SuccessResponse.from("categories", result));
     }
+
+
 }

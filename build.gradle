@@ -2,7 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.0'
 	id 'io.spring.dependency-management' version '1.1.0'
-	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
+//	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
 }
 
 group = 'com.kcy'
@@ -68,21 +68,14 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 
-// queryDSL 추가 : QueryDSL 빌드 옵션
-def querydslDir = "$buildDir/generated/querydsl"
+def querydslDir = 'src/main/generated'
 
-querydsl {
-	jpa = true
-	querydslSourcesDir = querydslDir
+clean {
+	delete file(querydslDir)
 }
-sourceSets {
-	main.java.srcDir querydslDir
-}
-configurations {
-	querydsl.extendsFrom compileClasspath
-}
-compileQuerydsl {
-	options.annotationProcessorPath = configurations.querydsl
+
+tasks.withType(JavaCompile).configureEach {
+	options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
 }
 
 tasks.named('test') {

@@ -63,8 +63,12 @@ public class CareApi {
     @Operation(summary = "작성한 케어 카테고리 목록 조회")
     @GetMapping("/categories")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> getCareCategoryNames(@PathVariable("pet_id") Long petId) {
+    public ResponseEntity<?> getCareCategoryNames(
+            @PathVariable("user_id") Long userId,
+            @PathVariable("pet_id") Long petId
+    ) {
         List<?> careCategories = careManageService.findCareCategoryNamesByPetId(petId);
         return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
+
 }

@@ -69,12 +69,10 @@ public class CareManageService {
             List<Care> cares = careCategory.getCares();
 
             for (Care care : cares) {
-                log.info("care: {}", care);
-//                String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                LocalDate today = LocalDate.now();
+                LocalDateTime today = LocalDateTime.now();
                 log.info("today: {}", today);
 
-                boolean isClear = careLogSearchService.existsByCareIdOnToday(care.getId(), today);
+                boolean isClear = careLogSearchService.existsByCareIdOnLogDate(care.getId(), today);
                 log.info("isClear: {}", isClear);
             }
         }

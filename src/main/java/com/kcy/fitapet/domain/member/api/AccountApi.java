@@ -107,12 +107,4 @@ public class AccountApi {
         memberAccountService.updateNotification(id, user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
-
-    @Operation(summary = "관리 중인 반려동물 리스트 조회")
-    @GetMapping("/{id}/pets")
-    @PreAuthorize("isAuthenticated() and #id == principal.userId")
-    public ResponseEntity<?> getPetIds(@PathVariable Long id) {
-        PetInfoRes pets = memberAccountService.getPetIds(id);
-        return ResponseEntity.ok(SuccessResponse.from("pets", pets.getPets()));
-    }
 }
