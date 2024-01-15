@@ -8,6 +8,9 @@ import com.kcy.fitapet.domain.care.dto.CareInfoRes;
 import com.kcy.fitapet.domain.care.dto.CareSaveReq;
 import com.kcy.fitapet.domain.care.service.module.CareSaveService;
 import com.kcy.fitapet.domain.care.service.module.CareSearchService;
+import com.kcy.fitapet.domain.log.domain.CareLog;
+import com.kcy.fitapet.domain.log.dto.CareLogInfo;
+import com.kcy.fitapet.domain.log.service.CareLogSaveService;
 import com.kcy.fitapet.domain.log.service.CareLogSearchService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.pet.domain.Pet;
@@ -19,10 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,11 +36,54 @@ public class CareManageService {
     private final PetSearchService petSearchService;
     private final CareSearchService careSearchService;
     private final CareLogSearchService careLogSearchService;
+    private final CareLogSaveService careLogSaveService;
 
     @Transactional
     public List<?> findCareCategoryNamesByPetId(Long petId) {
          List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
          return CareCategoryDto.from(careCategories).getCareCategorySummaries();
+    }
+
+    @Transactional(readOnly = true)
+    public CareInfoRes findCaresByPetId(Long petId) {
+        List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
+        for (CareCategory careCategory : careCategories) {
+            log.info("careCategory: {}", careCategory);
+            List<Care> cares = careCategory.getCares();
+
+            for (Care care : cares) {
+                for (CareDate careDate : care.getCareDates()) {
+                    LocalDateTime today = LocalDateTime.now();
+                    log.info("today: {}", today);
+
+                    boolean isClear = careLogSearchService.existsByCareDateIdOnLogDate(careDate.getId(), today);
+                    log.info("isClear: {}", isClear);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Transactional
+    public CareLogInfo doCare(Long careDateId, Long userId) {
+        CareDate careDate = careSearchService.findCareDateById(careDateId);
+
+        if (!careDate.getWeek().checkToday()) {
+            log.warn("오늘 날짜에 대한 요청이 아닙니다. {} <- 요청 : {}", careDate.getWeek(), LocalDateTime.now().getDayOfWeek());
+            throw new GlobalErrorException(PetErrorCode.NOT_TODAY_CARE);
+        }
+
+        // TODO: 케어 등록 시간 10분 전부터 수행할 수 있도록 조건 추가?
+
+        LocalDateTime today = LocalDateTime.now();
+        if (careLogSearchService.existsByCareDateIdOnLogDate(careDateId, today)) {
+            log.warn("이미 케어를 수행한 기록이 존재합니다.");
+            throw new GlobalErrorException(PetErrorCode.ALREADY_CARED);
+        }
+
+        CareLog careLog = careLogSaveService.save(CareLog.of(careDate));
+        log.info("careLog: {}", careLog);
+        return CareLogInfo.of(careLog.getLogDate(), memberSearchService.findById(userId).getUid());
     }
 
     @Transactional
@@ -59,24 +102,6 @@ public class CareManageService {
         petSearchService.findPetsByIds(petIds);
 
         persistAboutCare(categoryDto, careInfoDto, additionalPetDtos);
-    }
-
-    @Transactional(readOnly = true)
-    public CareInfoRes findCaresByPetId(Long petId) {
-        List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
-        for (CareCategory careCategory : careCategories) {
-            log.info("careCategory: {}", careCategory);
-            List<Care> cares = careCategory.getCares();
-
-            for (Care care : cares) {
-                LocalDateTime today = LocalDateTime.now();
-                log.info("today: {}", today);
-
-                boolean isClear = careLogSearchService.existsByCareIdOnLogDate(care.getId(), today);
-                log.info("isClear: {}", isClear);
-            }
-        }
-        return null;
     }
 
     private void persistAboutCare(

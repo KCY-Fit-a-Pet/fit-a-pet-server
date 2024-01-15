@@ -5,6 +5,7 @@ import com.kcy.fitapet.domain.care.domain.CareDate;
 import com.kcy.fitapet.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 @Table(name = "CARE_LOG")
 @IdClass(CareLogId.class)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,4 +35,19 @@ public class CareLog {
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     @JsonIgnore
     private Member author;
+
+    public static CareLog of(CareDate careDate) {
+        CareLog careLog = new CareLog();
+        careLog.setCareDate(careDate);
+        return careLog;
+    }
+
+    public void setCareDate(CareDate careDate) {
+        if (this.careDate != null) {
+            this.careDate.getCareLogs().remove(this);
+        }
+
+        this.careDate = careDate;
+        careDate.getCareLogs().add(this);
+    }
 }

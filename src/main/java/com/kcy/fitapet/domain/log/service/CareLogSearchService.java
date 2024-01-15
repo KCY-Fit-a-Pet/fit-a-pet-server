@@ -16,7 +16,7 @@ public class CareLogSearchService {
     private final CareLogQueryRepository careLogQueryRepository;
 
     @Transactional(readOnly = true)
-    public boolean existsByCareIdOnLogDate(Long careId, LocalDateTime date) {
-        return careLogQueryRepository.existsByCareDateIdAndLogDate(careId, date);
+    public boolean existsByCareDateIdOnLogDate(Long careDateId, LocalDateTime date) {
+        return careLogQueryRepository.existsByCareDateIdAndLogDate(careDateId, date);
     }
 }

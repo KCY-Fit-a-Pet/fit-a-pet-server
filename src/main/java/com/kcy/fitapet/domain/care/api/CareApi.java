@@ -3,6 +3,7 @@ package com.kcy.fitapet.domain.care.api;
 import com.kcy.fitapet.domain.care.dto.CareInfoRes;
 import com.kcy.fitapet.domain.care.dto.CareSaveReq;
 import com.kcy.fitapet.domain.care.service.component.CareManageService;
+import com.kcy.fitapet.domain.log.dto.CareLogInfo;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Tag(name = "Care", description = "케어 API")
@@ -71,4 +74,16 @@ public class CareApi {
         return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
 
+    @Operation(summary = "케어 수행")
+    @GetMapping("/{care_id}/care-dates/{care_date_id}")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId and @managerAuthorize.isManager(principal.userId, #petId)") // TODO: careDate가 care에 속하는 지 확인
+    public ResponseEntity<?> doCare(
+            @PathVariable("user_id") Long userId,
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("care_id") Long careId,
+            @PathVariable("care_date_id") Long careDateId
+    ) {
+        CareLogInfo careLog = careManageService.doCare(careDateId, userId);
+        return ResponseEntity.ok(SuccessResponse.from(careLog));
+    }
 }

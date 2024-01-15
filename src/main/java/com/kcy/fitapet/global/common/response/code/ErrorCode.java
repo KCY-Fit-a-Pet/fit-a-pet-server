@@ -46,6 +46,7 @@ public enum ErrorCode implements StatusCode {
     NOT_FOUND_PET(NOT_FOUND, "존재하지 않는 반려동물입니다."),
     NOT_FOUND_PET_CARE(NOT_FOUND, "존재하지 않는 반려동물 돌봄입니다."),
     NOT_FOUND_PET_SCHEDULE(NOT_FOUND, "존재하지 않는 반려동물 일정입니다."),
+    NOT_FOUND_CARE_DATE(NOT_FOUND, "존재하지 않는 돌봄 날짜입니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR: 서버에서 에러가 발생한 경우

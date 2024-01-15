@@ -2,6 +2,7 @@ package com.kcy.fitapet.domain.care.domain;
 
 import com.kcy.fitapet.domain.care.type.WeekType;
 import com.kcy.fitapet.domain.care.type.WeekTypeConverter;
+import com.kcy.fitapet.domain.log.domain.CareLog;
 import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "CARE_DATE")
@@ -26,6 +29,8 @@ public class CareDate extends DateAuditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "care_id")
     private Care care;
+    @OneToMany(mappedBy = "careDate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CareLog> careLogs = new ArrayList<>();
 
     @Builder
     private CareDate(WeekType week, LocalTime careTime) {
@@ -46,6 +51,10 @@ public class CareDate extends DateAuditable {
         }
         this.care = care;
         care.getCareDates().add(this);
+    }
+
+    public boolean checkToday() {
+        return week.checkToday();
     }
 
     @Override public String toString() {
