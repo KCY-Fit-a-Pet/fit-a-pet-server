@@ -56,7 +56,7 @@ public class MemberAuthService {
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public Jwt register(String requestSmsAccessToken, SignUpReq dto) {
+    public Pair<Long, Jwt> register(String requestSmsAccessToken, SignUpReq dto) {
         String accessToken = jwtMapper.getProvider(SMS_AUTH_TOKEN).resolveToken(requestSmsAccessToken);
 
         if (forbiddenTokenService.isForbidden(accessToken))
@@ -76,7 +76,7 @@ public class MemberAuthService {
                         jwtMapper.getProvider(SMS_AUTH_TOKEN).getExpiryDate(accessToken), false)
         );
 
-        return generateToken(JwtUserInfo.from(registeredMember));
+        return Pair.of(registeredMember.getId(), generateToken(JwtUserInfo.from(registeredMember)));
     }
 
     @Transactional

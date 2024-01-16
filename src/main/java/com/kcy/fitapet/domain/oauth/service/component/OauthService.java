@@ -30,6 +30,7 @@ import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,14 +60,14 @@ public class OauthService {
     private final SmsRedisHelper smsRedisHelper;
 
     @Transactional
-    public Optional<Jwt> signInByOIDC(String id, String idToken, ProviderType provider, String nonce) {
+    public Optional<Pair<Long, Jwt>> signInByOIDC(String id, String idToken, ProviderType provider, String nonce) {
         OIDCDecodePayload payload = getPayload(provider, idToken, nonce);
         log.info("payload : {}", payload);
         isValidRequestId(id, payload.sub());
 
         if (oauthSearchService.isExistMember(new BigInteger(id), provider)) {
             Member member = oauthSearchService.findMemberByOauthIdAndProvider(new BigInteger(id), provider);
-            return Optional.of(generateToken(JwtUserInfo.from(member)));
+            return Optional.of(Pair.of(member.getId(), generateToken(JwtUserInfo.from(member))));
         } else {
             oidcTokenService.saveOIDCToken(idToken, provider, id);
             return Optional.empty();
@@ -74,7 +75,7 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt signUpByOIDC(String id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
+    public Pair<Long, Jwt> signUpByOIDC(String id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
         String accessToken = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).resolveToken(requestOauthAccessToken);
         JwtSubInfo subs = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).getSubInfoFromToken(accessToken);
         String phone = getPhoneByTopic(subs.phoneNumber());
@@ -98,7 +99,7 @@ public class OauthService {
 
         log.info("success oauth signup member id : {} - oauth id : {} [provider: {}]",
                 member.getId(), oauthAccount.getOauthId(), oauthAccount.getProvider());
-        return generateToken(JwtUserInfo.from(member));
+        return Pair.of(member.getId(), generateToken(JwtUserInfo.from(member)));
     }
 
     @Transactional
@@ -113,7 +114,7 @@ public class OauthService {
     }
 
     @Transactional
-    public Jwt checkCertificationNumber(OauthSmsReq req, String id, String code, ProviderType provider) {
+    public Pair<Long, Jwt> checkCertificationNumber(OauthSmsReq req, String id, String code, ProviderType provider) {
         String key = makeTopic(req.to(), provider);
         log.info("key: {}", key);
         if (!smsRedisHelper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
@@ -130,10 +131,10 @@ public class OauthService {
             oauthAccount.updateMember(member);
             oidcTokenService.deleteOIDCToken(req.idToken());
 
-            return generateToken(JwtUserInfo.from(member));
+            return Pair.of(member.getId(), generateToken(JwtUserInfo.from(member)));
         }
 
-        return Jwt.of(jwtMapper.getProvider(SMS_OAUTH_TOKEN).generateToken(SmsOauthInfo.of(id, key)), null);
+        return Pair.of(0L, Jwt.of(jwtMapper.getProvider(SMS_OAUTH_TOKEN).generateToken(SmsOauthInfo.of(id, key)), null));
     }
 
     /**
