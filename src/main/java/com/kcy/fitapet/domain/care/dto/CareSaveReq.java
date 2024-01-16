@@ -52,7 +52,7 @@ public class CareSaveReq {
             @NotBlank
             String careName,
             @NotNull
-            List<CareDateDto> careDate,
+            List<CareDateDto> careDates,
             @Schema(description = "제한 시간(분 단위) - 제한 시간 없는 경우 0", example = "30")
             @NotNull
             Integer limitTime
@@ -62,7 +62,7 @@ public class CareSaveReq {
         }
 
         public List<CareDate> toCareDateEntity() {
-            return careDate.stream()
+            return careDates.stream()
                     .map(careDateDto -> CareDate.of(careDateDto.week(), careDateDto.time()))
                     .collect(toMap(CareDate::getWeek, careDate -> careDate, (o1, o2) -> o1))
                     .values()

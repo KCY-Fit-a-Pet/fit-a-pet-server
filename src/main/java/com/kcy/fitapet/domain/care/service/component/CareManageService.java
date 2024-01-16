@@ -6,6 +6,7 @@ import com.kcy.fitapet.domain.care.domain.CareDate;
 import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
 import com.kcy.fitapet.domain.care.dto.CareInfoRes;
 import com.kcy.fitapet.domain.care.dto.CareSaveReq;
+import com.kcy.fitapet.domain.care.exception.CareErrorCode;
 import com.kcy.fitapet.domain.care.service.module.CareSaveService;
 import com.kcy.fitapet.domain.care.service.module.CareSearchService;
 import com.kcy.fitapet.domain.care.type.WeekType;
@@ -66,7 +67,7 @@ public class CareManageService {
                     boolean isClear = careLogSearchService.existsByCareDateIdOnLogDate(careDate.getId(), today);
                     log.info("isClear: {}", isClear);
 
-                    careDtos.add(CareInfoRes.CareDto.of(care.getId(), careDate.getId(), care.getCareName(), isClear));
+                    careDtos.add(CareInfoRes.CareDto.of(care.getId(), careDate.getId(), care.getCareName(), careDate.getCareTime(), isClear));
                 }
             }
 
@@ -81,7 +82,7 @@ public class CareManageService {
 
         if (!careDate.getWeek().checkToday()) {
             log.warn("오늘 날짜에 대한 요청이 아닙니다. {} <- 요청 : {}", careDate.getWeek(), LocalDateTime.now().getDayOfWeek());
-            throw new GlobalErrorException(PetErrorCode.NOT_TODAY_CARE);
+            throw new GlobalErrorException(CareErrorCode.NOT_TODAY_CARE);
         }
 
         // TODO: 케어 등록 시간 10분 전부터 수행할 수 있도록 조건 추가?
@@ -89,7 +90,7 @@ public class CareManageService {
         LocalDateTime today = LocalDateTime.now();
         if (careLogSearchService.existsByCareDateIdOnLogDate(careDateId, today)) {
             log.warn("이미 케어를 수행한 기록이 존재합니다.");
-            throw new GlobalErrorException(PetErrorCode.ALREADY_CARED);
+            throw new GlobalErrorException(CareErrorCode.ALREADY_CARED);
         }
 
         CareLog careLog = careLogSaveService.save(CareLog.of(careDate));

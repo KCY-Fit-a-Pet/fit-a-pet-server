@@ -3,6 +3,9 @@ package com.kcy.fitapet.domain.care.dto;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +33,11 @@ public class CareInfoRes {
             Long careId,
             Long careDateId,
             String careName,
+            String careDate,
             boolean isClear
     ) {
-        public static CareDto of(Long careId, Long careDateId, String careName, boolean isClear) {
-            return new CareDto(careId, careDateId, careName, isClear);
+        public static CareDto of(Long careId, Long careDateId, String careName, LocalTime careDate, boolean isClear) {
+            return new CareDto(careId, careDateId, careName, careDate.format(DateTimeFormatter.ofPattern("HH:mm:ss")), isClear);
         }
     }
 }
