@@ -66,8 +66,8 @@ public class AuthApi {
     @PostMapping("/register")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signUp(@RequestHeader("Authorization") @NotBlank String accessToken, @RequestBody @Valid SignUpReq dto) {
-        Jwt tokens = memberAuthService.register(accessToken, dto);
-        return getResponseEntity(tokens);
+        Pair<Long, Jwt> result = memberAuthService.register(accessToken, dto);
+        return getResponseEntity(result.getKey(), result.getValue());
     }
 
     @Operation(summary = "회원가입 전화번호 인증")
@@ -138,11 +138,8 @@ public class AuthApi {
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInReq dto) {
         Pair<Long, Jwt> result = memberAuthService.login(dto);
-        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), result.getValue().refreshToken(), 60 * 60 * 24 * 7);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), result.getValue().accessToken())
-                .body(SuccessResponse.from(Map.of("userId", result.getKey())));
+
+        return getResponseEntity(result.getKey(), result.getValue());
     }
 
     @Operation(summary = "로그아웃", description = "액세스 토큰과 리프레시 토큰을 만료시킵니다.")
@@ -188,7 +185,13 @@ public class AuthApi {
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> refresh(@CookieValue("refreshToken") @Valid String refreshToken) {
         Jwt tokens = memberAuthService.refresh(refreshToken);
-        return getResponseEntity(tokens);
+
+        ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
+                .body(SuccessResponse.noContent());
     }
 
     @Operation(summary = "토큰 검증", description = "액세스 토큰의 유효성을 검사합니다.")
@@ -204,12 +207,12 @@ public class AuthApi {
      * @param tokens : 액세스 토큰과 리프레시 토큰
      * @return ResponseEntity<?>
      */
-    private ResponseEntity<?> getResponseEntity(Jwt tokens) {
+    private ResponseEntity<?> getResponseEntity(Long userId, Jwt tokens) {
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), tokens.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
-                .body(SuccessResponse.noContent());
+                .body(SuccessResponse.from(Map.of("userId", userId)));
     }
 }

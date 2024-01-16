@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -50,7 +51,7 @@ public class OauthApi {
             @RequestParam("provider") ProviderType provider,
             @RequestBody @Valid OauthSignInReq req
     ) {
-        Optional<Jwt> jwt;
+        Optional<Pair<Long, Jwt>> jwt;
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
@@ -58,7 +59,7 @@ public class OauthApi {
         }
 
         return jwt.isPresent()
-                ? getJwtResponseEntity(jwt.get())
+                ? getJwtResponseEntity(jwt.get().getKey(), jwt.get().getValue())
                 : ResponseEntity.ok(SuccessResponse.from(Map.of("id", req.id())));
     }
 
@@ -76,14 +77,14 @@ public class OauthApi {
             @RequestHeader("Authorization") String accessToken,
             @RequestBody @Valid OauthSignUpReq req
     ) {
-        Jwt jwt;
+        Pair<Long, Jwt> jwt;
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
             jwt = oAuthService.signUpByOIDC(id, provider, accessToken, req);
         }
 
-        return getJwtResponseEntity(jwt);
+        return getJwtResponseEntity(jwt.getKey(), jwt.getValue());
     }
 
     @Operation(summary = "OAuth 회원가입 전화번호 인증")
@@ -105,23 +106,23 @@ public class OauthApi {
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        Jwt token = oAuthService.checkCertificationNumber(req, id, code, provider);
-        if (token == null)
+        Pair<Long, Jwt> token = oAuthService.checkCertificationNumber(req, id, code, provider);
+        if (token.getValue() == null)
             return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build();
-        else if (token.refreshToken() == null)
+        else if (token.getValue().refreshToken() == null)
             return ResponseEntity.ok()
-                    .header(ACCESS_TOKEN.getValue(), token.accessToken())
+                    .header(ACCESS_TOKEN.getValue(), token.getValue().accessToken())
                     .body(SuccessResponse.from(Map.of("member", "신규 회원")));
 
-        return getJwtResponseEntity(token);
+        return getJwtResponseEntity(token.getKey(), token.getValue());
     }
 
-    private ResponseEntity<?> getJwtResponseEntity(Jwt jwt) {
+    private ResponseEntity<?> getJwtResponseEntity(Long userId, Jwt jwt) {
         ResponseCookie cookie = cookieUtil.createCookie(REFRESH_TOKEN.getValue(), jwt.refreshToken(), 60 * 60 * 24 * 7);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(ACCESS_TOKEN.getValue(), jwt.accessToken())
-                .body(SuccessResponse.noContent());
+                .body(SuccessResponse.from(Map.of("userId", userId)));
     }
 }
