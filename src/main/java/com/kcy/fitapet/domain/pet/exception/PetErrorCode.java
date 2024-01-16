@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum PetErrorCode implements StatusCode {
+    /* 403 FORBIDDEN */
     NOT_MANAGER_PET(HttpStatus.FORBIDDEN, "관리자 자격이 없는 반려 동물에 대한 요청");
 
     private final HttpStatus httpStatus;

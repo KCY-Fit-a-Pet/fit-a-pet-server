@@ -48,4 +48,11 @@ public class PetManageService {
 
         return careSearchService.checkCategoryExist(categoryName, petIds);
     }
+
+    @Transactional(readOnly = true)
+    public PetInfoRes getPets(Long userId) {
+        List<Manager> managers = memberSearchService.findAllManagerByMemberId(userId);
+        List<Pet> pets = managers.stream().map(Manager::getPet).toList();
+        return PetInfoRes.ofPetInfo(pets);
+    }
 }

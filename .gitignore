@@ -39,3 +39,4 @@ out/
 
 ### test ###
 src/main/java/com/kcy/fitapet/test/
+src/main/generated

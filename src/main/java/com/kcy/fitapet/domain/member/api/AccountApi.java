@@ -7,6 +7,7 @@ import com.kcy.fitapet.domain.member.dto.account.UidRes;
 import com.kcy.fitapet.domain.member.service.component.MemberAccountService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
+import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;

@@ -2,9 +2,11 @@ package com.kcy.fitapet.domain.member.dto.auth;
 
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.type.RoleType;
+import io.netty.util.internal.StringUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.util.StringUtils;
 
 @Schema(description = "회원가입 요청")
 public record SignUpReq(
@@ -24,9 +26,9 @@ public record SignUpReq(
                 .uid(uid)
                 .password(password)
                 .name(name)
-                .email(email)
+                .email(StringUtils.hasText(email) ? email : null)
                 .phone(phone)
-                .profileImg(profileImg)
+                .profileImg(StringUtils.hasText(profileImg) ? profileImg : null)
                 .accountLocked(Boolean.FALSE)
                 .role(RoleType.USER)
                 .build();
