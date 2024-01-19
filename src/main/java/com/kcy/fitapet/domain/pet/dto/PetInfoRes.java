@@ -9,6 +9,7 @@ import com.kcy.fitapet.global.common.util.bind.Dto;
 import lombok.Getter;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class PetInfoRes {
             Long id,
             String petName,
             GenderType gender,
+            int age,
             String petProfileImage,
             String feed,
             List<Long> careIds
@@ -56,10 +58,28 @@ public class PetInfoRes {
                     pet.getId(),
                     pet.getPetName(),
                     pet.getGender(),
+                    getAmericanAge(pet.getBirthdate()),
                     StringUtils.hasText(pet.getPetProfileImg()) ? pet.getPetProfileImg() : "",
                     StringUtils.hasText(pet.getFeed()) ? pet.getFeed() : "",
                     pet.getCareCategories().stream().map(CareCategory::getId).toList()
             );
+        }
+
+        private static int getAmericanAge(LocalDate birthDate) {
+            LocalDate now = LocalDate.now();
+            int nowYear = now.getYear();
+            int nowMonth = now.getMonthValue();
+            int nowDay = now.getDayOfMonth();
+
+            int year = birthDate.getYear();
+            int month = birthDate.getMonthValue();
+            int day = birthDate.getDayOfMonth();
+
+            int age = nowYear - year;
+            if (month > nowMonth || (month == nowMonth && day > nowDay)) {
+                --age;
+            }
+            return age;
         }
     }
 }

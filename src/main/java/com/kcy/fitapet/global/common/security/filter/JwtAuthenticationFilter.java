@@ -47,7 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider accessTokenProvider;
 
-
     /**
      * JWT 인증 필터에서 무시할 URL 패턴 <br/>
      * ex. SMS 인증을 위한 jwt를 사용하는 경우
