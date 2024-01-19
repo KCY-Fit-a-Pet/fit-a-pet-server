@@ -18,6 +18,7 @@ on:
         branches: ['*']
         types: [created, edited]
     issue_comment:
+        branches: ['*']
         types: [created, edited]
 
 jobs:
