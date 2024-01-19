@@ -14,9 +14,7 @@ on:
         types: [created, edited]
     issue_comment:
         branches:
-          - main
-          - develop
-          - hotfix/*
+          - '*'
         types: [created, edited]
 
 jobs:
