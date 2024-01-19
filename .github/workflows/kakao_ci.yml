@@ -9,16 +9,14 @@ on:
     pull_request:
         types: [review_requested, opened, reopened, ready_for_review]
     pull_request_review:
-        branches: ['*']
         types: [submitted, edited]
-    pull_request_comment:
-        branches: ['*']
-        types: [created, edited]
     pull_request_review_comment:
-        branches: ['*']
         types: [created, edited]
     issue_comment:
-        branches: ['*']
+        branches:
+          - main
+          - develop
+          - hotfix/*
         types: [created, edited]
 
 jobs:
