@@ -6,10 +6,10 @@ on:
         branches: 
             - main
             - develop
-            - hotfix/*
     pull_request:
         types: [review_requested, opened, reopened, ready_for_review]
     pull_request_review:
+        branches: ['*']
         types: [submitted, edited]
     pull_request_review_comment:
         types: [created, edited]
