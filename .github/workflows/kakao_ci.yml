@@ -12,6 +12,7 @@ on:
         branches: ['*']
         types: [submitted, edited]
     pull_request_review_comment:
+        branches: ['*']
         types: [created, edited]
     issue_comment:
         types: [created, edited]
