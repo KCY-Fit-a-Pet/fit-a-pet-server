@@ -11,6 +11,9 @@ on:
     pull_request_review:
         branches: ['*']
         types: [submitted, edited]
+    pull_request_comment:
+        branches: ['*']
+        types: [created, edited]
     pull_request_review_comment:
         branches: ['*']
         types: [created, edited]
