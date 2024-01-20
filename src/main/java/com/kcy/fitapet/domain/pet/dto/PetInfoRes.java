@@ -50,8 +50,7 @@ public class PetInfoRes {
             GenderType gender,
             int age,
             String petProfileImage,
-            String feed,
-            List<Long> careIds
+            String feed
     ) {
         private static PetInfo from(Pet pet) {
             return new PetInfo(
@@ -60,8 +59,7 @@ public class PetInfoRes {
                     pet.getGender(),
                     getAmericanAge(pet.getBirthdate()),
                     StringUtils.hasText(pet.getPetProfileImg()) ? pet.getPetProfileImg() : "",
-                    StringUtils.hasText(pet.getFeed()) ? pet.getFeed() : "",
-                    pet.getCareCategories().stream().map(CareCategory::getId).toList()
+                    StringUtils.hasText(pet.getFeed()) ? pet.getFeed() : ""
             );
         }
 
