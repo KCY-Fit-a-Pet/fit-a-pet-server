@@ -12,6 +12,10 @@ on:
         types: [submitted, edited]
     pull_request_review_comment:
         types: [created, edited]
+    issue_comment:
+        branches:
+          - '*'
+        types: [created, edited]
 
 jobs:
     build-and-notify:
@@ -22,6 +26,8 @@ jobs:
 
             - name: Setup Chrome
               uses: browser-actions/setup-chrome@v1
+              run: |
+                ${{ steps.setup-chrome.outputs.chrome-path }} --version
 
             - name: Determine event type and trigger action at Windows
               if: runner.os == 'Windows'
