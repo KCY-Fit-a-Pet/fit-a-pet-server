@@ -31,4 +31,13 @@ public class DateTimeTest {
         // then
         System.out.println("age = " + age);
     }
+
+    @Test
+    public void testLocalDateTimeAddInteger() {
+        LocalDateTime now = LocalDateTime.now();
+        Integer notifyTime = 30;
+
+        LocalDateTime notifyDateTime = now.plusMinutes(notifyTime);
+        System.out.println("notifyDateTime = " + notifyDateTime);
+    }
 }

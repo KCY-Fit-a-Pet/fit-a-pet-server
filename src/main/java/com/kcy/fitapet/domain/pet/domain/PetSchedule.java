@@ -22,4 +22,27 @@ public class PetSchedule extends DateAuditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
+
+    public void updatePet(Pet pet) {
+        if (this.pet != null) {
+            this.pet.getSchedules().remove(this);
+        }
+
+        this.pet = pet;
+        pet.getSchedules().add(this);
+    }
+
+    public void updateSchedule(Schedule schedule) {
+        if (this.schedule != null) {
+            this.schedule.getPets().remove(this);
+        }
+
+        this.schedule = schedule;
+        schedule.getPets().add(this);
+    }
+
+    public void mappingPetAndSchedule(Pet pet, Schedule schedule) {
+        updatePet(pet);
+        updateSchedule(schedule);
+    }
 }
