@@ -17,13 +17,10 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class CareLogQueryRepositoryImpl implements CareLogQueryRepository {
     private final JPAQueryFactory queryFactory;
-    private QCareLog careLog = QCareLog.careLog;
+    private final QCareLog careLog = QCareLog.careLog;
 
     @Override
     public boolean existsByCareDateIdAndLogDate(Long careDateId, LocalDateTime logDate) {
-        log.info("start: {}", Expressions.asDateTime(logDate.withHour(0).withMinute(0).withSecond(0)));
-        log.info("end: {}", Expressions.asDateTime(logDate.withHour(23).withMinute(59).withSecond(59)));
-
         return queryFactory.selectFrom(careLog)
                 .where(careLog.careDate.id.eq(careDateId)
                         .and(careLog.logDate.between(

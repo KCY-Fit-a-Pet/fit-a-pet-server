@@ -34,7 +34,7 @@ public class ScheduleApi {
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
-    @Operation(summary = "pet_id에 속하는 반려동물 스케줄 조회")
+    @Operation(summary = "pet_id에 속하는 반려동물 스케줄 조회", description = "count가 null이면 전체 조회, null이 아니면 현재 날짜&시간 이후 count 만큼 조회")
     @GetMapping("/pets/{pet_id}/schedules")
     @PreAuthorize("isAuthenticated() and #userId == principal.id and managerAuthorize.isManager(#userId, #petId)")
     public ResponseEntity<?> getPetSchedules(
