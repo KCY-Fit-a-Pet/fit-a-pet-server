@@ -1,5 +1,8 @@
 package com.kcy.fitapet.domain.schedule.service.component;
 
+import com.kcy.fitapet.domain.pet.domain.Pet;
+import com.kcy.fitapet.domain.pet.service.module.PetSaveService;
+import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
 import com.kcy.fitapet.domain.schedule.domain.Schedule;
 import com.kcy.fitapet.domain.schedule.dto.ScheduleSaveDto;
 import com.kcy.fitapet.domain.schedule.service.module.ScheduleSaveService;
@@ -16,7 +19,8 @@ import java.util.List;
 public class ScheduleManageService {
     private final ScheduleSearchService scheduleSearchService;
     private final ScheduleSaveService scheduleSaveService;
-    private final PetScheduleSaveService petScheduleSaveService;
+    private final PetSearchService petSearchService;
+    private final PetSaveService petSaveService;
 
     public void saveSchedule(Long petId, ScheduleSaveDto.Request request) {
         Schedule schedule = scheduleSaveService.saveSchedule(request.toEntity());
@@ -25,6 +29,7 @@ public class ScheduleManageService {
         if (!petIds.contains(petId))
             petIds.add(petId);
 
-        petScheduleSaveService.mappingAllPetAndSchedule(petIds, schedule);
+        List<Pet> pets = petSearchService.findPetsByIds(petIds);
+        petSaveService.mappingAllPetAndSchedule(pets, schedule);
     }
 }

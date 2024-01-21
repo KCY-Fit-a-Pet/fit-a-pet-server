@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "PET_SCHEDULE")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
 public class PetSchedule extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,18 @@ public class PetSchedule extends DateAuditable {
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
-    public void updatePet(Pet pet) {
+    public static PetSchedule of(Pet pet, Schedule schedule) {
+        PetSchedule petSchedule = new PetSchedule();
+        petSchedule.mappingPetAndSchedule(pet, schedule);
+        return petSchedule;
+    }
+
+    public void mappingPetAndSchedule(Pet pet, Schedule schedule) {
+        updatePet(pet);
+        updateSchedule(schedule);
+    }
+
+    private void updatePet(Pet pet) {
         if (this.pet != null) {
             this.pet.getSchedules().remove(this);
         }
@@ -39,10 +50,5 @@ public class PetSchedule extends DateAuditable {
 
         this.schedule = schedule;
         schedule.getPets().add(this);
-    }
-
-    public void mappingPetAndSchedule(Pet pet, Schedule schedule) {
-        updatePet(pet);
-        updateSchedule(schedule);
     }
 }
