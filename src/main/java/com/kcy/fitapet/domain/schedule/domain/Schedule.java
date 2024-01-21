@@ -17,8 +17,7 @@ import java.util.List;
 @Getter
 @Table(name = "SCHEDULE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DynamicInsert
-@ToString(of = {"scheduleName", "location", "reservationDt", "notifyDt", "isDone"})
+@ToString(of = {"scheduleName", "location", "reservationDt", "notifyDt"})
 public class Schedule extends AuthorAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,9 +33,6 @@ public class Schedule extends AuthorAuditable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "notify_dt")
     private LocalDateTime notifyDt;
-
-    @Column(name = "is_done") @ColumnDefault("false")
-    private boolean isDone = false;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
     private List<PetSchedule> pets = new ArrayList<>();
@@ -56,9 +52,5 @@ public class Schedule extends AuthorAuditable {
                 .reservationDt(reservationDt)
                 .notifyDt(notifyDt)
                 .build();
-    }
-
-    public void updateState() {
-        this.isDone = !this.isDone;
     }
 }
