@@ -10,6 +10,7 @@ import com.kcy.fitapet.domain.schedule.service.module.ScheduleSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class ScheduleManageService {
     private final PetSearchService petSearchService;
     private final PetSaveService petSaveService;
 
+    @Transactional
     public void saveSchedule(Long petId, ScheduleSaveDto.Request request) {
         Schedule schedule = scheduleSaveService.saveSchedule(request.toEntity());
 
@@ -32,4 +34,7 @@ public class ScheduleManageService {
         List<Pet> pets = petSearchService.findPetsByIds(petIds);
         petSaveService.mappingAllPetAndSchedule(pets, schedule);
     }
+
+//    @Transactional
+//    public void
 }
