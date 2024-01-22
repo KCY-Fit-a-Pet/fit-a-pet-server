@@ -56,7 +56,7 @@ public class ScheduleApi {
             @RequestParam(value = "day") Integer day
     ) {
         LocalDateTime date = LocalDate.of(year, month, day).atStartOfDay();
-        return ResponseEntity.ok(SuccessResponse.from(scheduleManageService.findCalendarSchedules(userId, date)));
+        return ResponseEntity.ok(SuccessResponse.from(scheduleManageService.findPetSchedules(userId, date)));
     }
 
 

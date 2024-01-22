@@ -56,13 +56,14 @@ public class ScheduleManageService {
     }
 
     @Transactional(readOnly = true)
-    public ScheduleInfoDto findCalendarSchedules(Long userId, LocalDateTime date) {
+    public ScheduleInfoDto findPetSchedules(Long userId, LocalDateTime date) {
         // 1. user가 관리하는 반려동물 목록 조회
-        List<Manager> managers = memberSearchService.findAllManagerByMemberId(userId);
-        List<Pet> pets = managers.stream().map(Manager::getPet).toList();
+        List<Pet> pets = memberSearchService.findAllManagerByMemberId(userId)
+                .stream().map(Manager::getPet).toList();
+        List<Long> petIds = pets.stream().map(Pet::getId).toList();
 
         // 2. 반려동물 목록에 해당하는 스케줄 조회
-
-        return null;
+        List<ScheduleInfoDto.ScheduleInfo> scheduleInfo = scheduleSearchService.findSchedulesByCalender(userId, date, petIds);
+        return ScheduleInfoDto.of(scheduleInfo);
     }
 }
