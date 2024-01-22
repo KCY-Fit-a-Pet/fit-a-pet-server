@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Tag(name = "스케줄 API", description = "반려동물 일정 관리 API")
 @Slf4j
@@ -24,7 +25,7 @@ public class ScheduleApi {
 
     @Operation(summary = "스케줄 등록")
     @PostMapping("/pets/{pet_id}/schedules")
-    @PreAuthorize("isAuthenticated() and #userId == principal.id and managerAuthorize.isManager(#userId, #petId)")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId and @managerAuthorize.isManager(#userId, #petId)")
     public ResponseEntity<?> saveSchedule(
             @PathVariable("user_id") Long userId,
             @PathVariable("pet_id") Long petId,
@@ -36,7 +37,7 @@ public class ScheduleApi {
 
     @Operation(summary = "pet_id에 속하는 반려동물 스케줄 조회", description = "count가 null이면 전체 조회, null이 아니면 현재 날짜&시간 이후 count 만큼 조회")
     @GetMapping("/pets/{pet_id}/schedules")
-    @PreAuthorize("isAuthenticated() and #userId == principal.id and managerAuthorize.isManager(#userId, #petId)")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId and @managerAuthorize.isManager(#userId, #petId)")
     public ResponseEntity<?> getPetSchedules(
             @PathVariable("user_id") Long userId,
             @PathVariable("pet_id") Long petId,
@@ -47,14 +48,14 @@ public class ScheduleApi {
 
     @Operation(summary = "관리 중인 반려동물 날짜별 스케줄 전체 조회")
     @GetMapping("/schedules")
-    @PreAuthorize("isAuthenticated() and #userId == principal.id")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
     public ResponseEntity<?> getCalendarSchedules(
             @PathVariable("user_id") Long userId,
             @RequestParam(value = "year") Integer year,
             @RequestParam(value = "month") Integer month,
             @RequestParam(value = "day") Integer day
     ) {
-        LocalDate date = LocalDate.of(year, month, day);
+        LocalDateTime date = LocalDate.of(year, month, day).atStartOfDay();
         return ResponseEntity.ok(SuccessResponse.from(scheduleManageService.findCalendarSchedules(userId, date)));
     }
 

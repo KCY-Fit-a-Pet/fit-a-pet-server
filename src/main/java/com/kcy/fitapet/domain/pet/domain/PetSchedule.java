@@ -6,12 +6,17 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "PET_SCHEDULE")
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
-public class PetSchedule extends DateAuditable {
+@EntityListeners(AuditingEntityListener.class)
+public class PetSchedule {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -22,6 +27,10 @@ public class PetSchedule extends DateAuditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
+
+    @CreatedDate
+    @Column(name = "joined_at", nullable = false, updatable = false)
+    private LocalDateTime joinedAt;
 
     public static PetSchedule of(Pet pet, Schedule schedule) {
         PetSchedule petSchedule = new PetSchedule();

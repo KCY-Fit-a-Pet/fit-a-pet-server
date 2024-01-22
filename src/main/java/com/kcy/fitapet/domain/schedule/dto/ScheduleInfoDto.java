@@ -2,6 +2,7 @@ package com.kcy.fitapet.domain.schedule.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.kcy.fitapet.domain.pet.domain.Pet;
@@ -27,6 +28,7 @@ public class ScheduleInfoDto {
             String location,
             @JsonSerialize(using = LocalTimeSerializer.class)
             @JsonFormat(pattern = "HH:mm:ss")
+            @JsonProperty("reservationDate")
             LocalDateTime reservationDate,
             @JsonInclude(JsonInclude.Include.NON_EMPTY)
             List<ParticipantPetInfo> pets
@@ -45,7 +47,7 @@ public class ScheduleInfoDto {
         }
     }
 
-    private record ParticipantPetInfo(
+    public record ParticipantPetInfo(
             Long petId,
             String petProfileImage
     ) {
