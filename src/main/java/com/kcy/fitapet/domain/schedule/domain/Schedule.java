@@ -5,20 +5,19 @@ import com.kcy.fitapet.domain.model.AuthorAuditable;
 import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.domain.PetSchedule;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
 @Table(name = "SCHEDULE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(of = {"scheduleName", "location", "reservationDt", "notifyDt", "isDone"})
+@ToString(of = {"scheduleName", "location", "reservationDt", "notifyDt"})
 public class Schedule extends AuthorAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,28 +34,23 @@ public class Schedule extends AuthorAuditable {
     @Column(name = "notify_dt")
     private LocalDateTime notifyDt;
 
-    @Column(name = "is_done") @ColumnDefault("false")
-    private boolean isDone;
-
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
     private List<PetSchedule> pets = new ArrayList<>();
 
     @Builder
-    private Schedule(String scheduleName, String location, LocalDateTime reservationDt, LocalDateTime notifyDt, boolean isDone) {
+    private Schedule(String scheduleName, String location, LocalDateTime reservationDt, LocalDateTime notifyDt) {
         this.scheduleName = scheduleName;
         this.location = location;
         this.reservationDt = reservationDt;
         this.notifyDt = notifyDt;
-        this.isDone = isDone;
     }
 
-    public static Schedule of(String scheduleName, String location, LocalDateTime reservationDt, LocalDateTime notifyDt, boolean isDone) {
+    public static Schedule of(String scheduleName, String location, LocalDateTime reservationDt, LocalDateTime notifyDt) {
         return Schedule.builder()
                 .scheduleName(scheduleName)
                 .location(location)
                 .reservationDt(reservationDt)
                 .notifyDt(notifyDt)
-                .isDone(isDone)
                 .build();
     }
 }

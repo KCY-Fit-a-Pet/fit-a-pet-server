@@ -1,22 +1,18 @@
 package com.kcy.fitapet.domain.care.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.kcy.fitapet.domain.care.domain.Care;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.care.domain.CareDate;
-import com.kcy.fitapet.domain.care.exception.CareErrorCode;
 import com.kcy.fitapet.domain.care.type.WeekType;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 

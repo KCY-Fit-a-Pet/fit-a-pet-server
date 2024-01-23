@@ -174,8 +174,8 @@ oauth2:
         client-name: Google
       apple:
         jwks-uri: ${APPLE_JWKS_URI}
-        client-id: "client-id"
-        client-secret: "client-secret"
+        client-id: ${APPLE_CLIENT_ID}
+        client-secret: ${APPLE_CLIENT_SECRET}
         client-name: Apple
 
 springdoc:
