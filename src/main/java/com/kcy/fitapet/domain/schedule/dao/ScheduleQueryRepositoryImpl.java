@@ -1,5 +1,6 @@
 package com.kcy.fitapet.domain.schedule.dao;
 
+import com.kcy.fitapet.domain.pet.domain.QPet;
 import com.kcy.fitapet.domain.pet.domain.QPetSchedule;
 import com.kcy.fitapet.domain.schedule.domain.QSchedule;
 import com.kcy.fitapet.domain.schedule.domain.Schedule;
@@ -24,6 +25,7 @@ public class ScheduleQueryRepositoryImpl implements ScheduleQueryRepository {
     private final JPAQueryFactory queryFactory;
     private final QSchedule schedule = QSchedule.schedule;
     private final QPetSchedule petSchedule = QPetSchedule.petSchedule;
+    private final QPet pet = QPet.pet;
 
     @Override
     public List<Schedule> findTopCountScheduleByIdOnDate(Long id, LocalDateTime scheduleDate, Integer count) {
@@ -39,11 +41,12 @@ public class ScheduleQueryRepositoryImpl implements ScheduleQueryRepository {
     }
 
     @Override
-    public List<ScheduleInfoDto.ScheduleQueryDslRes> findSchedulesByCalender(LocalDateTime date, List<Long> petIds) {
+    public List<ScheduleInfoDto.ScheduleInfo> findSchedulesByCalender(LocalDateTime date, List<Long> petIds) {
         return queryFactory
-                .select(schedule.id, schedule.scheduleName, schedule.location, schedule.reservationDt, petSchedule.pet.id)
-                .from(schedule)
-                .leftJoin(petSchedule).on(schedule.id.eq(petSchedule.schedule.id))
+                .select(schedule.id, schedule.scheduleName, schedule.location, schedule.reservationDt, pet.id)
+                .from(petSchedule)
+                .leftJoin(schedule).on(schedule.id.eq(petSchedule.schedule.id))
+                .leftJoin(petSchedule.pet).on(pet.id.in(petIds))
                 .where(
                         petSchedule.pet.id.in(petIds)
                                 .and(schedule.reservationDt.between(
@@ -55,20 +58,17 @@ public class ScheduleQueryRepositoryImpl implements ScheduleQueryRepository {
                 .transform(
                     groupBy(schedule.id).list(
                         Projections.constructor(
-                            ScheduleInfoDto.ScheduleQueryDslRes.class,
+                            ScheduleInfoDto.ScheduleInfo.class,
                             schedule.id,
                             schedule.scheduleName,
                             schedule.location,
                             schedule.reservationDt,
-//                            list(
-//                                    Projections.constructor(
-//                                            ScheduleInfoDto.ParticipantPetInfo.class,
-//                                            petSchedule.pet.id,
-//                                            petSchedule.pet.petProfileImg
-//                                    )
-//                            )
                             list(
-                                petSchedule.pet.id
+                                    Projections.constructor(
+                                            ScheduleInfoDto.ParticipantPetInfo.class,
+                                            pet.id,
+                                            pet.petProfileImg
+                                    )
                             )
                         )
                     )

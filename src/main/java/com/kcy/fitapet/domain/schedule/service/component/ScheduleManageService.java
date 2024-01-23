@@ -63,10 +63,6 @@ public class ScheduleManageService {
         List<Long> petIds = pets.stream().map(Pet::getId).toList();
 
         // 2. 반려동물 목록에 해당하는 스케줄 조회
-//        List<ScheduleInfoDto.ScheduleQueryDslRes> queryDslRes = scheduleSearchService.findSchedulesByCalender(date, petIds);
-//        List<ScheduleInfoDto.ScheduleInfo> scheduleInfo = queryDslRes.stream()
-//                .map(schedule -> ScheduleInfoDto.ScheduleInfo.valueOf(schedule, pets)).toList();
-//        return ScheduleInfoDto.of(scheduleInfo);
         List<ScheduleInfoDto.ScheduleInfo> scheduleInfo = scheduleSearchService.findSchedulesByCalender(date, petIds);
         return ScheduleInfoDto.of(scheduleInfo);
     }

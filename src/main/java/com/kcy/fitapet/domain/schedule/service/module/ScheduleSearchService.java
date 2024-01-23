@@ -38,7 +38,7 @@ public class ScheduleSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleInfoDto.ScheduleQueryDslRes> findSchedulesByCalender(
+    public List<ScheduleInfoDto.ScheduleInfo> findSchedulesByCalender(
             LocalDateTime date,
             List<Long> petIds
     ) {

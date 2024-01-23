@@ -9,5 +9,5 @@ import java.util.List;
 public interface ScheduleQueryRepository {
     List<Schedule> findTopCountScheduleByIdOnDate(Long id, LocalDateTime scheduleDate, Integer count);
 
-    List<ScheduleInfoDto.ScheduleQueryDslRes> findSchedulesByCalender(LocalDateTime date, List<Long> petIds);
+    List<ScheduleInfoDto.ScheduleInfo> findSchedulesByCalender(LocalDateTime date, List<Long> petIds);
 }
