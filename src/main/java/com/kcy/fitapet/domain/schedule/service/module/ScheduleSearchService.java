@@ -20,8 +20,8 @@ public class ScheduleSearchService {
     private final ScheduleQueryRepository scheduleQueryRepository;
 
     @Transactional(readOnly = true)
-    public List<Schedule> findSchedules(Long petId) {
-        return scheduleRepository.findAllById(petId);
+    public List<Schedule> findScheduleByPetIdOnDate(Long petId, LocalDateTime date) {
+        return scheduleQueryRepository.findScheduleByPetIdOnDate(petId, date);
     }
 
     /**
@@ -33,8 +33,8 @@ public class ScheduleSearchService {
      */
     // TODO: 현재 시간까지 고려
     @Transactional(readOnly = true)
-    public List<Schedule> findSchedules(Long petId, LocalDateTime scheduleDate, Integer count) {
-        return scheduleQueryRepository.findTopCountScheduleByIdOnDate(petId, scheduleDate, count);
+    public List<Schedule> findSchedulesAfterNowOnDay(Long petId, LocalDateTime scheduleDate, Integer count) {
+        return scheduleQueryRepository.findTopCountSchedulesByIdOnDate(petId, scheduleDate, count);
     }
 
     @Transactional(readOnly = true)

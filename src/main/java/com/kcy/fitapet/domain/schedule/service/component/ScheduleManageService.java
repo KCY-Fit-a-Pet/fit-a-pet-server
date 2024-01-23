@@ -47,8 +47,8 @@ public class ScheduleManageService {
         LocalDateTime now = LocalDateTime.now();
 
         List<Schedule> schedules = (count != null)
-                ? scheduleSearchService.findSchedules(petId, now, count)
-                : scheduleSearchService.findSchedules(petId);
+                ? scheduleSearchService.findSchedulesAfterNowOnDay(petId, now, count)
+                : scheduleSearchService.findScheduleByPetIdOnDate(petId, now);
 
         List<ScheduleInfoDto.ScheduleInfo> scheduleInfo = schedules.stream()
                 .map(schedule -> ScheduleInfoDto.ScheduleInfo.from(schedule, new ArrayList<>())).toList();
@@ -57,12 +57,10 @@ public class ScheduleManageService {
 
     @Transactional(readOnly = true)
     public ScheduleInfoDto findPetSchedules(Long userId, LocalDateTime date) {
-        // 1. user가 관리하는 반려동물 목록 조회
         List<Pet> pets = memberSearchService.findAllManagerByMemberId(userId)
                 .stream().map(Manager::getPet).toList();
         List<Long> petIds = pets.stream().map(Pet::getId).toList();
 
-        // 2. 반려동물 목록에 해당하는 스케줄 조회
         List<ScheduleInfoDto.ScheduleInfo> scheduleInfo = scheduleSearchService.findSchedulesByCalender(date, petIds);
         return ScheduleInfoDto.of(scheduleInfo);
     }

@@ -28,11 +28,24 @@ public class ScheduleQueryRepositoryImpl implements ScheduleQueryRepository {
     private final QPet pet = QPet.pet;
 
     @Override
-    public List<Schedule> findTopCountScheduleByIdOnDate(Long id, LocalDateTime scheduleDate, Integer count) {
+    public List<Schedule> findScheduleByPetIdOnDate(Long petId, LocalDateTime date) {
         return queryFactory.selectFrom(schedule)
-                .where(schedule.id.eq(id)
+                .innerJoin(petSchedule).on(schedule.id.eq(petSchedule.schedule.id))
+                .where(petSchedule.pet.id.eq(petId)
                         .and(schedule.reservationDt.between(
-                                Expressions.asDateTime(scheduleDate.withHour(0).withMinute(0).withSecond(0)),
+                                Expressions.asDateTime(date.withHour(0).withMinute(0).withSecond(0)),
+                                Expressions.asDateTime(date.withHour(23).withMinute(59).withSecond(59))
+                        )))
+                .orderBy(schedule.reservationDt.asc()).fetch();
+    }
+
+    @Override
+    public List<Schedule> findTopCountSchedulesByIdOnDate(Long petId, LocalDateTime scheduleDate, Integer count) {
+        return queryFactory.selectFrom(schedule)
+                .innerJoin(petSchedule).on(schedule.id.eq(petSchedule.schedule.id))
+                .where(petSchedule.pet.id.eq(petId)
+                        .and(schedule.reservationDt.between(
+                                Expressions.asDateTime(scheduleDate),
                                 Expressions.asDateTime(scheduleDate.withHour(23).withMinute(59).withSecond(59))
                         )))
                 .orderBy(schedule.reservationDt.asc())
@@ -45,8 +58,8 @@ public class ScheduleQueryRepositoryImpl implements ScheduleQueryRepository {
         return queryFactory
                 .select(schedule.id, schedule.scheduleName, schedule.location, schedule.reservationDt, pet.id)
                 .from(petSchedule)
-                .leftJoin(schedule).on(schedule.id.eq(petSchedule.schedule.id))
-                .leftJoin(petSchedule.pet).on(pet.id.in(petIds))
+                .innerJoin(schedule).on(schedule.id.eq(petSchedule.schedule.id))
+                .innerJoin(petSchedule.pet).on(pet.id.in(petIds))
                 .where(
                         petSchedule.pet.id.in(petIds)
                                 .and(schedule.reservationDt.between(
