@@ -38,11 +38,10 @@ public class ScheduleSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleInfoDto.ScheduleInfo> findSchedulesByCalender(
-            Long userId,
+    public List<ScheduleInfoDto.ScheduleQueryDslRes> findSchedulesByCalender(
             LocalDateTime date,
             List<Long> petIds
     ) {
-        return scheduleQueryRepository.findSchedulesByCalender(userId, date, petIds);
+        return scheduleQueryRepository.findSchedulesByCalender(date, petIds);
     }
 }

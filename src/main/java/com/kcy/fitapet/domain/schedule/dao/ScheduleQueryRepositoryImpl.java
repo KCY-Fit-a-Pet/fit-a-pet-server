@@ -39,8 +39,9 @@ public class ScheduleQueryRepositoryImpl implements ScheduleQueryRepository {
     }
 
     @Override
-    public List<ScheduleInfoDto.ScheduleInfo> findSchedulesByCalender(Long userId, LocalDateTime date, List<Long> petIds) {
+    public List<ScheduleInfoDto.ScheduleQueryDslRes> findSchedulesByCalender(LocalDateTime date, List<Long> petIds) {
         return queryFactory
+                .select(schedule.id, schedule.scheduleName, schedule.location, schedule.reservationDt, petSchedule.pet.id)
                 .from(schedule)
                 .leftJoin(petSchedule).on(schedule.id.eq(petSchedule.schedule.id))
                 .where(
@@ -50,21 +51,25 @@ public class ScheduleQueryRepositoryImpl implements ScheduleQueryRepository {
                                         Expressions.asDateTime(date.withHour(23).withMinute(59).withSecond(59))
                                 ))
                 )
+                .orderBy(schedule.reservationDt.asc())
                 .transform(
                     groupBy(schedule.id).list(
                         Projections.constructor(
-                            ScheduleInfoDto.ScheduleInfo.class,
+                            ScheduleInfoDto.ScheduleQueryDslRes.class,
                             schedule.id,
                             schedule.scheduleName,
                             schedule.location,
                             schedule.reservationDt,
+//                            list(
+//                                    Projections.constructor(
+//                                            ScheduleInfoDto.ParticipantPetInfo.class,
+//                                            petSchedule.pet.id,
+//                                            petSchedule.pet.petProfileImg
+//                                    )
+//                            )
                             list(
-                                Projections.constructor(
-                                    ScheduleInfoDto.ParticipantPetInfo.class,
-                                    petSchedule.pet.id,
-                                    petSchedule.pet.petProfileImg
-                                )
-                            ).as("pets")
+                                petSchedule.pet.id
+                            )
                         )
                     )
                 );
