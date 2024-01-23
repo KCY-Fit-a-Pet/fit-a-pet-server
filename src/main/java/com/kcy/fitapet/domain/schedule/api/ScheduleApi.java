@@ -43,7 +43,7 @@ public class ScheduleApi {
             @PathVariable("pet_id") Long petId,
             @RequestParam(value = "count", required = false) Integer count
     ) {
-        return ResponseEntity.ok(SuccessResponse.from(scheduleManageService.findPetSchedules(petId, count)));
+        return ResponseEntity.ok(SuccessResponse.from("schedules", scheduleManageService.findPetSchedules(petId, count).getSchedules()));
     }
 
     @Operation(summary = "관리 중인 반려동물 날짜별 스케줄 전체 조회")
@@ -57,8 +57,6 @@ public class ScheduleApi {
     ) {
         LocalDateTime date = LocalDate.of(year, month, day).atStartOfDay();
         log.info("date: {}", date);
-        return ResponseEntity.ok(SuccessResponse.from(scheduleManageService.findPetSchedules(userId, date)));
+        return ResponseEntity.ok(SuccessResponse.from("schedules", scheduleManageService.findPetSchedules(userId, date).getSchedules()));
     }
-
-
 }

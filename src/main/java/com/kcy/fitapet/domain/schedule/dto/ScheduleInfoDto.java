@@ -8,9 +8,11 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.schedule.domain.Schedule;
 import lombok.Getter;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class ScheduleInfoDto {
@@ -89,6 +91,11 @@ public class ScheduleInfoDto {
             Long petId,
             String petProfileImage
     ) {
+        public ParticipantPetInfo(Long petId, String petProfileImage) {
+            this.petId = petId;
+            this.petProfileImage = Objects.toString(petProfileImage, "");
+        }
+
         public static ParticipantPetInfo from(Pet pet) {
             return new ParticipantPetInfo(
                     pet.getId(),
@@ -96,6 +103,4 @@ public class ScheduleInfoDto {
             );
         }
     }
-
-
 }
