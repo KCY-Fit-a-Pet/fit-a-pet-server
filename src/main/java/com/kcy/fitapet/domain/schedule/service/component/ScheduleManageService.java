@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -43,16 +43,13 @@ public class ScheduleManageService {
     }
 
     @Transactional(readOnly = true)
-    public ScheduleInfoDto findPetSchedules(Long petId, Integer count) {
-        LocalDateTime now = LocalDateTime.now();
+    public ScheduleInfoDto findPetSchedules(Long petId, int count) {
+        LocalDateTime now = (count != -1) ? LocalDateTime.now() : LocalDate.now().atStartOfDay();
 
-        List<Schedule> schedules = (count != null)
-                ? scheduleSearchService.findSchedulesAfterNowOnDay(petId, now, count)
-                : scheduleSearchService.findScheduleByPetIdOnDate(petId, now);
+        List<Long> scheduleIds = scheduleSearchService.findScheduleIdsByPetIdAfterDateTime(petId, now, count);
+        log.info("scheduleIds: {}", scheduleIds);
 
-        List<ScheduleInfoDto.ScheduleInfo> scheduleInfo = schedules.stream()
-                .map(schedule -> ScheduleInfoDto.ScheduleInfo.from(schedule, new ArrayList<>())).toList();
-        return ScheduleInfoDto.of(scheduleInfo);
+        return ScheduleInfoDto.of(scheduleSearchService.findTopCountSchedulesByIds(scheduleIds));
     }
 
     @Transactional(readOnly = true)
