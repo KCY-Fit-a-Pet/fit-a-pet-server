@@ -73,7 +73,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           username: ${{ secrets.SSH_USERNAME }}
           script: |
             ./start.sh
