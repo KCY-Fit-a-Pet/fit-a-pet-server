@@ -64,6 +64,7 @@ jobs:
       - name: Add Github Action Ip to Security group
         run: |
           cd ./cli_linux
+          chmod +x ./ncloud
           ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_NO }} --accessControlGroupNo ${{ secrets.NCP_AGC_NO }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.ipv4 }}', portRange='${{ secrets.SSH_PORT }}'"
         
       - name: deploy
@@ -80,4 +81,5 @@ jobs:
       - name: Remove Github Action Ip to Security group
         run: |
           cd ./cli_linux
+          chmod +x ./ncloud
           ./ncloud vserver removeAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_NO }} --accessControlGroupNo ${{ secrets.NCP_AGC_NO }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.ipv4 }}', portRange='${{ secrets.SSH_PORT }}'"
