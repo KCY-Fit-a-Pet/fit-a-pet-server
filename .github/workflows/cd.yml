@@ -38,7 +38,11 @@ jobs:
           cache: 'gradle'
 
       - name: Build Gradle
-        run: ./gradlew bootJar
+        run: |
+          chmod +x ./gradlew
+          ./gradlew -version
+          ./gradlew bootJar
+        shell: bash
 
       - name: docker image build & push
         run: |
