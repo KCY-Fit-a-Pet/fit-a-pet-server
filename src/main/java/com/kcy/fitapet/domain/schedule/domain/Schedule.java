@@ -22,13 +22,13 @@ public class Schedule extends AuthorAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "schedule_name")
-    private String scheduleName;
-    private String location;
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "reservation_dt")
     private LocalDateTime reservationDt;
+
+    @Column(name = "schedule_name")
+    private String scheduleName;
+    private String location;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "notify_dt")

@@ -41,7 +41,7 @@ public class ScheduleApi {
     public ResponseEntity<?> getPetSchedules(
             @PathVariable("user_id") Long userId,
             @PathVariable("pet_id") Long petId,
-            @RequestParam(value = "count", required = false) Integer count
+            @RequestParam(value = "count", required = false, defaultValue = "-1") int count
     ) {
         return ResponseEntity.ok(SuccessResponse.from("schedules", scheduleManageService.findPetSchedules(petId, count).getSchedules()));
     }
