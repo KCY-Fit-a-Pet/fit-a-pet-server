@@ -37,7 +37,6 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-
       - name: Build Gradle
         run: |
           chmod +x ./gradlew
@@ -59,8 +58,8 @@ jobs:
         run: |
           wget https://www.ncloud.com/api/support/download/5/65
           unzip 65
-          mkdir ./.ncloud
-          echo -e "ncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = ${{ secrets.NCP_API_URL }}" >> ./.ncloud/configure
+          mkdir ~/.ncloud
+          echo -e "ncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = ${{ secrets.NCP_API_URL }}" >> ~/.ncloud/configure
 
       - name: Add Github Action Ip to Security group
         run: |
