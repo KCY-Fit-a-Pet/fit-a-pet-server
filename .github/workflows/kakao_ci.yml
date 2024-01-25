@@ -1,4 +1,4 @@
-name: BE CI
+name: BE Kakao Chat CI
 run-name: Deploy by @${{ github.actor }} 
 
 on: 
