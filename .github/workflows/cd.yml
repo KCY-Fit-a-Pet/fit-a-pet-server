@@ -68,15 +68,26 @@ jobs:
           cd ~/cli_linux
           ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_NO }} --accessControlGroupNo ${{ secrets.NCP_AGC_NO }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.ipv4 }}/32', portRange='${{ secrets.SSH_PORT }}'"
         
+#      - name: deploy
+#        uses: appleboy/ssh-action@v0.1.6
+#        with:
+#          host: ${{ secrets.SSH_HOST }}
+#          port: ${{ secrets.SSH_PORT }}
+#          key: ${{ secrets.SSH_KEY }}
+#          username: ${{ secrets.SSH_USERNAME }}
+#          script: |
+#            ./start.sh
+
       - name: deploy
-        uses: appleboy/ssh-action@v0.1.6
+        uses: fifsky/ssh-action@master
         with:
+          command: |
+            whoami
+            ./start.sh
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
+          user: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          username: ${{ secrets.SSH_USERNAME }}
-          script: |
-            ./start.sh
       
       - name: Remove Github Action Ip to Security group
         run: |
