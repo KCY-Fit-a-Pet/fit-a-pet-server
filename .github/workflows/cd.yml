@@ -45,8 +45,21 @@ jobs:
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t ${{ secrets.DOCKER_NICKNAME }}/fitapet:latest .
           docker push ${{ secrets.DOCKER_NICKNAME }}/fitapet:latest  
-          
-      
+
+      - name: Get Github Actions IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+
+      - name: Setting NCP CLI & Credentials
+        run: |
+          wget https://www.ncloud.com/api/support/download/5/65
+          unzip 65
+          cd ./cli_linux
+          echo -e "ncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = ${{ secrets.NCP_API_URL }}" >> ~/.ncloud/configure
+
+      - name: Add Github Action Ip to Security group
+        run: |
+          ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_NO }} --accessControlGroupNo ${{ secrets.NCP_AGC_NO }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.ipv4 }}', portRange='${{ secrets.SSH_PORT }}'"
         
       - name: deploy
         uses: appleboy/ssh-action@0.1.5
@@ -58,3 +71,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             ./start.sh
+      
+      - name: Remove Github Action Ip to Security group
+        run: |
+          ./ncloud vserver removeAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_NO }} --accessControlGroupNo ${{ secrets.NCP_AGC_NO }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.ipv4 }}', portRange='${{ secrets.SSH_PORT }}'"
