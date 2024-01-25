@@ -60,9 +60,11 @@ jobs:
           unzip 65
           mkdir ~/.ncloud
           echo -e "ncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = ${{ secrets.NCP_API_URL }}" >> ~/.ncloud/configure
+          pwd
 
       - name: Add Github Action Ip to Security group
         run: |
+          pwd
           cd ~/cli_linux
           ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_NO }} --accessControlGroupNo ${{ secrets.NCP_AGC_NO }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.ipv4 }}', portRange='${{ secrets.SSH_PORT }}'"
         
