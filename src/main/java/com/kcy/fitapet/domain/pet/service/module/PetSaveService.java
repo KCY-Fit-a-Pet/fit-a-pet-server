@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.pet.service.module;
 
-import com.kcy.fitapet.domain.pet.dao.PetRepository;
-import com.kcy.fitapet.domain.pet.dao.PetScheduleRepository;
+import com.kcy.fitapet.domain.pet.dao.PetJpaRepository;
+import com.kcy.fitapet.domain.pet.dao.PetScheduleJpaRepository;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.pet.domain.PetSchedule;
 import com.kcy.fitapet.domain.schedule.domain.Schedule;
@@ -15,8 +15,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PetSaveService {
-    private final PetRepository petRepository;
-    private final PetScheduleRepository petScheduleRepository;
+    private final PetJpaRepository petRepository;
+    private final PetScheduleJpaRepository petScheduleRepository;
 
     @Transactional
     public Pet savePet(Pet pet) {;

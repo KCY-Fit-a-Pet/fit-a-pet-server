@@ -1,9 +1,7 @@
 package com.kcy.fitapet.domain.pet.service.module;
 
-import com.kcy.fitapet.domain.care.dao.CareCategoryRepository;
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
-import com.kcy.fitapet.domain.pet.dao.PetRepository;
+import com.kcy.fitapet.domain.care.dao.CareCategoryJpaRepository;
+import com.kcy.fitapet.domain.pet.dao.PetJpaRepository;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,8 +12,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PetSearchService {
-    private final PetRepository petRepository;
-    private final CareCategoryRepository careCategoryRepository;
+    private final PetJpaRepository petRepository;
+    private final CareCategoryJpaRepository careCategoryRepository;
 
     @Transactional(readOnly = true)
     public Pet findPetById(Long id) {

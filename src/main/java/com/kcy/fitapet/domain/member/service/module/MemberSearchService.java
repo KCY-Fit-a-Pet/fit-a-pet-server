@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.member.service.module;
 
-import com.kcy.fitapet.domain.member.dao.ManagerRepository;
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
+import com.kcy.fitapet.domain.member.dao.ManagerJpaRepository;
+import com.kcy.fitapet.domain.member.dao.MemberJpaRepository;
 import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
@@ -10,14 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MemberSearchService {
-    private final MemberRepository memberRepository;
-    private final ManagerRepository managerRepository;
+    private final MemberJpaRepository memberRepository;
+    private final ManagerJpaRepository managerRepository;
 
     @Transactional(readOnly = true)
     public Member findById(Long id) {

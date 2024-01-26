@@ -1,6 +1,6 @@
 package com.kcy.fitapet.global.common.security.authentication;
 
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
+import com.kcy.fitapet.domain.member.dao.MemberJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserDetailServiceImpl implements UserDetailsService {
-    private final MemberRepository userRepository;
+    private final MemberJpaRepository userRepository;
 
     @Override
     @Cacheable(value = "securityUser", key = "#userId", unless = "#result == null", cacheManager = "securityUserCacheManager")

@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.member.service.module;
 
-import com.kcy.fitapet.domain.member.dao.ManagerRepository;
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
+import com.kcy.fitapet.domain.member.dao.ManagerJpaRepository;
+import com.kcy.fitapet.domain.member.dao.MemberJpaRepository;
 import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.type.ManageType;
@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class MemberSaveService {
-    private final MemberRepository memberRepository;
-    private final ManagerRepository managerRepository;
+    private final MemberJpaRepository memberRepository;
+    private final ManagerJpaRepository managerRepository;
 
     @Transactional
     public Member saveMember(Member member) {

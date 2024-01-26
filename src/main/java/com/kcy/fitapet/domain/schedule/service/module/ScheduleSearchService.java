@@ -1,7 +1,6 @@
 package com.kcy.fitapet.domain.schedule.service.module;
 
-import com.kcy.fitapet.domain.schedule.dao.ScheduleQueryRepository;
-import com.kcy.fitapet.domain.schedule.dao.ScheduleRepository;
+import com.kcy.fitapet.domain.schedule.dao.ScheduleJpaRepository;
 import com.kcy.fitapet.domain.schedule.dto.ScheduleInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ScheduleSearchService {
-    private final ScheduleRepository scheduleRepository;
+    private final ScheduleJpaRepository scheduleRepository;
 
     /**
      * pet_id로 반려동물이 등록된 해당 날짜의 schedule_id 리스트 조회
