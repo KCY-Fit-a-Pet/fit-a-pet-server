@@ -30,16 +30,21 @@ public class MemoCategory extends DateAuditable {
     private List<MemoCategory> children = new ArrayList<>();
 
     @Builder
-    private MemoCategory(String categoryName, MemoCategory parent) {
+    private MemoCategory(String categoryName) {
         this.categoryName = categoryName;
-        this.parent = parent;
     }
 
-    public static MemoCategory of(String categoryName, MemoCategory parent) {
-        return MemoCategory.builder()
-                .categoryName(categoryName)
-                .parent(parent)
-                .build();
+    public static MemoCategory ofChildrenInstance(String categoryName, MemoCategory parent, Pet pet) {
+        MemoCategory category = MemoCategory.builder().categoryName(categoryName).build();
+        category.updatePet(pet);
+        category.updateParent(parent);
+        return category;
+    }
+
+    public static MemoCategory ofRootInstance(String categoryName, Pet pet) {
+        MemoCategory category = MemoCategory.builder().categoryName(categoryName).build();
+        category.updatePet(pet);
+        return category;
     }
 
     public void updatePet(Pet pet) {
