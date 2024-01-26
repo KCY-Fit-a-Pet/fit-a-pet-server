@@ -57,45 +57,71 @@ public class DefaultSearchQueryDslRepositoryImpl<T> implements DefaultSearchQuer
 
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     private JPAQuery<?> buildWithoutSelect(Predicate predicate, Map<String, Expression<?>> bindings, QueryHandler queryHandler, Sort sort) {
         JPAQuery<?> query = queryFactory.from(path);
 
-        if (predicate != null) query = query.where(predicate);
-        if (queryHandler != null) query = queryHandler.apply(query);
-        if (sort != null) {
-            if (sort instanceof QSort qSort) {
-                query = query.orderBy(qSort.getOrderSpecifiers().toArray(new OrderSpecifier[0]));
-            } else {
-                Function<Sort.NullHandling, OrderSpecifier.NullHandling> castToQueryDsl = nullHandling -> switch (nullHandling) {
-                    case NATIVE -> OrderSpecifier.NullHandling.Default;
-                    case NULLS_FIRST -> OrderSpecifier.NullHandling.NullsFirst;
-                    case NULLS_LAST -> OrderSpecifier.NullHandling.NullsLast;
-                };
-
-                for (Sort.Order order : sort) {
-                    OrderSpecifier.NullHandling queryDslNullHandling = castToQueryDsl.apply(order.getNullHandling());
-
-                    Order orderBy = order.isAscending() ? Order.ASC : Order.DESC;
-                    OrderSpecifier<?> os;
-
-                    if (bindings != null && bindings.containsKey(order.getProperty())) {
-                        Expression<?> expression = bindings.get(order.getProperty());
-
-                        if (expression instanceof Operation && ((Operation<?>) expression).getOperator() == Ops.ALIAS) {
-                            os = new OrderSpecifier<>(orderBy, Expressions.stringPath(((Operation<?>) expression).getArg(1).toString()), queryDslNullHandling);
-                        } else {
-                            os = new OrderSpecifier(orderBy, expression, queryDslNullHandling);
-                        }
-                    } else {
-                        os = new OrderSpecifier<>(orderBy, Expressions.stringPath(order.getProperty()), queryDslNullHandling);
-                    }
-
-                    query = query.orderBy(os);
-                }
-            }
-        }
+        applyPredicate(predicate, query);
+        applyQueryHandler(queryHandler, query);
+        applySort(query, sort, bindings);
 
         return query;
+    }
+
+    private void applyPredicate(Predicate predicate, JPAQuery<?> query) {
+        if (predicate != null) query.where(predicate);
+    }
+
+    private void applyQueryHandler(QueryHandler queryHandler, JPAQuery<?> query) {
+        if (queryHandler != null) queryHandler.apply(query);
+    }
+
+    private void applySort(JPAQuery<?> query, Sort sort, Map<String, Expression<?>> bindings) {
+        if (sort != null) {
+            if (sort instanceof QSort qSort) {
+                query.orderBy(qSort.getOrderSpecifiers().toArray(new OrderSpecifier[0]));
+            } else {
+                applySortOrders(query, sort, bindings);
+            }
+        }
+    }
+
+    private void applySortOrders(JPAQuery<?> query, Sort sort, Map<String, Expression<?>> bindings) {
+        for (Sort.Order order : sort) {
+            OrderSpecifier.NullHandling queryDslNullHandling = getQueryDslNullHandling(order);
+
+            OrderSpecifier<?> os = getOrderSpecifier(order, bindings, queryDslNullHandling);
+
+            query.orderBy(os);
+        }
+    }
+
+    private OrderSpecifier.NullHandling getQueryDslNullHandling(Sort.Order order) {
+        Function<Sort.NullHandling, OrderSpecifier.NullHandling> castToQueryDsl = nullHandling -> switch (nullHandling) {
+            case NATIVE -> OrderSpecifier.NullHandling.Default;
+            case NULLS_FIRST -> OrderSpecifier.NullHandling.NullsFirst;
+            case NULLS_LAST -> OrderSpecifier.NullHandling.NullsLast;
+        };
+
+        return castToQueryDsl.apply(order.getNullHandling());
+    }
+
+    private OrderSpecifier<?> getOrderSpecifier(Sort.Order order, Map<String, Expression<?>> bindings, OrderSpecifier.NullHandling queryDslNullHandling) {
+        Order orderBy = order.isAscending() ? Order.ASC : Order.DESC;
+
+        if (bindings != null && bindings.containsKey(order.getProperty())) {
+            Expression<?> expression = bindings.get(order.getProperty());
+            return createOrderSpecifier(orderBy, expression, queryDslNullHandling);
+        } else {
+            return createOrderSpecifier(orderBy, Expressions.stringPath(order.getProperty()), queryDslNullHandling);
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private OrderSpecifier<?> createOrderSpecifier(Order orderBy, Expression<?> expression, OrderSpecifier.NullHandling queryDslNullHandling) {
+        if (expression instanceof Operation && ((Operation<?>) expression).getOperator() == Ops.ALIAS) {
+            return new OrderSpecifier<>(orderBy, Expressions.stringPath(((Operation<?>) expression).getArg(1).toString()), queryDslNullHandling);
+        } else {
+            return new OrderSpecifier(orderBy, expression, queryDslNullHandling);
+        }
     }
 }
