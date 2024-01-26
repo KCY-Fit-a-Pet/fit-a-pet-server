@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
@@ -37,24 +38,36 @@ public class DefaultSearchQueryDslRepositoryImpl<T> implements DefaultSearchQuer
 
     @Override
     public List<T> findList(Predicate predicate, QueryHandler queryHandler, Sort sort) {
-        return null;
+        return this.buildWithoutSelect(predicate, null, queryHandler, sort).select(path).fetch();
     }
 
     @Override
     public Page<T> findPage(Predicate predicate, QueryHandler queryHandler, Pageable pageable) {
-        return null;
+        Assert.notNull(pageable, "pageable must not be null!");
+
+        JPAQuery<?> query = this.buildWithoutSelect(predicate, null, queryHandler, pageable.getSort()).select(path);
+
+        int totalSize = query.fetch().size();
+        query = query.offset(pageable.getOffset()).limit(pageable.getPageSize());
+
+        return new PageImpl<>(query.select(path).fetch(), pageable, totalSize);
     }
 
     @Override
     public <P> List<P> selectList(Predicate predicate, Class<P> type, Map<String, Expression<?>> bindings, QueryHandler queryHandler, Sort sort) {
-        return null;
+        return this.buildWithoutSelect(predicate, bindings, queryHandler, sort).select(Projections.bean(type, bindings)).fetch();
     }
 
     @Override
     public <P> Page<P> selectPage(Predicate predicate, Class<P> type, Map<String, Expression<?>> bindings, QueryHandler queryHandler, Pageable pageable) {
         Assert.notNull(pageable, "pageable must not be null!");
 
+        JPAQuery<?> query = this.buildWithoutSelect(predicate, bindings, queryHandler, pageable.getSort()).select(path);
 
+        int totalSize = query.fetch().size();
+        query = query.offset(pageable.getOffset()).limit(pageable.getPageSize());
+
+        return new PageImpl<>(query.select(Projections.bean(type, bindings)).fetch(), pageable, totalSize);
     }
 
     private JPAQuery<?> buildWithoutSelect(Predicate predicate, Map<String, Expression<?>> bindings, QueryHandler queryHandler, Sort sort) {

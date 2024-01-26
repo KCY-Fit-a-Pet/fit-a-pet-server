@@ -38,7 +38,6 @@ public class ExtendedJpaRepositoryImpl<T, ID extends Serializable>
     }
 
     // TODO: 2021-11-30. 이름에 의존적인 메서드 제거하고, 상태 패턴을 적용하여 의존도 낮추기
-    // TODO: [점검 사항] camelCase -> CAMEL_CASE로 변경이 되는지?
     private String getClassName() {
         Class<T> domainType = getDomainClass();
         return StringUtils.capitalize(domainType.getSimpleName())
