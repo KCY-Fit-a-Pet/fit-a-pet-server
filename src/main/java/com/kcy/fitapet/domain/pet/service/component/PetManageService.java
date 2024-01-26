@@ -31,6 +31,8 @@ public class PetManageService {
     public void savePet(Pet pet, Long memberId) {
         pet = petSaveService.savePet(pet);
 
+        // TODO : 반려동물 default 부모 카테고리 생성
+
         Member member = memberSearchService.findById(memberId);
         memberSaveService.mappingMemberAndPet(member, pet, ManageType.MASTER);
     }

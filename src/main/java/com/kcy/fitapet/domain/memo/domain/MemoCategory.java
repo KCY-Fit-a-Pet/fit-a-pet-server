@@ -1,16 +1,15 @@
 package com.kcy.fitapet.domain.memo.domain;
 
 import com.kcy.fitapet.domain.model.DateAuditable;
+import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
 @Table(name = "MEMO_CATEGORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"categoryName"})
@@ -20,6 +19,9 @@ public class MemoCategory extends DateAuditable {
     @Column(name = "category_name")
     private String categoryName;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pet_id")
+    private Pet pet;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private MemoCategory parent;
@@ -38,5 +40,21 @@ public class MemoCategory extends DateAuditable {
                 .categoryName(categoryName)
                 .parent(parent)
                 .build();
+    }
+
+    public void updatePet(Pet pet) {
+        if (this.pet != null)
+            this.pet.getMemoCategories().remove(this);
+
+        this.pet = pet;
+        pet.getMemoCategories().add(this);
+    }
+
+    public void updateParent(MemoCategory parent) {
+        if (this.parent != null)
+            this.parent.getChildren().remove(this);
+
+        this.parent = parent;
+        parent.getChildren().add(this);
     }
 }

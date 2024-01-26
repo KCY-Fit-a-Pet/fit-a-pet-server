@@ -5,6 +5,6 @@ import com.kcy.fitapet.global.common.repository.ExtendedRepository;
 
 import java.util.List;
 
-public interface ScheduleRepository extends ExtendedRepository<Schedule, Long> {
+public interface ScheduleRepository extends ExtendedRepository<Schedule, Long>, ScheduleQueryRepository {
     public List<Schedule> findAllById(Long id);
 }

@@ -3,6 +3,7 @@ package com.kcy.fitapet.domain.pet.domain;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.memo.domain.Memo;
+import com.kcy.fitapet.domain.memo.domain.MemoCategory;
 import com.kcy.fitapet.domain.model.DateAuditable;
 import com.kcy.fitapet.domain.pet.type.GenderType;
 import com.kcy.fitapet.domain.pet.type.GenderTypeConverter;
@@ -45,7 +46,7 @@ public class Pet extends DateAuditable {
     private List<CareCategory> careCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL)
-    private List<Memo> memos = new ArrayList<>();
+    private List<MemoCategory> memoCategories = new ArrayList<>();
 
     @Builder
     private Pet(String petName, GenderType gender, String petProfileImg, boolean neutered, LocalDate birthdate,

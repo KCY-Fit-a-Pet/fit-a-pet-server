@@ -16,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScheduleSearchService {
     private final ScheduleRepository scheduleRepository;
-    private final ScheduleQueryRepository scheduleQueryRepository;
 
     /**
      * pet_id로 반려동물이 등록된 해당 날짜의 schedule_id 리스트 조회
@@ -26,8 +25,8 @@ public class ScheduleSearchService {
      */
     @Transactional(readOnly = true)
     public List<Long> findScheduleIdsByPetIdAfterDateTime(Long petId, LocalDateTime date, int count) {
-        return (count != -1) ? scheduleQueryRepository.findScheduleIds(petId, date, count)
-                             : scheduleQueryRepository.findScheduleIds(petId, date);
+        return (count != -1) ? scheduleRepository.findScheduleIds(petId, date, count)
+                             : scheduleRepository.findScheduleIds(petId, date);
     }
 
     /**
@@ -35,7 +34,7 @@ public class ScheduleSearchService {
      */
     @Transactional(readOnly = true)
     public List<ScheduleInfoDto.ScheduleInfo> findTopCountSchedulesByIds(List<Long> scheduleIds) {
-        return scheduleQueryRepository.findSchedulesByIds(scheduleIds);
+        return scheduleRepository.findSchedulesByIds(scheduleIds);
     }
 
     @Transactional(readOnly = true)
@@ -43,6 +42,6 @@ public class ScheduleSearchService {
             LocalDateTime date,
             List<Long> petIds
     ) {
-        return scheduleQueryRepository.findSchedulesByCalender(date, petIds);
+        return scheduleRepository.findSchedulesByCalender(date, petIds);
     }
 }

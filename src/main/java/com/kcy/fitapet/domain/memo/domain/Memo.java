@@ -20,11 +20,9 @@ public class Memo extends AuthorAuditable {
     private String title;
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pet_id")
-    private Pet pet;
     @OneToMany(mappedBy = "memo", cascade = CascadeType.ALL)
     private List<MemoImage> memoImages;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private MemoCategory memoCategory;
