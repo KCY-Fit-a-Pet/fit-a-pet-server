@@ -19,6 +19,25 @@ public interface DefaultSearchQueryDslRepository<T> {
      * @param predicate : 검색 조건
      * @param queryHandler : 검색 조건에 추가적으로 적용할 조건
      * @param sort : 정렬 조건
+     * <pre>
+     * {@code
+     * @Component
+     * class SearchService {
+     *      private final QEntity entity = QEntity.entity;
+     *      private final QEntityChild entityChild = QEntityChild.entityChild;
+     *
+     *      private Entity select() {
+     *          Predicate predicate = new BooleanBuilder();
+     *          predicate.and(entity.id.eq(1L));
+     *
+     *          QueryHandler queryHandler = query -> query.leftJoin(entityChild).on(entity.id.eq(entityChild.entity.id));
+     *          Sort sort = Sort.by(Sort.Direction.DESC, entity.id);
+     *
+     *          return searchRepository.findList(predicate, queryHandler, );
+     *      }
+     * }
+     * }
+     * </pre>
      */
     List<T> findList(Predicate predicate, QueryHandler queryHandler, Sort sort);
 
@@ -27,6 +46,25 @@ public interface DefaultSearchQueryDslRepository<T> {
      * @param predicate : 검색 조건
      * @param queryHandler : 검색 조건에 추가적으로 적용할 조건
      * @param pageable : 페이지 정보
+     * <pre>
+     * {@code
+     * @Component
+     * class SearchService {
+     *      private final QEntity entity = QEntity.entity;
+     *      private final QEntityChild entityChild = QEntityChild.entityChild;
+     *
+     *      private Entity select() {
+     *          Predicate predicate = new BooleanBuilder();
+     *          predicate.and(entity.id.eq(1L));
+     *
+     *          QueryHandler queryHandler = query -> query.leftJoin(entityChild).on(entity.id.eq(entityChild.entity.id));
+     *          Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, entity.id));
+     *
+     *          return searchRepository.findList(predicate, queryHandler, pageable);
+     *      }
+     * }
+     * }
+     * </pre>
      */
     Page<T> findPage(Predicate predicate, QueryHandler queryHandler, Pageable pageable);
 
@@ -42,7 +80,6 @@ public interface DefaultSearchQueryDslRepository<T> {
      * @Component
      * class SearchService {
      *      private final QEntity entity = QEntity.entity;
-     *
      *      private final QEntityChild entityChild = QEntityChild.entityChild;
      *
      *      private EntityDto select() {
@@ -64,6 +101,7 @@ public interface DefaultSearchQueryDslRepository<T> {
      *          return bindings;
      *      }
      * }
+     * }
      * </pre>
      */
     <P> List<P> selectList(Predicate predicate, Class<P> type, Map<String, Expression<?>> bindings, QueryHandler queryHandler, Sort sort);
@@ -75,6 +113,31 @@ public interface DefaultSearchQueryDslRepository<T> {
      * @param bindings : 검색 조건에 해당하는 도메인(혹은 DTO)의 필드
      * @param queryHandler : 검색 조건에 추가적으로 적용할 조건
      * @param pageable : 페이지 정보
+     * <pre>
+     * {@code
+     * @Component
+     * class SearchService {
+     *      private final QEntity entity = QEntity.entity;
+     *      private final QEntityChild entityChild = QEntityChild.entityChild;
+     *
+     *      private EntityDto select() {
+     *          Predicate predicate = new BooleanBuilder();
+     *          predicate.and(entity.id.eq(1L));
+     *          QueryHandler queryHandler = query -> query.leftJoin(entityChild).on(entity.id.eq(entityChild.entity.id));
+     *          Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, entity.id));
+     *
+     *          return searchRepository.findPage(predicate, EntityDto.class, this.buildBindings(), queryHandler, pageable);
+     *      }
+     *
+     *      private Map<String, Expression<?>> buildBindings() {
+     *          Map<String, Expression<?>> bindings = new HashMap<>();
+     *          bindings.put("id", entity.id);
+     *          bindings.put("name", entity.name);
+     *          return bindings;
+     *      }
+     *  }
+     *  }
+     *  </pre>
      */
     <P> Page<P> selectPage(Predicate predicate, Class<P> type, Map<String, Expression<?>> bindings, QueryHandler queryHandler, Pageable pageable);
 }
