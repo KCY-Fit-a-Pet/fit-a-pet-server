@@ -47,7 +47,7 @@ public class MemoCategory extends DateAuditable {
         return category;
     }
 
-    public void updatePet(Pet pet) {
+    private void updatePet(Pet pet) {
         if (this.pet != null)
             this.pet.getMemoCategories().remove(this);
 
@@ -55,11 +55,15 @@ public class MemoCategory extends DateAuditable {
         pet.getMemoCategories().add(this);
     }
 
-    public void updateParent(MemoCategory parent) {
+    private void updateParent(MemoCategory parent) {
         if (this.parent != null)
             this.parent.getChildren().remove(this);
 
         this.parent = parent;
         parent.getChildren().add(this);
+    }
+
+    public boolean isRootCategory() {
+        return this.parent == null;
     }
 }

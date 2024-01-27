@@ -46,8 +46,8 @@ public class AccountApi {
     }
 
     @Operation(summary = "닉네임 존재 확인")
-    @GetMapping("/exists")
     @Parameter(name = "uid", description = "확인할 유저 닉네임", in = ParameterIn.QUERY, required = true)
+    @GetMapping("/exists")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> getExistsUid(@RequestParam("uid") @NotBlank String uid) {
         boolean exists = memberAccountService.existsUid(uid);
@@ -73,11 +73,11 @@ public class AccountApi {
     }
 
     @Operation(summary = "ID/PW 찾기")
-    @PostMapping("/search")
     @Parameters({
             @Parameter(name = "type", description = "찾을 타입", example = "uid/password", in = ParameterIn.QUERY, required = true),
             @Parameter(name = "code", description = "인증번호", in = ParameterIn.QUERY, required = true),
     })
+    @PostMapping("/search")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> postSearchIdOrPassword(
             @RequestParam("type") @NotBlank SmsPrefix type,
@@ -106,5 +106,13 @@ public class AccountApi {
             @RequestParam("type") @NotBlank NotificationType type) {
         memberAccountService.updateNotification(id, user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "관리 중인 반려동물의 모든 메모 카테고리 조회")
+    @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
+    @GetMapping("/{id}/memo-categories")
+    @PreAuthorize("isAuthenticated() and #id == principal.userId")
+    public ResponseEntity<?> getMemoCategories(@PathVariable("id") Long id) {
+        return null;
     }
 }
