@@ -70,6 +70,9 @@ public class DefaultSearchQueryDslRepositoryImpl<T> implements DefaultSearchQuer
         return new PageImpl<>(query.select(Projections.bean(type, bindings)).fetch(), pageable, totalSize);
     }
 
+    /**
+     * 파라미터를 기반으로 Querydsl의 JPAQuery를 생성합니다.
+     */
     private JPAQuery<?> buildWithoutSelect(Predicate predicate, Map<String, Expression<?>> bindings, QueryHandler queryHandler, Sort sort) {
         JPAQuery<?> query = queryFactory.from(path);
 
@@ -80,6 +83,9 @@ public class DefaultSearchQueryDslRepositoryImpl<T> implements DefaultSearchQuer
         return query;
     }
 
+    /**
+     *
+     */
     private void applyPredicate(Predicate predicate, JPAQuery<?> query) {
         if (predicate != null) query.where(predicate);
     }
