@@ -14,6 +14,7 @@ import java.util.Map;
  * @author 양재서
  */
 public interface DefaultSearchQueryDslRepository<T> {
+
     /**
      * 검색 조건에 해당하는 도메인 리스트를 조회하는 메서드
      * @param predicate : 검색 조건

@@ -1,13 +1,18 @@
 package com.kcy.fitapet.domain.memo.api;
 
+import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+import com.kcy.fitapet.domain.memo.dto.SubMemoCategorySaveReq;
 import com.kcy.fitapet.domain.memo.service.component.MemoManageService;
+import com.kcy.fitapet.global.common.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -29,26 +34,28 @@ public class MemoApi {
             @Parameter(name = "root_memo_category_id", description = "루트 메모 카테고리 ID를 의미하며, 서브 메모 카테고리인 경우 거부됩니다.", in = ParameterIn.PATH, required = true)
     })
     @PostMapping("/root-memo-categories/{root_memo_category_id}") // TODO: 2024-01-27: pet -> root-memo-categories 권한 검사
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidRootMemoCategory(rootMemoCategoryId, petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidRootMemoCategory(#rootMemoCategoryId, #petId)")
     public ResponseEntity<?> saveSubMemoCategory(
             @PathVariable("pet_id") Long petId,
-            @PathVariable("root_memo_category_id") Long rootMemoCategoryId
+            @PathVariable("root_memo_category_id") Long rootMemoCategoryId,
+            @RequestBody @Valid SubMemoCategorySaveReq req
     ) {
-        return null;
+        memoManageService.saveSubMemoCategory(petId, rootMemoCategoryId, req);
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(SuccessResponse.noContent());
     }
 
-    @Operation(summary = "루트 카테고리의 서브 메모리 카테고리 리스트 조회")
+    @Operation(summary = "메모 카테고리 리스트 조회", description = "메모 카테고리 타입이 root인 경우, 서브 메모 카테고리 리스트도 함께 조회합니다.")
     @Parameters({
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
-            @Parameter(name = "root_memo_category_id", description = "루트 메모 카테고리 ID를 의미하며, 서브 메모 카테고리인 경우 거부됩니다.", in = ParameterIn.PATH, required = true)
+            @Parameter(name = "memo_category_id", description = "루트 메모 카테고리 ID를 의미하며, 서브 메모 카테고리인 경우 거부됩니다.", in = ParameterIn.PATH, required = true)
     })
-    @GetMapping("/root-memo-categories/{root_memo_category_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidRootMemoCategory(rootMemoCategoryId, petId)")
+    @GetMapping("/memo-categories/{memo_category_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategory(#memoCategoryId, #petId)")
     public ResponseEntity<?> getSubMemoCategories(
             @PathVariable("pet_id") Long petId,
-            @PathVariable("root_memo_category_id") Long rootMemoCategoryId
+            @PathVariable("memo_category_id") Long memoCategoryId
     ) {
-        return null;
+        return ResponseEntity.ok(SuccessResponse.from(memoManageService.findCategoryById(memoCategoryId)));
     }
 
     @Operation(summary = "서브 메모 카테고리 삭제")
@@ -57,7 +64,7 @@ public class MemoApi {
             @Parameter(name = "sub_memo_category_id", description = "서브 메모 카테고리 ID를 의미하며, 루트 메모 카테고리인 경우 거부됩니다.", in = ParameterIn.PATH, required = true)
     })
     @DeleteMapping("/sub-memo-categories/{sub_memo_category_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidSubMemoCategory(subMemoCategoryId, petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidSubMemoCategory(#subMemoCategoryId, #petId)")
     public ResponseEntity<?> deleteSubMemoCategory(@PathVariable("pet_id") Long petId, @PathVariable("sub_memo_category_id") Long subMemoCategoryId) {
         return null;
     }
@@ -77,7 +84,7 @@ public class MemoApi {
             @Parameter(name = "direction", description = "정렬 방식", example = "DESC" , in = ParameterIn.QUERY)
     })
     @GetMapping("/memo-categories/{memo_category_id}/memos")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategory(memoCategoryId, petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategory(#memoCategoryId, #petId)")
     public ResponseEntity<?> getMemosAndSubCategories(
             @PathVariable("pet_id") Long petId, @PathVariable("memo_category_id") Long memoCategoryId,
             @RequestParam(value = "search", defaultValue = "", required = false) String search,
@@ -114,7 +121,7 @@ public class MemoApi {
             @Parameter(name = "memo_id", description = "메모 ID", in = ParameterIn.PATH, required = true)
     })
     @GetMapping("/memo-categories/{memo_category_id}/memos/{memo_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategoryAndMemo(memoCategoryId, memoId, petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategoryAndMemo(#memoCategoryId, #memoId, #petId)")
     public ResponseEntity<?> getMemo(
             @PathVariable("pet_id") Long petId,
             @PathVariable("memo_category_id") Long memoCategoryId,
@@ -129,7 +136,7 @@ public class MemoApi {
             @Parameter(name = "memo_category_id", in = ParameterIn.PATH, required = true)
     })
     @PostMapping("/memo-categories/{memo_category_id}/memos")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategory(memoCategoryId, petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategory(#memoCategoryId, #petId)")
     public ResponseEntity<?> saveMemo(@PathVariable("pet_id") Long petId, @PathVariable("memo_category_id") Long memoCategoryId) {
         return null;
     }
@@ -141,7 +148,7 @@ public class MemoApi {
             @Parameter(name = "memo_id", description = "메모 ID", in = ParameterIn.PATH, required = true)
     })
     @DeleteMapping("/memo-categories/{memo_category_id}/memos/{memo_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategoryAndMemo(memoCategoryId, memoId, petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategoryAndMemo(#memoCategoryId, #memoId, #petId)")
     public ResponseEntity<?> deleteMemo(
             @PathVariable("pet_id") Long petId,
             @PathVariable("memo_category_id") Long memoCategoryId,
