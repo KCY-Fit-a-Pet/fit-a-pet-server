@@ -1,6 +1,7 @@
 package com.kcy.fitapet.domain.memo.api;
 
 import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+import com.kcy.fitapet.domain.memo.dto.MemoSaveReq;
 import com.kcy.fitapet.domain.memo.dto.SubMemoCategorySaveReq;
 import com.kcy.fitapet.domain.memo.service.component.MemoManageService;
 import com.kcy.fitapet.global.common.response.SuccessResponse;
@@ -137,8 +138,13 @@ public class MemoApi {
     })
     @PostMapping("/memo-categories/{memo_category_id}/memos")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategory(#memoCategoryId, #petId)")
-    public ResponseEntity<?> saveMemo(@PathVariable("pet_id") Long petId, @PathVariable("memo_category_id") Long memoCategoryId) {
-        return null;
+    public ResponseEntity<?> saveMemo(
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("memo_category_id") Long memoCategoryId,
+            @RequestBody @Valid MemoSaveReq req
+    ) {
+        memoManageService.saveMemo(memoCategoryId, req);
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(SuccessResponse.noContent());
     }
 
     @Operation(summary = "메모 삭제")

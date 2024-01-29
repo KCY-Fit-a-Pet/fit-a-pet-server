@@ -39,4 +39,13 @@ public class Memo extends AuthorAuditable {
                 .content(content)
                 .build();
     }
+
+    public void updateMemoCategory(MemoCategory memoCategory) {
+        if (this.memoCategory != null) {
+            this.memoCategory.getMemos().remove(this);
+        }
+
+        this.memoCategory = memoCategory;
+        memoCategory.getMemos().add(this);
+    }
 }

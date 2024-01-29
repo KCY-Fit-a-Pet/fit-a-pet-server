@@ -25,8 +25,18 @@ public class MemoImage extends DateAuditable {
         this.imgUrl = imgUrl;
     }
 
-    public static MemoImage of(String imgUrl) {
-        return MemoImage.builder()
-                .imgUrl(imgUrl).build();
+    public static MemoImage of(String imgUrl, Memo memo) {
+        MemoImage memoImage = new MemoImage(imgUrl);
+        memoImage.updateMemo(memo);
+        return memoImage;
+    }
+
+    private void updateMemo(Memo memo) {
+        if (this.memo != null) {
+            this.memo.getMemoImages().remove(this);
+        }
+
+        this.memo = memo;
+        memo.getMemoImages().add(this);
     }
 }

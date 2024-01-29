@@ -29,6 +29,9 @@ public class MemoCategory extends DateAuditable {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<MemoCategory> children = new ArrayList<>();
 
+    @OneToMany(mappedBy = "memoCategory", cascade = CascadeType.ALL)
+    private List<Memo> memos = new ArrayList<>();
+
     @Builder
     private MemoCategory(String categoryName) {
         this.categoryName = categoryName;
