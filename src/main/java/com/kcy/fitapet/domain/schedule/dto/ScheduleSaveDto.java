@@ -28,8 +28,8 @@ public class ScheduleSaveDto {
             @Schema(description = "알림 시간(분 단위)", example = "30 (단, 없으면 0)", requiredMode = Schema.RequiredMode.REQUIRED)
             @NotNull
             Integer notifyTime,
-            @Schema(description = "케어 동물 추가", example = "[1, 2, 3] (단, 없으면 빈 배열)", requiredMode = Schema.RequiredMode.REQUIRED)
-            @NotNull
+            @Schema(description = "케어 동물 추가", example = "[1, 2, 3]", requiredMode = Schema.RequiredMode.REQUIRED)
+            @NotEmpty
             List<Long> petIds
     ) {
         public Schedule toEntity() {

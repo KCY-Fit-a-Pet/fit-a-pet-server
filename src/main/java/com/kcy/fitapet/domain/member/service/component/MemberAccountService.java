@@ -16,6 +16,8 @@ import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
 import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
+import com.kcy.fitapet.domain.schedule.dto.ScheduleInfoDto;
+import com.kcy.fitapet.domain.schedule.service.module.ScheduleSearchService;
 import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
 import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,8 @@ import java.util.List;
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
+
+    private final ScheduleSearchService scheduleSearchService;
     private final MemoSearchService memoSearchService;
 
     private final SmsRedisHelper smsRedisHelper;
@@ -93,6 +98,16 @@ public class MemberAccountService {
     public void updateNotification(Long requestId, Long userId, NotificationType type) {
         Member member = memberSearchService.findById(userId);
         member.updateNotificationFromType(type);
+    }
+
+    @Transactional(readOnly = true)
+    public ScheduleInfoDto findPetSchedules(Long userId, LocalDateTime date) {
+        List<Pet> pets = memberSearchService.findAllManagerByMemberId(userId)
+                .stream().map(Manager::getPet).toList();
+        List<Long> petIds = pets.stream().map(Pet::getId).toList();
+
+        List<ScheduleInfoDto.ScheduleInfo> scheduleInfo = scheduleSearchService.findSchedulesByCalender(date, petIds);
+        return ScheduleInfoDto.of(scheduleInfo);
     }
 
     @Transactional(readOnly = true)
