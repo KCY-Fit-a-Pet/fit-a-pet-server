@@ -9,24 +9,13 @@ import com.kcy.fitapet.domain.memo.domain.QMemoCategory;
 import com.kcy.fitapet.domain.memo.domain.QMemoImage;
 import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
 import com.kcy.fitapet.domain.memo.exception.MemoErrorCode;
-import com.kcy.fitapet.global.common.repository.QueryHandler;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.querydsl.core.group.GroupBy.groupBy;
 
 @Service
 @Slf4j
@@ -43,6 +32,11 @@ public class MemoSearchService {
     @Transactional(readOnly = true)
     public MemoCategory findMemoCategoryById(Long memoCategoryId) {
         return memoCategoryRepository.findByIdOrElseThrow(memoCategoryId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> findRootMemoCategoriesIdByPetIds(List<Long> petIds) {
+        return memoCategoryRepository.findRootMemoCategoryIdByPetId(petIds);
     }
 
     @Transactional(readOnly = true)

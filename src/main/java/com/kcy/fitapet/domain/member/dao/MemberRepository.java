@@ -1,11 +1,11 @@
 package com.kcy.fitapet.domain.member.dao;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.global.common.repository.ExtendedJpaRepository;
+import com.kcy.fitapet.global.common.repository.ExtendedRepository;
 
 import java.util.Optional;
 
-public interface MemberJpaRepository extends ExtendedJpaRepository<Member, Long> {
+public interface MemberRepository extends ExtendedRepository<Member, Long>, MemberQueryDslRepository {
     Optional<Member> findByUid(String uid);
     Optional<Member> findByPhone(String phone);
     boolean existsByUidOrPhone(String uid, String phone);

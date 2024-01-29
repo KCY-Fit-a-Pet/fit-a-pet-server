@@ -1,8 +1,8 @@
 package com.kcy.fitapet.domain.care.service.module;
 
-import com.kcy.fitapet.domain.care.dao.CareCategoryJpaRepository;
-import com.kcy.fitapet.domain.care.dao.CareDateJpaRepository;
-import com.kcy.fitapet.domain.care.dao.CareJpaRepository;
+import com.kcy.fitapet.domain.care.dao.CareCategoryRepository;
+import com.kcy.fitapet.domain.care.dao.CareDateRepository;
+import com.kcy.fitapet.domain.care.dao.CareRepository;
 import com.kcy.fitapet.domain.care.domain.Care;
 import com.kcy.fitapet.domain.care.domain.CareCategory;
 import com.kcy.fitapet.domain.care.domain.CareDate;
@@ -17,9 +17,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CareSearchService {
-    private final CareJpaRepository careRepository;
-    private final CareCategoryJpaRepository careCategoryRepository;
-    private final CareDateJpaRepository careDateRepository;
+    private final CareRepository careRepository;
+    private final CareCategoryRepository careCategoryRepository;
+    private final CareDateRepository careDateRepository;
 
     @Transactional(readOnly = true)
     public Care findCareById(Long careId) {

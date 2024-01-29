@@ -6,6 +6,6 @@ import com.kcy.fitapet.global.common.repository.ExtendedJpaRepository;
 
 import java.util.List;
 
-public interface CareDateJpaRepository extends ExtendedJpaRepository<CareDate, Long> {
+public interface CareDateRepository extends ExtendedJpaRepository<CareDate, Long> {
     List<CareDate> findAllByCare_IdAndWeek(Long careId, WeekType week);
 }

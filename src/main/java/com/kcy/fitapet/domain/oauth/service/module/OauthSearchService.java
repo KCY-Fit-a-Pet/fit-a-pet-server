@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.oauth.service.module;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.oauth.dao.OauthJpaRepository;
+import com.kcy.fitapet.domain.oauth.dao.OauthRepository;
 import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
 import com.kcy.fitapet.domain.oauth.exception.OauthException;
 import com.kcy.fitapet.domain.oauth.type.ProviderType;
@@ -15,7 +15,7 @@ import java.math.BigInteger;
 @Service
 @RequiredArgsConstructor
 public class OauthSearchService {
-    private final OauthJpaRepository oauthRepository;
+    private final OauthRepository oauthRepository;
 
     @Transactional(readOnly = true)
     public boolean isExistMember(BigInteger oauthId, ProviderType provider) {

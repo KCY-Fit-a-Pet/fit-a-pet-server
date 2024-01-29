@@ -10,6 +10,8 @@ import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.MemberAttrType;
+import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+import com.kcy.fitapet.domain.memo.service.module.MemoSearchService;
 import com.kcy.fitapet.domain.notification.type.NotificationType;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,6 +35,7 @@ import java.util.List;
 @Slf4j
 public class MemberAccountService {
     private final MemberSearchService memberSearchService;
+    private final MemoSearchService memoSearchService;
 
     private final SmsRedisHelper smsRedisHelper;
 
@@ -89,6 +93,21 @@ public class MemberAccountService {
     public void updateNotification(Long requestId, Long userId, NotificationType type) {
         Member member = memberSearchService.findById(userId);
         member.updateNotificationFromType(type);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemoCategoryInfoDto.MemoCategoryInfo> getMemoCategories(Long userId) {
+        List<Long> petIds = memberSearchService.findMyPetIds(userId);
+        log.info("userId: {}, petIds: {}", userId, petIds);
+
+        List<Long> rootMemoCategoryIds = memoSearchService.findRootMemoCategoriesIdByPetIds(petIds);
+        List<MemoCategoryInfoDto.MemoCategoryInfo> rootMemoCategories = new ArrayList<>();
+
+        for (Long rootMemoCategoryId : rootMemoCategoryIds) {
+            rootMemoCategories.add(memoSearchService.findMemoCategoryWithMemoCount(rootMemoCategoryId));
+        }
+
+        return rootMemoCategories;
     }
 
     /**

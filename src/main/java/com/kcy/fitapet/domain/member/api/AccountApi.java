@@ -113,6 +113,6 @@ public class AccountApi {
     @GetMapping("/{id}/memo-categories")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> getMemoCategories(@PathVariable("id") Long id) {
-        return null;
+        return ResponseEntity.ok(SuccessResponse.from(memberAccountService.getMemoCategories(id)));
     }
 }

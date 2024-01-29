@@ -1,7 +1,7 @@
 package com.kcy.fitapet.domain.member.service.module;
 
-import com.kcy.fitapet.domain.member.dao.ManagerJpaRepository;
-import com.kcy.fitapet.domain.member.dao.MemberJpaRepository;
+import com.kcy.fitapet.domain.member.dao.ManagerRepository;
+import com.kcy.fitapet.domain.member.dao.MemberRepository;
 import com.kcy.fitapet.domain.member.domain.Manager;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
@@ -15,8 +15,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MemberSearchService {
-    private final MemberJpaRepository memberRepository;
-    private final ManagerJpaRepository managerRepository;
+    private final MemberRepository memberRepository;
+    private final ManagerRepository managerRepository;
 
     @Transactional(readOnly = true)
     public Member findById(Long id) {
@@ -40,6 +40,11 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public List<Manager> findAllManagerByMemberId(Long memberId) {
         return managerRepository.findAllByMember_Id(memberId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> findMyPetIds(Long memberId) {
+        return memberRepository.findMyPetIds(memberId);
     }
 
     @Transactional(readOnly = true)

@@ -3,6 +3,7 @@ package com.kcy.fitapet.domain.memo.dao;
 import com.kcy.fitapet.domain.memo.domain.QMemo;
 import com.kcy.fitapet.domain.memo.domain.QMemoCategory;
 import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+import com.kcy.fitapet.domain.pet.domain.QPet;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,16 @@ public class MemoCategoryQueryDslRepositoryImpl implements MemoCategoryQueryDslR
     private final JPAQueryFactory queryFactory;
     private final QMemoCategory memoCategory = QMemoCategory.memoCategory;
     private final QMemo memo = QMemo.memo;
+    private final QPet pet = QPet.pet;
+
+    @Override
+    public List<Long> findRootMemoCategoryIdByPetId(List<Long> petIds) {
+        return queryFactory.select(memoCategory.id)
+                .from(memoCategory)
+                .leftJoin(pet).on(pet.id.eq(memoCategory.pet.id))
+                .where(pet.id.in(petIds).and(memoCategory.parent.id.isNull()))
+                .fetch();
+    }
 
     @Override
     public MemoCategoryInfoDto.MemoCategoryQueryDslRes findMemoCategoryById(Long memoCategoryId) {
