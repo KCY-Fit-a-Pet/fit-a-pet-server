@@ -1,6 +1,7 @@
 package com.kcy.fitapet.domain.memo.api;
 
 import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
 import com.kcy.fitapet.domain.memo.dto.MemoSaveReq;
 import com.kcy.fitapet.domain.memo.dto.SubMemoCategorySaveReq;
 import com.kcy.fitapet.domain.memo.service.component.MemoManageService;
@@ -128,7 +129,8 @@ public class MemoApi {
             @PathVariable("memo_category_id") Long memoCategoryId,
             @PathVariable("memo_id") Long memoId
     ) {
-        return null;
+        MemoInfoDto.MemoInfo info = memoManageService.findMemoAndMemoImageUrlsById(memoId);
+        return ResponseEntity.ok(SuccessResponse.from(info));
     }
 
     @Operation(summary = "메모 작성")

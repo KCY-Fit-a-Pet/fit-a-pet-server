@@ -8,6 +8,7 @@ import com.kcy.fitapet.domain.memo.domain.QMemo;
 import com.kcy.fitapet.domain.memo.domain.QMemoCategory;
 import com.kcy.fitapet.domain.memo.domain.QMemoImage;
 import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
 import com.kcy.fitapet.domain.memo.exception.MemoErrorCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +53,12 @@ public class MemoSearchService {
         }
 
         return MemoCategoryInfoDto.MemoCategoryInfo.from(dto);
+    }
+
+    @Transactional(readOnly = true)
+    public MemoInfoDto.MemoInfo findMemoAndMemoImageUrlsById(Long memoId) {
+        return memoRepository.findMemoAndMemoImageUrlsById(memoId).orElseThrow(
+                () -> new GlobalErrorException(MemoErrorCode.MEMO_NOT_FOUND)
+        );
     }
 }

@@ -4,6 +4,7 @@ import com.kcy.fitapet.domain.memo.domain.Memo;
 import com.kcy.fitapet.domain.memo.domain.MemoCategory;
 import com.kcy.fitapet.domain.memo.domain.MemoImage;
 import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
 import com.kcy.fitapet.domain.memo.dto.MemoSaveReq;
 import com.kcy.fitapet.domain.memo.dto.SubMemoCategorySaveReq;
 import com.kcy.fitapet.domain.memo.service.module.MemoSaveService;
@@ -44,5 +45,10 @@ public class MemoManageService {
     @Transactional(readOnly = true)
     public MemoCategoryInfoDto.MemoCategoryInfo findCategoryById(Long memoCategoryId) {
         return memoSearchService.findMemoCategoryWithMemoCount(memoCategoryId);
+    }
+
+    @Transactional(readOnly = true)
+    public MemoInfoDto.MemoInfo findMemoAndMemoImageUrlsById(Long memoId) {
+        return memoSearchService.findMemoAndMemoImageUrlsById(memoId);
     }
 }
