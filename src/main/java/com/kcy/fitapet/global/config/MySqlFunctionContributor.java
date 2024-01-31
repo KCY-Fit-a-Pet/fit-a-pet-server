@@ -14,18 +14,14 @@ import org.hibernate.type.spi.TypeConfiguration;
  * {@code
  * public List<Entity> findAllBy(final String entityNameWord, final String entityAttrWord) {
  *    return queryFactory.selectFrom(entity)
- *        .where(
- *             matchAgainst(entity.name, entityNameWord),
- *             matchAgainst(entity.attr, entityAttrWord)
- *        )
+ *        .where(matchAgainst(entity.name, entity.attr, entityAttrWord))
  *        .fetch();
  * }
  *
- * private BooleanExpression matchAgainst(final String target, final String searchWord) {
- *    if (!StringUtils.hasText(searchWord)) {
- *       return null
- *    }
- *    return Expressions.booleanTemplate("match({0}) against({1} in boolean mode) > 0", target, searchWord);
+ * public static BooleanExpression matchAgainst(final StringPath c1, final StringPath c2, final String target) {
+ *      if (!StringUtils.hasText(target)) { return null; }
+ *      String template = "'" + target + "*'";
+ *      return Expressions.booleanTemplate( "function('match_against', {0}, {1}, {2})", c1, c2, template);
  * }
  * </pre>
  *

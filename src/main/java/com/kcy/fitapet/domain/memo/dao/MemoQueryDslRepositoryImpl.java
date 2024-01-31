@@ -29,6 +29,8 @@ import java.util.Optional;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.types.Projections.list;
+import static com.querydsl.core.types.dsl.Expressions.constant;
+import static com.querydsl.core.types.dsl.Expressions.constantAs;
 
 @Repository
 @RequiredArgsConstructor
@@ -46,6 +48,7 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                         Projections.constructor(
                                 MemoInfoDto.MemoInfo.class,
                                 memo.id,
+                                memoCategory.categoryName,
                                 QueryDslUtil.left(memo.title, Expressions.constant(19)),
                                 QueryDslUtil.left(memo.content, Expressions.constant(16)),
                                 memo.createdAt,
@@ -64,24 +67,50 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                 .fetchFirst());
     }
 
+    /**
+     * 메모 카테고리 ID로 메모 리스트 조회 및 검색
+     * <pre>
+     * SELECT (SELECT category_name FROM memo_category WHERE id = 4) category_name, m.id, LEFT(m.title, 19), LEFT(m.content, 16) content, m.created_at, i.id, i.img_url
+     * FROM memo m
+     * LEFT JOIN memo_image i ON i.memo_id = m.id
+     * WHERE m.id IN (
+     * 	SELECT *
+     *     FROM (
+     * 		SELECT m.id
+     * 		FROM memo_category c
+     * 		INNER JOIN memo m ON m.category_id = c.id
+     * 		WHERE c.id = 4
+     * 		AND MATCH(m.title, m.content) AGAINST('병원*' IN BOOLEAN MODE)
+     * 		LIMIT 4
+     *     ) id
+     * )
+     * ORDER BY m.created_at DESC
+     * ;
+     * </pre>
+     */
     @Override
     public Slice<MemoInfoDto.MemoInfo> findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target) {
          List<MemoInfoDto.MemoInfo> results = queryFactory
-                 .select(memoCategory.id, memo.id, memo.title, memo.content, memo.createdAt, memoImage.id, memoImage.imgUrl)
                 .from(memo)
-                .innerJoin(memoCategory).on(memoCategory.id.eq(memo.memoCategory.id))
                 .leftJoin(memoImage).on(memoImage.memo.id.eq(memo.id))
-                .where(memoCategory.id.eq(memoCategoryId)
-                        .and(QueryDslUtil.matchAgainst(memo.title, memo.content, target))
-                )
+                .where(memo.id.in(
+                        queryFactory
+                                .select(memo.id)
+                                .from(memoCategory)
+                                .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
+                                .where(memoCategory.id.eq(memoCategoryId)
+                                        .and(QueryDslUtil.matchAgainst(memo.title, memo.content, target))
+                                )
+                                .offset(pageable.getOffset())
+                                .limit(pageable.getPageSize() + 1)
+                ))
                 .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)
                 .transform(
                         groupBy(memo.id).list(
                                 Projections.constructor(
                                         MemoInfoDto.MemoInfo.class,
                                         memo.id,
+                                        queryFactory.select(memoCategory.categoryName).from(memoCategory).where(memoCategory.id.eq(memoCategoryId)),
                                         QueryDslUtil.left(memo.title, Expressions.constant(19)),
                                         QueryDslUtil.left(memo.content, Expressions.constant(16)),
                                         memo.createdAt,

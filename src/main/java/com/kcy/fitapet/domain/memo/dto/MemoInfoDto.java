@@ -31,6 +31,7 @@ public class MemoInfoDto {
     @Dto(name = "memo")
     public record MemoInfo(
             Long memoId,
+            String categorySuffix,
             String title,
             String content,
             @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -38,32 +39,13 @@ public class MemoInfoDto {
             LocalDateTime createdAt,
             List<MemoImageInfo> memoImages
     ) {
-        public MemoInfo(Long memoId, String title, String content, LocalDateTime createdAt, List<MemoImageInfo> memoImages) {
+        public MemoInfo(Long memoId, String categorySuffix, String title, String content, LocalDateTime createdAt, List<MemoImageInfo> memoImages) {
             this.memoId = memoId;
+            this.categorySuffix = categorySuffix;
             this.title = title.length() == 19 ? title + "..." : title;
             this.content = content.length() == 16 ? content + "..." : content;
             this.createdAt = createdAt;
             this.memoImages = (memoImages == null) ? List.of() : memoImages;
-        }
-
-        public static MemoInfo from(Memo memo) {
-            return MemoInfo.builder()
-                    .memoId(memo.getId())
-                    .title(memo.getTitle())
-                    .content(memo.getContent())
-                    .createdAt(memo.getCreatedAt())
-                    .memoImages(List.of())
-                    .build();
-        }
-
-        public static MemoInfo valueOf(Memo memo, List<MemoImageInfo> memoImageUrls) {
-            return MemoInfo.builder()
-                    .memoId(memo.getId())
-                    .title(memo.getTitle())
-                    .content(memo.getContent())
-                    .createdAt(memo.getCreatedAt())
-                    .memoImages(memoImageUrls)
-                    .build();
         }
     }
 
@@ -79,8 +61,8 @@ public class MemoInfoDto {
 
     public record PageResponse(
             @Schema(description = "메모 목록") List<MemoInfo> memos,
-            @Schema(description = "현재 페이지") int number,
-            @Schema(description = "페이지 크기") int size,
+            @Schema(description = "현재 페이지") int currentPageNumber,
+            @Schema(description = "페이지 크기") int pageSize,
             @Schema(description = "현재 페이지의 데이터 개수") int numberOfElements,
             @Schema(description = "다음 페이지 존재 여부") boolean hasNext
     ) {

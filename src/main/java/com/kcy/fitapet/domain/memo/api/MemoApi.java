@@ -34,7 +34,7 @@ public class MemoApi {
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "root_memo_category_id", description = "루트 메모 카테고리 ID를 의미하며, 서브 메모 카테고리인 경우 거부됩니다.", in = ParameterIn.PATH, required = true)
     })
-    @PostMapping("/root-memo-categories/{root_memo_category_id}") // TODO: 2024-01-27: pet -> root-memo-categories 권한 검사
+    @PostMapping("/root-memo-categories/{root_memo_category_id}")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidRootMemoCategory(#rootMemoCategoryId, #petId)")
     public ResponseEntity<?> saveSubMemoCategory(
             @PathVariable("pet_id") Long petId,
@@ -112,7 +112,7 @@ public class MemoApi {
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getMemosByPet(
             @PathVariable("pet_id") Long petId,
-            @PageableDefault(size = 5, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 5, page = 0, sort = "memo.createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return null;
     }
