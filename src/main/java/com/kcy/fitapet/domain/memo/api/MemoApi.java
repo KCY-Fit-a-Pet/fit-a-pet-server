@@ -1,6 +1,5 @@
 package com.kcy.fitapet.domain.memo.api;
 
-import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
 import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
 import com.kcy.fitapet.domain.memo.dto.MemoSaveReq;
 import com.kcy.fitapet.domain.memo.dto.SubMemoCategorySaveReq;
@@ -90,16 +89,18 @@ public class MemoApi {
     public ResponseEntity<?> getMemosAndSubCategories(
             @PathVariable("pet_id") Long petId, @PathVariable("memo_category_id") Long memoCategoryId,
             @RequestParam(value = "search", defaultValue = "", required = false) String search,
-            @PageableDefault(size = 15, page = 1, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 15, page = 0, sort = "memo.createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return null;
+        MemoInfoDto.PageResponse res = memoManageService.findMemosInMemoCategory(memoCategoryId, pageable, search);
+        return ResponseEntity.ok(SuccessResponse.from(res));
     }
 
     /*
      * 메모 API
      */
 
-    @Operation(summary = "반려동물에게 등록된 메모 리스트 조회")
+    @Operation(summary = "반려동물에게 등록된 메모 리스트 조회", description = """
+            기본 값으로는 상위/하위 카테고리를 포함한 가장 최근 내역의 메모 리스트를 조회합니다. (페이지 사이즈: 5, 페이지 번호: 1, 정렬 기준: createdAt, 정렬 방식: DESC)""")
     @Parameters({
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "size", description = "페이지 사이즈", example = "5", in = ParameterIn.QUERY),
@@ -111,7 +112,7 @@ public class MemoApi {
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getMemosByPet(
             @PathVariable("pet_id") Long petId,
-            @PageableDefault(size = 5, page = 1, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 5, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return null;
     }

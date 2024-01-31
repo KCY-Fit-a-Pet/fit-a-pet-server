@@ -33,17 +33,14 @@ import org.hibernate.type.spi.TypeConfiguration;
  */
 public class MySqlFunctionContributor implements FunctionContributor {
     private static final String FUNCTION_NAME = "match_against";
-    private static final String NATURAL_LANGUAGE_PATTERN = "match (?1) against (?2 in natural language mode)";
-    private static final String BOOLEAN_PATTERN = "match (?1) against (?2 in boolean mode)";
-    private static final String QUERY_EXPANSION_PATTERN = "match (?1) against (?2 in query expansion mode)";
+    private static final String TWO_COLUMN_BOOLEAN_PATTERN = "match(?1, ?2) against(?3 in boolean mode)";
 
     @Override
-    public void contributeFunctions(FunctionContributions functionContributions) {
+    public void contributeFunctions(final FunctionContributions functionContributions) {
         SqmFunctionRegistry registry = functionContributions.getFunctionRegistry();
         TypeConfiguration typeConfiguration = functionContributions.getTypeConfiguration();
 
-        registry.registerPattern( FUNCTION_NAME, NATURAL_LANGUAGE_PATTERN, typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.DOUBLE) );
-        registry.registerPattern( FUNCTION_NAME, BOOLEAN_PATTERN, typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.DOUBLE) );
-        registry.registerPattern( FUNCTION_NAME, QUERY_EXPANSION_PATTERN, typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.DOUBLE) );
+        registry.registerPattern( FUNCTION_NAME, TWO_COLUMN_BOOLEAN_PATTERN, typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.BOOLEAN) );
+        registry.registerPattern( "left", "left(?1, ?2)", typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.STRING) );
     }
 }

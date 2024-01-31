@@ -10,13 +10,29 @@ import com.kcy.fitapet.domain.memo.domain.QMemoImage;
 import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
 import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
 import com.kcy.fitapet.domain.memo.exception.MemoErrorCode;
+import com.kcy.fitapet.global.common.repository.QueryHandler;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringPath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.querydsl.core.group.GroupBy.groupBy;
 
 @Service
 @Slf4j
@@ -25,10 +41,6 @@ public class MemoSearchService {
     private final MemoRepository memoRepository;
     private final MemoCategoryRepository memoCategoryRepository;
     private final MemoImageRepository memoImageRepository;
-
-    private final QMemoCategory memoCategory = QMemoCategory.memoCategory;
-    private final QMemo memo = QMemo.memo;
-    private final QMemoImage memoImage = QMemoImage.memoImage;
 
     @Transactional(readOnly = true)
     public MemoCategory findMemoCategoryById(Long memoCategoryId) {
@@ -60,5 +72,12 @@ public class MemoSearchService {
         return memoRepository.findMemoAndMemoImageUrlsById(memoId).orElseThrow(
                 () -> new GlobalErrorException(MemoErrorCode.MEMO_NOT_FOUND)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public MemoInfoDto.PageResponse findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target) {
+        Slice<MemoInfoDto.MemoInfo> page = memoRepository.findMemosInMemoCategory(memoCategoryId, pageable, target);
+
+        return MemoInfoDto.PageResponse.from(page);
     }
 }
