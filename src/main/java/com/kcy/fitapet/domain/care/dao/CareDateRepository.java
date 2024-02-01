@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CareDateRepository extends ExtendedJpaRepository<CareDate, Long> {
     List<CareDate> findAllByCare_IdAndWeek(Long careId, WeekType week);
+    boolean existsByIdAndCare_Id(Long careDateId, Long careId);
 }

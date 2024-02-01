@@ -74,6 +74,4 @@ public class PetApi {
         List<?> result = petManageService.checkCategoryExist(userId, request.categoryName(), request.pets());
         return ResponseEntity.ok(SuccessResponse.from("categories", result));
     }
-
-
 }
