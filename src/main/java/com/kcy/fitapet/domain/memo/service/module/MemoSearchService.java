@@ -80,4 +80,11 @@ public class MemoSearchService {
 
         return MemoInfoDto.PageResponse.from(page);
     }
+
+    @Transactional(readOnly = true)
+    public MemoInfoDto.PageResponse findMemosByPetId(Long petId, Pageable pageable) {
+        Slice<MemoInfoDto.MemoInfo> page = memoRepository.findMemosByPetId(petId, pageable);
+
+        return MemoInfoDto.PageResponse.from(page);
+    }
 }

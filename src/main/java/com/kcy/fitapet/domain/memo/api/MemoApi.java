@@ -114,7 +114,8 @@ public class MemoApi {
             @PathVariable("pet_id") Long petId,
             @PageableDefault(size = 5, page = 0, sort = "memo.createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return null;
+        MemoInfoDto.PageResponse res = memoManageService.findMemosByPetId(petId, pageable);
+        return ResponseEntity.ok(SuccessResponse.from(res));
     }
 
     @Operation(summary = "메모 단건 조회")

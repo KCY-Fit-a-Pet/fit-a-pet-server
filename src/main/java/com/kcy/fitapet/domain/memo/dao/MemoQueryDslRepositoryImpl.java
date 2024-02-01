@@ -6,31 +6,22 @@ import com.kcy.fitapet.domain.memo.domain.QMemoImage;
 import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
 import com.kcy.fitapet.global.common.util.querydsl.QueryDslUtil;
 import com.kcy.fitapet.global.common.util.querydsl.RepositorySliceHelper;
-import com.querydsl.core.QueryResults;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Order;
+import com.querydsl.core.ResultTransformer;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
 import static com.querydsl.core.types.Projections.list;
-import static com.querydsl.core.types.dsl.Expressions.constant;
-import static com.querydsl.core.types.dsl.Expressions.constantAs;
 
 @Repository
 @RequiredArgsConstructor
@@ -78,10 +69,11 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
      *     FROM (
      * 		SELECT m.id
      * 		FROM memo_category c
-     * 		INNER JOIN memo m ON m.category_id = c.id
-     * 		WHERE c.id = 4
+     * 		LEFT JOIN memo m ON m.category_id = c.id
+     * 		WHERE c.id = ?
      * 		AND MATCH(m.title, m.content) AGAINST('병원*' IN BOOLEAN MODE)
-     * 		LIMIT 4
+     * 	    ORDER BY m.created_at DESC
+     * 		LIMIT ?, ?
      *     ) id
      * )
      * ORDER BY m.created_at DESC
@@ -101,30 +93,55 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                                 .where(memoCategory.id.eq(memoCategoryId)
                                         .and(QueryDslUtil.matchAgainst(memo.title, memo.content, target))
                                 )
+                                .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                                .offset(pageable.getOffset())
+                                .limit(pageable.getPageSize() + 1)
+                ))
+                 .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                .transform(createMemoInfoDtoResultTransformer());
+
+         return RepositorySliceHelper.toSlice(results, pageable);
+    }
+
+    @Override
+    public Slice<MemoInfoDto.MemoInfo> findMemosByPetId(Long petId, Pageable pageable) {
+        List<MemoInfoDto.MemoInfo> results = queryFactory
+                .from(memoCategory)
+                .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
+                .leftJoin(memoImage).on(memoImage.memo.id.eq(memo.id))
+                .where(memo.id.in(
+                        queryFactory
+                                .select(memo.id)
+                                .from(memoCategory)
+                                .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
+                                .where(memoCategory.pet.id.eq(petId))
+                                .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
                                 .offset(pageable.getOffset())
                                 .limit(pageable.getPageSize() + 1)
                 ))
                 .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
-                .transform(
-                        groupBy(memo.id).list(
-                                Projections.constructor(
-                                        MemoInfoDto.MemoInfo.class,
-                                        memo.id,
-                                        queryFactory.select(memoCategory.categoryName).from(memoCategory).where(memoCategory.id.eq(memoCategoryId)),
-                                        QueryDslUtil.left(memo.title, Expressions.constant(19)),
-                                        QueryDslUtil.left(memo.content, Expressions.constant(16)),
-                                        memo.createdAt,
-                                        list(
-                                                Projections.constructor(
-                                                        MemoInfoDto.MemoImageInfo.class,
-                                                        memoImage.id,
-                                                        memoImage.imgUrl
-                                                ).skipNulls()
-                                        ).skipNulls()
-                                )
-                        )
-                );
+                .transform(createMemoInfoDtoResultTransformer());
 
-         return RepositorySliceHelper.toSlice(results, pageable);
+        return RepositorySliceHelper.toSlice(results, pageable);
+    }
+
+    private ResultTransformer<List<MemoInfoDto.MemoInfo>> createMemoInfoDtoResultTransformer() {
+        return groupBy(memo.id).list(
+                Projections.constructor(
+                        MemoInfoDto.MemoInfo.class,
+                        memo.id,
+                        queryFactory.select(memoCategory.categoryName).from(memoCategory).where(memoCategory.id.eq(memo.memoCategory.id)),
+                        QueryDslUtil.left(memo.title, Expressions.constant(19)),
+                        QueryDslUtil.left(memo.content, Expressions.constant(16)),
+                        memo.createdAt,
+                        list(
+                                Projections.constructor(
+                                        MemoInfoDto.MemoImageInfo.class,
+                                        memoImage.id,
+                                        memoImage.imgUrl
+                                ).skipNulls()
+                        ).skipNulls()
+                )
+        );
     }
 }

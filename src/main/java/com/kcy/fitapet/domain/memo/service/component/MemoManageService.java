@@ -62,4 +62,9 @@ public class MemoManageService {
     public MemoInfoDto.PageResponse findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target) {
         return memoSearchService.findMemosInMemoCategory(memoCategoryId, pageable, target);
     }
+
+    @Transactional(readOnly = true)
+    public MemoInfoDto.PageResponse findMemosByPetId(Long petId, Pageable pageable) {
+        return memoSearchService.findMemosByPetId(petId, pageable);
+    }
 }

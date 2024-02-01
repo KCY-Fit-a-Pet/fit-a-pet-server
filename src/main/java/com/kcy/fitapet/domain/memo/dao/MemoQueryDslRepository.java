@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface MemoQueryDslRepository {
     Optional<MemoInfoDto.MemoInfo> findMemoAndMemoImageUrlsById(Long memoId);
     Slice<MemoInfoDto.MemoInfo> findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target);
+    Slice<MemoInfoDto.MemoInfo> findMemosByPetId(Long petId, Pageable pageable);
 }
