@@ -1,5 +1,9 @@
 package com.kcy.fitapet.global.config.redis;
 
+import com.kcy.fitapet.global.config.redis.annotation.ManagerCacheManager;
+import com.kcy.fitapet.global.config.redis.annotation.OidcCacheManager;
+import com.kcy.fitapet.global.config.redis.annotation.RedisCacheConnectionFactory;
+import com.kcy.fitapet.global.config.redis.annotation.SecurityUserCacheManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -54,6 +58,28 @@ public class CacheConfig {
                         RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
                 );
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = Map.of("sercurityConfig", config);
+
+        return RedisCacheManager.RedisCacheManagerBuilder
+                .fromConnectionFactory(redisConnectionFactory)
+                .cacheDefaults(config)
+                .withInitialCacheConfigurations(redisCacheConfigurationMap)
+                .build();
+    }
+
+    @Bean
+    @ManagerCacheManager
+    public CacheManager managerCacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .disableCachingNullValues()
+                .entryTtl(Duration.ofMinutes(3))
+                .computePrefixWith(CacheKeyPrefix.simple())
+                .serializeKeysWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())
+                )
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
+                );
+        Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = Map.of("managerConfig", config);
 
         return RedisCacheManager.RedisCacheManagerBuilder
                 .fromConnectionFactory(redisConnectionFactory)

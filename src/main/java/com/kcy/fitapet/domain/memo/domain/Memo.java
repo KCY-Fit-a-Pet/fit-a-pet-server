@@ -20,11 +20,9 @@ public class Memo extends AuthorAuditable {
     private String title;
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pet_id")
-    private Pet pet;
     @OneToMany(mappedBy = "memo", cascade = CascadeType.ALL)
     private List<MemoImage> memoImages;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private MemoCategory memoCategory;
@@ -40,5 +38,14 @@ public class Memo extends AuthorAuditable {
                 .title(title)
                 .content(content)
                 .build();
+    }
+
+    public void updateMemoCategory(MemoCategory memoCategory) {
+        if (this.memoCategory != null) {
+            this.memoCategory.getMemos().remove(this);
+        }
+
+        this.memoCategory = memoCategory;
+        memoCategory.getMemos().add(this);
     }
 }

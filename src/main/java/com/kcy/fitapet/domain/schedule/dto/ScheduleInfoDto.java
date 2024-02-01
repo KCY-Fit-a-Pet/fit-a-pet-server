@@ -32,7 +32,6 @@ public class ScheduleInfoDto {
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             @JsonProperty("reservationDate")
             LocalDateTime reservationDt,
-            @JsonInclude(JsonInclude.Include.NON_EMPTY)
             List<ParticipantPetInfo> pets
     ) {
         public static ScheduleInfo from(Schedule schedule, List<Pet> pets) {

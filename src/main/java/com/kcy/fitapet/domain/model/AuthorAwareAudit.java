@@ -1,6 +1,5 @@
 package com.kcy.fitapet.domain.model;
 
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
 import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import jakarta.persistence.EntityManager;
@@ -8,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 

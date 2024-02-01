@@ -58,11 +58,9 @@ public class CareManageService {
             List<CareInfoRes.CareDto> careDtos = new ArrayList<>();
             for (Care care : cares) {
                 WeekType todayWeek = WeekType.fromLegacyType(LocalDateTime.now().getDayOfWeek().toString());
-                log.info("todayWeek: {}", todayWeek);
                 List<CareDate> careDates = careSearchService.findCareDatesCareIdAndWeek(care.getId(), todayWeek);
                 for (CareDate careDate : careDates) {
                     LocalDateTime today = LocalDateTime.now();
-                    log.info("today: {}", today);
 
                     boolean isClear = careLogSearchService.existsByCareDateIdOnLogDate(careDate.getId(), today);
                     log.info("isClear: {}", isClear);

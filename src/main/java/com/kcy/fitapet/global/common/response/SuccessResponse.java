@@ -22,16 +22,17 @@ public class SuccessResponse<T> {
     @Schema(description = "응답 상태", defaultValue = "success")
     private final String status = "success";
     @Schema(description = "응답 코드", example = "data or no_content")
-    private Map<String, T> data;
+    private T data;
 
     @Builder
-    private SuccessResponse(Map<String, T> data) {
+    private SuccessResponse(T data) {
         this.data = data;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> SuccessResponse<T> from(String key, T data) {
         return SuccessResponse.<T>builder()
-                .data(Map.of(key, data))
+                .data((T) Map.of(key, data))
                 .build();
     }
 
@@ -39,16 +40,16 @@ public class SuccessResponse<T> {
      * 전송할 Application Level Data를 설정한다.
      * @param data : 전송할 데이터
      */
+    @SuppressWarnings("unchecked")
     public static <T> SuccessResponse<T> from(T data) {
         String key = getDtoName(data);
 
-        if (data instanceof Map) {
-            key = ((Map<?, ?>) data).keySet().stream().findFirst().orElse(null).toString();
-            data = (T) ((Map<?, ?>) data).get(key);
-        }
-        if (key == null) key = "data";
+        SuccessResponseBuilder<T> builder = SuccessResponse.<T>builder();
 
-        return from(key, data);
+        if (key != null) builder.data((T) Map.of(key, data));
+        else builder.data(data);
+
+        return builder.build();
     }
 
     /**

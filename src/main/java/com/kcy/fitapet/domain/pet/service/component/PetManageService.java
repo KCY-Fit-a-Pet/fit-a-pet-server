@@ -6,6 +6,7 @@ import com.kcy.fitapet.domain.member.domain.Member;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
 import com.kcy.fitapet.domain.member.type.ManageType;
+import com.kcy.fitapet.domain.memo.domain.MemoCategory;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
 import com.kcy.fitapet.domain.pet.service.module.PetSaveService;
@@ -30,6 +31,8 @@ public class PetManageService {
     @Transactional
     public void savePet(Pet pet, Long memberId) {
         pet = petSaveService.savePet(pet);
+
+        MemoCategory.ofRootInstance(pet.getPetName(), pet);
 
         Member member = memberSearchService.findById(memberId);
         memberSaveService.mappingMemberAndPet(member, pet, ManageType.MASTER);

@@ -5,7 +5,7 @@ import com.kcy.fitapet.global.common.repository.ExtendedRepository;
 
 import java.util.Optional;
 
-public interface MemberRepository extends ExtendedRepository<Member, Long> {
+public interface MemberRepository extends ExtendedRepository<Member, Long>, MemberQueryDslRepository {
     Optional<Member> findByUid(String uid);
     Optional<Member> findByPhone(String phone);
     boolean existsByUidOrPhone(String uid, String phone);

@@ -1,8 +1,6 @@
 package com.kcy.fitapet.domain.pet.service.module;
 
 import com.kcy.fitapet.domain.care.dao.CareCategoryRepository;
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
 import com.kcy.fitapet.domain.pet.dao.PetRepository;
 import com.kcy.fitapet.domain.pet.domain.Pet;
 import lombok.RequiredArgsConstructor;

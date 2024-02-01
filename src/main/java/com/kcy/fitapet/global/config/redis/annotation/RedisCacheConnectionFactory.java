@@ -1,4 +1,4 @@
-package com.kcy.fitapet.global.config.redis;
+package com.kcy.fitapet.global.config.redis.annotation;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -8,6 +8,6 @@ import java.lang.annotation.*;
         ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Qualifier("securityUserCacheManager")
-public @interface SecurityUserCacheManager {
+@Qualifier("redisCacheConnectionFactory")
+public @interface RedisCacheConnectionFactory {
 }
