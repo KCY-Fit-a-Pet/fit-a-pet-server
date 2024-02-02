@@ -76,14 +76,14 @@ public class MemoSearchService {
 
     @Transactional(readOnly = true)
     public MemoInfoDto.PageResponse findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target) {
-        Slice<MemoInfoDto.MemoInfo> page = memoRepository.findMemosInMemoCategory(memoCategoryId, pageable, target);
+        Slice<MemoInfoDto.MemoSummaryInfo> page = memoRepository.findMemosInMemoCategory(memoCategoryId, pageable, target);
 
         return MemoInfoDto.PageResponse.from(page);
     }
 
     @Transactional(readOnly = true)
     public MemoInfoDto.PageResponse findMemosByPetId(Long petId, Pageable pageable) {
-        Slice<MemoInfoDto.MemoInfo> page = memoRepository.findMemosByPetId(petId, pageable);
+        Slice<MemoInfoDto.MemoSummaryInfo> page = memoRepository.findMemosByPetId(petId, pageable);
 
         return MemoInfoDto.PageResponse.from(page);
     }

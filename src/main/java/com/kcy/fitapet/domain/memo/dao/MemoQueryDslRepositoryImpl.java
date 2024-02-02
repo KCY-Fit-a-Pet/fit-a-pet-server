@@ -7,6 +7,7 @@ import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
 import com.kcy.fitapet.global.common.util.querydsl.QueryDslUtil;
 import com.kcy.fitapet.global.common.util.querydsl.RepositorySliceHelper;
 import com.querydsl.core.ResultTransformer;
+import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -40,8 +41,8 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                                 MemoInfoDto.MemoInfo.class,
                                 memo.id,
                                 memoCategory.categoryName,
-                                QueryDslUtil.left(memo.title, Expressions.constant(19)),
-                                QueryDslUtil.left(memo.content, Expressions.constant(16)),
+                                memo.title,
+                                memo.content,
                                 memo.createdAt,
                                 list(
                                         Projections.constructor(
@@ -81,8 +82,8 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
      * </pre>
      */
     @Override
-    public Slice<MemoInfoDto.MemoInfo> findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target) {
-         List<MemoInfoDto.MemoInfo> results = queryFactory
+    public Slice<MemoInfoDto.MemoSummaryInfo> findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target) {
+         List<MemoInfoDto.MemoSummaryInfo> results = queryFactory
                 .from(memo)
                 .leftJoin(memoImage).on(memoImage.memo.id.eq(memo.id))
                 .where(memo.id.in(
@@ -104,8 +105,8 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
     }
 
     @Override
-    public Slice<MemoInfoDto.MemoInfo> findMemosByPetId(Long petId, Pageable pageable) {
-        List<MemoInfoDto.MemoInfo> results = queryFactory
+    public Slice<MemoInfoDto.MemoSummaryInfo> findMemosByPetId(Long petId, Pageable pageable) {
+        List<MemoInfoDto.MemoSummaryInfo> results = queryFactory
                 .from(memoCategory)
                 .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
                 .leftJoin(memoImage).on(memoImage.memo.id.eq(memo.id))
@@ -125,21 +126,19 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
         return RepositorySliceHelper.toSlice(results, pageable);
     }
 
-    private ResultTransformer<List<MemoInfoDto.MemoInfo>> createMemoInfoDtoResultTransformer() {
+    private ResultTransformer<List<MemoInfoDto.MemoSummaryInfo>> createMemoInfoDtoResultTransformer() {
         return groupBy(memo.id).list(
                 Projections.constructor(
-                        MemoInfoDto.MemoInfo.class,
+                        MemoInfoDto.MemoSummaryInfo.class,
                         memo.id,
                         queryFactory.select(memoCategory.categoryName).from(memoCategory).where(memoCategory.id.eq(memo.memoCategory.id)),
                         QueryDslUtil.left(memo.title, Expressions.constant(19)),
                         QueryDslUtil.left(memo.content, Expressions.constant(16)),
                         memo.createdAt,
-                        list(
-                                Projections.constructor(
-                                        MemoInfoDto.MemoImageInfo.class,
-                                        memoImage.id,
-                                        memoImage.imgUrl
-                                ).skipNulls()
+                        Projections.constructor( // TODO: 2024-02-02 : memoImage 결과가 여러 개일 때, 어떤 결과를 반환하는지? LIMIT을 밖으로 빼도 되는지?
+                                MemoInfoDto.MemoImageInfo.class,
+                                memoImage.id,
+                                memoImage.imgUrl
                         ).skipNulls()
                 )
         );
