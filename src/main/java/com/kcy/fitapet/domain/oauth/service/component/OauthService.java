@@ -1,7 +1,6 @@
 package com.kcy.fitapet.domain.oauth.service.component;
 
 import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.domain.NotificationSetting;
 import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
 import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
 import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
@@ -20,7 +19,10 @@ import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
 import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
-import com.kcy.fitapet.global.common.security.jwt.dto.*;
+import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import com.kcy.fitapet.global.common.security.jwt.dto.SmsOauthInfo;
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.security.oauth.*;
 import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
@@ -34,7 +36,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -65,8 +66,8 @@ public class OauthService {
         log.info("payload : {}", payload);
         isValidRequestId(id, payload.sub());
 
-        if (oauthSearchService.isExistMember(new BigInteger(id), provider)) {
-            Member member = oauthSearchService.findMemberByOauthIdAndProvider(new BigInteger(id), provider);
+        if (oauthSearchService.isExistMember(id, provider)) {
+            Member member = oauthSearchService.findMemberByOauthIdAndProvider(id, provider);
             return Optional.of(Pair.of(member.getId(), generateToken(JwtUserInfo.from(member))));
         } else {
             oidcTokenService.saveOIDCToken(idToken, provider, id);
@@ -88,7 +89,7 @@ public class OauthService {
         Member member = Member.builder().uid(req.uid()).name(req.name())
                 .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER).build();
         memberSaveService.saveMember(member);
-        OauthAccount oauthAccount = OauthAccount.of(new BigInteger(id), provider, payload.email());
+        OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
         oauthAccount.updateMember(member);
         oidcTokenService.deleteOIDCToken(req.idToken());
 
@@ -127,7 +128,7 @@ public class OauthService {
             Member member = memberSearchService.findByPhone(req.to());
             String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
             OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
-            OauthAccount oauthAccount = OauthAccount.of(new BigInteger(id), provider, payload.email());
+            OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
             oauthAccount.updateMember(member);
             oidcTokenService.deleteOIDCToken(req.idToken());
 

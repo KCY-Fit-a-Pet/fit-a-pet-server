@@ -8,7 +8,7 @@ import java.math.BigInteger;
 import java.util.Optional;
 
 public interface OauthRepository extends ExtendedJpaRepository<OauthAccount, Long> {
-    Optional<OauthAccount> findByOauthIdAndProvider(BigInteger oauthId, ProviderType provider);
-    boolean existsByOauthIdAndProvider(BigInteger oauthId, ProviderType provider);
+    Optional<OauthAccount> findByOauthIdAndProvider(String oauthId, ProviderType provider);
+    boolean existsByOauthIdAndProvider(String oauthId, ProviderType provider);
     boolean existsByEmail(String email);
 }
