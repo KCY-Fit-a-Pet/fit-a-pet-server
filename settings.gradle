@@ -1,1 +1,7 @@
 rootProject.name = 'fitapet'
+
+include 'fitapet-app-external-api'
+include 'fitapet-domain'
+include 'fitapet-infra'
+include 'fitapet-common'
+
