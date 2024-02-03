@@ -17,6 +17,7 @@ import org.apache.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -89,7 +90,10 @@ public class MemoApi {
     public ResponseEntity<?> getMemosAndSubCategories(
             @PathVariable("pet_id") Long petId, @PathVariable("memo_category_id") Long memoCategoryId,
             @RequestParam(value = "search", defaultValue = "", required = false) String search,
-            @PageableDefault(size = 15, page = 0, sort = "memo.createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 5, page = 0) @SortDefault.SortDefaults({
+                    @SortDefault(sort = "memo.createdAt", direction = Sort.Direction.DESC),
+                    @SortDefault(sort = "memoImage.id", direction = Sort.Direction.ASC)}
+            ) Pageable pageable
     ) {
         MemoInfoDto.PageResponse res = memoManageService.findMemosInMemoCategory(memoCategoryId, pageable, search);
         return ResponseEntity.ok(SuccessResponse.from(res));
@@ -112,7 +116,10 @@ public class MemoApi {
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getMemosByPet(
             @PathVariable("pet_id") Long petId,
-            @PageableDefault(size = 5, page = 0, sort = "memo.createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 5, page = 0) @SortDefault.SortDefaults({
+                    @SortDefault(sort = "memo.createdAt", direction = Sort.Direction.DESC),
+                    @SortDefault(sort = "memoImage.id", direction = Sort.Direction.ASC)}
+            ) Pageable pageable
     ) {
         MemoInfoDto.PageResponse res = memoManageService.findMemosByPetId(petId, pageable);
         return ResponseEntity.ok(SuccessResponse.from(res));

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
-import static com.querydsl.core.types.Projections.list;
+import static com.querydsl.core.group.GroupBy.list;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,28 +35,32 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
 
     @Override
     public Optional<MemoInfoDto.MemoInfo> findMemoAndMemoImageUrlsById(Long memoId) {
-        return Optional.of(queryFactory
-                .select(
-                        Projections.constructor(
-                                MemoInfoDto.MemoInfo.class,
-                                memo.id,
-                                memoCategory.categoryName,
-                                memo.title,
-                                memo.content,
-                                memo.createdAt,
-                                list(
-                                        Projections.constructor(
-                                                MemoInfoDto.MemoImageInfo.class,
-                                                memoImage.id,
-                                                memoImage.imgUrl
-                                        ).skipNulls()
-                                ).skipNulls()
-                        )
-                )
+        List<MemoInfoDto.MemoInfo> result = queryFactory
                 .from(memo)
+                .leftJoin(memoCategory).on(memoCategory.id.eq(memo.memoCategory.id))
                 .leftJoin(memoImage).on(memo.id.eq(memoImage.memo.id))
                 .where(memo.id.eq(memoId))
-                .fetchFirst());
+                .transform(
+                        groupBy(memoCategory.id, memo.id).list(
+                                Projections.constructor(
+                                        MemoInfoDto.MemoInfo.class,
+                                        memo.id,
+                                        memoCategory.categoryName,
+                                        memo.title,
+                                        memo.content,
+                                        memo.createdAt,
+                                        list(
+                                                Projections.constructor(
+                                                        MemoInfoDto.MemoImageInfo.class,
+                                                        memoImage.id,
+                                                        memoImage.imgUrl
+                                                ).skipNulls()
+                                        )
+                                )
+                        )
+                );
+
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     /**
@@ -135,11 +139,18 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                         QueryDslUtil.left(memo.title, Expressions.constant(19)),
                         QueryDslUtil.left(memo.content, Expressions.constant(16)),
                         memo.createdAt,
-                        Projections.constructor( // TODO: 2024-02-02 : memoImage 결과가 여러 개일 때, 어떤 결과를 반환하는지? LIMIT을 밖으로 빼도 되는지?
-                                MemoInfoDto.MemoImageInfo.class,
-                                memoImage.id,
-                                memoImage.imgUrl
-                        ).skipNulls()
+                        list(
+                                Projections.constructor(
+                                        MemoInfoDto.MemoImageInfo.class,
+                                        memoImage.id,
+                                        memoImage.imgUrl
+                                )
+                        ).getExpression()
+//                        Projections.constructor( // TODO: 2024-02-02 : memoImage 결과가 여러 개일 때, 어떤 결과를 반환하는지? LIMIT을 밖으로 빼도 되는지?
+//                                MemoInfoDto.MemoImageInfo.class,
+//                                memoImage.id,
+//                                memoImage.imgUrl
+//                        )
                 )
         );
     }
