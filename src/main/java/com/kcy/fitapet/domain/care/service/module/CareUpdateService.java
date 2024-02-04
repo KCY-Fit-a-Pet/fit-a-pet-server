@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CareSaveService {
+public class CareUpdateService {
     private final CareRepository careRepository;
     private final CareDateRepository careDateRepository;
     private final CareCategoryRepository careCategoryRepository;

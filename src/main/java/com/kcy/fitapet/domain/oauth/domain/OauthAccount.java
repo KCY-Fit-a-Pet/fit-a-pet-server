@@ -19,7 +19,7 @@ public class OauthAccount extends DateAuditable {
     private Long id;
 
     @Column(name = "oauth_id")
-    private BigInteger oauthId;
+    private String oauthId;
     @Convert(converter = ProviderTypeConverter.class)
     private ProviderType provider;
     private String email;
@@ -29,14 +29,14 @@ public class OauthAccount extends DateAuditable {
     private Member member;
 
     @Builder
-    public OauthAccount(Long id, BigInteger oauthId, ProviderType provider, String email) {
+    public OauthAccount(Long id, String oauthId, ProviderType provider, String email) {
         this.id = id;
         this.oauthId = oauthId;
         this.provider = provider;
         this.email = email;
     }
 
-    public static OauthAccount of(BigInteger oauthId, ProviderType provider, String email) {
+    public static OauthAccount of(String oauthId, ProviderType provider, String email) {
         return OauthAccount.builder()
                 .oauthId(oauthId)
                 .provider(provider)

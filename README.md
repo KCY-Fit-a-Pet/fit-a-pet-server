@@ -5,6 +5,15 @@
 - [프론트엔드](https://github.com/KCY-Fit-a-Pet/fit-a-pet-client): [최희진](https://github.com/heejinnn)
 - 백엔드: [양재서](https://github.com/psychology50)
 
+## [개발 기록]
+- [Side Project: Kakao Chat CI](https://jaeseo0519.tistory.com/323)
+- [NCP Cloud Function & Object Storage presigned URL 발급](https://jaeseo0519.tistory.com/331)
+- [Service Layer 분리에 대하여](https://jaeseo0519.tistory.com/314)
+- [API 세분화에 대하여](https://jaeseo0519.tistory.com/341)
+- [OIDC OAuth2 인증](https://jaeseo0519.tistory.com/349)
+- [Nginx 구성과 HTTPS 설정](https://jaeseo0519.tistory.com/354)
+- [GitHub Action & NCP CD pipeline 구축](https://jaeseo0519.tistory.com/354)
+
 ## [ Contents ]
 - [Project Summary](#project-summary)
 - [Version Control](#version-control)
