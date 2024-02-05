@@ -17,11 +17,6 @@ dependencies {
     /* Swagger */
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 
-    /* jwt */
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
-
     implementation project(':fitapet-common')
     implementation project(':fitapet-domain')
     implementation project(':fitapet-infra')
