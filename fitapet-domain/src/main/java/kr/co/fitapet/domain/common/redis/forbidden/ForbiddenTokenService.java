@@ -1,6 +1,6 @@
 package kr.co.fitapet.domain.common.redis.forbidden;
 
-import com.kcy.fitapet.global.common.resolver.access.AccessToken;
+import kr.co.fitapet.domain.domains.member.domain.AccessToken;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

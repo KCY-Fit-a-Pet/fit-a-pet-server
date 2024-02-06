@@ -2,6 +2,7 @@ package kr.co.fitapet.domain.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.domains.member.domain.Member;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;

@@ -1,12 +1,8 @@
 package kr.co.fitapet.api.common.resolver.access;
 
-import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.fitapet.api.common.security.jwt.JwtProvider;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

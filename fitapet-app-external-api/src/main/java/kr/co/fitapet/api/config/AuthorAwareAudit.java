@@ -1,7 +1,8 @@
-package kr.co.fitapet.domain.common.model;
+package kr.co.fitapet.api.config;
 
-import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import jakarta.persistence.EntityManager;
+import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
+import kr.co.fitapet.domain.domains.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AuthorAwareAudit implements AuditorAware<Member> {
+    public class AuthorAwareAudit implements AuditorAware<Member> {
     private final EntityManager em;
 
     @Override

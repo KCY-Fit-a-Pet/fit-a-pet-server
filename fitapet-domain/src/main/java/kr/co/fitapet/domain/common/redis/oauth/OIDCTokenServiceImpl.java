@@ -1,8 +1,9 @@
 package kr.co.fitapet.domain.common.redis.oauth;
 
-import com.kcy.fitapet.domain.oauth.exception.OauthException;
-import com.kcy.fitapet.domain.oauth.type.ProviderType;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.common.redis.exception.RedisErrorCode;
+import kr.co.fitapet.domain.common.redis.exception.RedisErrorException;
+import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class OIDCTokenServiceImpl implements OIDCTokenService {
     @Override
     public OIDCToken findOIDCToken(String token) {
         return oidcTokenRepository.findById(token).orElseThrow(
-                () -> new GlobalErrorException(OauthException.NOT_FOUND_ID_TOKEN)
+                () -> new RedisErrorException(RedisErrorCode.NOT_FOUND_KEY)
         );
     }
 

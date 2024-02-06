@@ -27,4 +27,12 @@ public class RefreshToken {
     protected void rotation(String token) {
         this.token = token;
     }
+
+    public static RefreshToken of(Long userId, String token, long ttl) {
+        return RefreshToken.builder()
+                .userId(userId)
+                .token(token)
+                .ttl(ttl)
+                .build();
+    }
 }

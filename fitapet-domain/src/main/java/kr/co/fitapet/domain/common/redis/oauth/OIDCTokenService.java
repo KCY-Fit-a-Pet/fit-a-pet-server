@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.common.redis.oauth;
 
-import com.kcy.fitapet.domain.oauth.type.ProviderType;
+
+import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
 
 public interface OIDCTokenService {
     /**

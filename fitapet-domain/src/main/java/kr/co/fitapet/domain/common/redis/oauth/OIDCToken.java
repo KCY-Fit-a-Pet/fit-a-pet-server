@@ -1,6 +1,6 @@
 package kr.co.fitapet.domain.common.redis.oauth;
 
-import com.kcy.fitapet.domain.oauth.type.ProviderType;
+import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
 import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

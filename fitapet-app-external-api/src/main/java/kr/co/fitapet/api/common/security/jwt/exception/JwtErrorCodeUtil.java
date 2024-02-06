@@ -1,6 +1,5 @@
 package kr.co.fitapet.api.common.security.jwt.exception;
 
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
