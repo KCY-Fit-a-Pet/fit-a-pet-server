@@ -1,13 +1,13 @@
 package kr.co.fitapet.domain.domains.care.service;
 
-import com.kcy.fitapet.domain.care.dao.CareCategoryRepository;
-import com.kcy.fitapet.domain.care.dao.CareDateRepository;
-import com.kcy.fitapet.domain.care.dao.CareRepository;
-import com.kcy.fitapet.domain.care.domain.Care;
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.domain.care.domain.CareDate;
-import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
-import com.kcy.fitapet.domain.care.type.WeekType;
+import kr.co.fitapet.domain.domains.care.domain.Care;
+import kr.co.fitapet.domain.domains.care.domain.CareCategory;
+import kr.co.fitapet.domain.domains.care.domain.CareDate;
+import kr.co.fitapet.domain.domains.care.dto.CareCategoryInfoRes;
+import kr.co.fitapet.domain.domains.care.repository.CareCategoryRepository;
+import kr.co.fitapet.domain.domains.care.repository.CareDateRepository;
+import kr.co.fitapet.domain.domains.care.repository.CareRepository;
+import kr.co.fitapet.domain.domains.care.type.WeekType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +53,7 @@ public class CareSearchService {
 
     @Transactional(readOnly = true)
     public List<?> checkCategoryExist(String categoryName, List<Long> petIds) {
-        CareCategoryDto dto = new CareCategoryDto();
+        CareCategoryInfoRes dto = new CareCategoryInfoRes();
 
         for (Long petId : petIds) {
             List<CareCategory> careCategories = careCategoryRepository.findAllByPet_Id(petId);

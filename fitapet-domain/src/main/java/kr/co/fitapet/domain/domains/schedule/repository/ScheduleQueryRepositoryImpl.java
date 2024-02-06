@@ -1,13 +1,14 @@
 package kr.co.fitapet.domain.domains.schedule.repository;
 
-import com.kcy.fitapet.domain.pet.domain.QPet;
-import com.kcy.fitapet.domain.pet.domain.QPetSchedule;
-import com.kcy.fitapet.domain.schedule.domain.QSchedule;
-import com.kcy.fitapet.domain.schedule.dto.ScheduleInfoDto;
+
 import com.querydsl.core.ResultTransformer;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.co.fitapet.domain.domains.pet.domain.QPet;
+import kr.co.fitapet.domain.domains.pet.domain.QPetSchedule;
+import kr.co.fitapet.domain.domains.schedule.domain.QSchedule;
+import kr.co.fitapet.domain.domains.schedule.dto.ScheduleInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.types.Projections.list;
 
 @Repository
 @RequiredArgsConstructor

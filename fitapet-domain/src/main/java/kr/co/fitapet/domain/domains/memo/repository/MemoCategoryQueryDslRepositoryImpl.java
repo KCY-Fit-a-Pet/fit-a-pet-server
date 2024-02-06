@@ -1,11 +1,11 @@
 package kr.co.fitapet.domain.domains.memo.repository;
 
-import com.kcy.fitapet.domain.memo.domain.QMemo;
-import com.kcy.fitapet.domain.memo.domain.QMemoCategory;
-import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
-import com.kcy.fitapet.domain.pet.domain.QPet;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.co.fitapet.domain.domains.memo.domain.QMemo;
+import kr.co.fitapet.domain.domains.memo.domain.QMemoCategory;
+import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
+import kr.co.fitapet.domain.domains.pet.domain.QPet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

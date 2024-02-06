@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.care.domain;
 
-import com.kcy.fitapet.domain.model.AuthorAuditable;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.AuthorAuditable;
 import lombok.*;
 
 import java.util.ArrayList;

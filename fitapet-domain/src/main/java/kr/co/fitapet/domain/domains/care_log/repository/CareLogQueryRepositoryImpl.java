@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.domains.care_log.repository;
 
-import com.kcy.fitapet.domain.log.domain.QCareLog;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.co.fitapet.domain.domains.care_log.domain.QCareLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

@@ -1,11 +1,12 @@
 package kr.co.fitapet.domain.domains.member.service;
 
-import com.kcy.fitapet.domain.member.dao.ManagerRepository;
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
-import com.kcy.fitapet.domain.member.domain.Manager;
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+
+import kr.co.fitapet.domain.domains.member.domain.Manager;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
+import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
+import kr.co.fitapet.domain.domains.member.repository.ManagerRepository;
+import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,14 +27,14 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public Member findByUid(String uid) {
         return memberRepository.findByUid(uid).orElseThrow(
-                () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
+                () -> new AccountErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
         );
     }
 
     @Transactional(readOnly = true)
     public Member findByPhone(String phone) {
         return memberRepository.findByPhone(phone).orElseThrow(
-                () -> new GlobalErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
+                () -> new AccountErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
         );
     }
 

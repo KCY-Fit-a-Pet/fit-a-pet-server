@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.domains.schedule.domain;
 
-import com.kcy.fitapet.domain.model.AuthorAuditable;
-import com.kcy.fitapet.domain.pet.domain.PetSchedule;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.AuthorAuditable;
+import kr.co.fitapet.domain.domains.pet.domain.PetSchedule;
 import lombok.*;
 
 import java.time.LocalDateTime;

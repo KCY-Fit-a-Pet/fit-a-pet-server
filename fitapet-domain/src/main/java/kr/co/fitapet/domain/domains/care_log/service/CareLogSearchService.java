@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.care_log.service;
 
-import com.kcy.fitapet.domain.log.dao.CareLogQueryRepository;
-import com.kcy.fitapet.domain.log.dao.CareLogRepository;
+import kr.co.fitapet.domain.domains.care_log.repository.CareLogQueryRepository;
+import kr.co.fitapet.domain.domains.care_log.repository.CareLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

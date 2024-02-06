@@ -1,10 +1,10 @@
 package kr.co.fitapet.domain.domains.memo.service;
 
-import com.kcy.fitapet.domain.memo.dao.MemoCategoryRepository;
-import com.kcy.fitapet.domain.memo.dao.MemoImageRepository;
-import com.kcy.fitapet.domain.memo.dao.MemoRepository;
-import com.kcy.fitapet.domain.memo.domain.Memo;
-import com.kcy.fitapet.domain.memo.domain.MemoCategory;
+import kr.co.fitapet.domain.domains.memo.domain.Memo;
+import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
+import kr.co.fitapet.domain.domains.memo.repository.MemoCategoryRepository;
+import kr.co.fitapet.domain.domains.memo.repository.MemoImageRepository;
+import kr.co.fitapet.domain.domains.memo.repository.MemoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

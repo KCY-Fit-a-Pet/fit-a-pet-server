@@ -1,10 +1,10 @@
 package kr.co.fitapet.domain.domains.care.domain;
 
-import com.kcy.fitapet.domain.care.type.WeekType;
-import com.kcy.fitapet.domain.care.type.WeekTypeConverter;
-import com.kcy.fitapet.domain.log.domain.CareLog;
-import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.DateAuditable;
+import kr.co.fitapet.domain.domains.care.type.WeekType;
+import kr.co.fitapet.domain.common.converter.WeekTypeConverter;
+import kr.co.fitapet.domain.domains.care_log.domain.CareLog;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

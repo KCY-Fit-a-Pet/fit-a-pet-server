@@ -1,6 +1,8 @@
 package kr.co.fitapet.domain.common.redis.sms.provider;
 
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
+
+import kr.co.fitapet.domain.common.redis.exception.RedisErrorException;
+import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 
 import java.time.LocalDateTime;
 
@@ -41,8 +43,9 @@ public interface SmsRedisProvider {
      * @param phoneNumber : String
      * @param prefix : SmsPrefix
      * @return LocalDateTime : 인증번호 만료 시간
+     * @throws RedisErrorException : RedisErrorCode.EXPIRED_VALUE(만료된 값)
      */
-     LocalDateTime getExpiredTime(String phoneNumber, SmsPrefix prefix);
+     LocalDateTime getExpiredTime(String phoneNumber, SmsPrefix prefix) throws RedisErrorException;
 
      default String getTopic(String phoneNumber, SmsPrefix prefix) {
          String str = prefix.getTopic(phoneNumber);

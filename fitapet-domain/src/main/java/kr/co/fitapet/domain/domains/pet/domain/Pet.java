@@ -1,12 +1,12 @@
 package kr.co.fitapet.domain.domains.pet.domain;
 
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.domain.member.domain.Manager;
-import com.kcy.fitapet.domain.memo.domain.MemoCategory;
-import com.kcy.fitapet.domain.model.DateAuditable;
-import com.kcy.fitapet.domain.pet.type.GenderType;
-import com.kcy.fitapet.domain.pet.type.GenderTypeConverter;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.DateAuditable;
+import kr.co.fitapet.domain.domains.care.domain.CareCategory;
+import kr.co.fitapet.domain.domains.member.domain.Manager;
+import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
+import kr.co.fitapet.domain.domains.pet.type.GenderType;
+import kr.co.fitapet.domain.common.converter.GenderTypeConverter;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 

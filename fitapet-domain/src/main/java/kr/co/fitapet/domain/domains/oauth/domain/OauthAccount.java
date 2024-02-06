@@ -1,10 +1,10 @@
 package kr.co.fitapet.domain.domains.oauth.domain;
 
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.model.DateAuditable;
-import com.kcy.fitapet.domain.oauth.type.ProviderType;
-import com.kcy.fitapet.domain.oauth.type.converter.ProviderTypeConverter;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.DateAuditable;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
+import kr.co.fitapet.domain.common.converter.ProviderTypeConverter;
 import lombok.*;
 
 @Entity

@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.care.repository;
 
-import com.kcy.fitapet.domain.care.domain.QCare;
-import com.kcy.fitapet.domain.care.domain.QCareDate;
+import kr.co.fitapet.domain.domains.care.domain.QCare;
+import kr.co.fitapet.domain.domains.care.domain.QCareDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

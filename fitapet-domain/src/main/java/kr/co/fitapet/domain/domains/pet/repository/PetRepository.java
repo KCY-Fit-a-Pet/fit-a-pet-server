@@ -1,7 +1,8 @@
 package kr.co.fitapet.domain.domains.pet.repository;
 
-import com.kcy.fitapet.domain.pet.domain.Pet;
-import com.kcy.fitapet.global.common.repository.ExtendedJpaRepository;
+
+import kr.co.fitapet.domain.common.repository.ExtendedJpaRepository;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
 
 public interface PetRepository extends ExtendedJpaRepository<Pet, Long> {
     boolean existsById(Long id);

@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.domains.care.repository;
 
-import com.kcy.fitapet.domain.care.domain.CareDate;
-import com.kcy.fitapet.domain.care.type.WeekType;
-import com.kcy.fitapet.global.common.repository.ExtendedJpaRepository;
+import kr.co.fitapet.domain.common.repository.ExtendedJpaRepository;
+import kr.co.fitapet.domain.domains.care.domain.CareDate;
+import kr.co.fitapet.domain.domains.care.type.WeekType;
 
 import java.util.List;
 

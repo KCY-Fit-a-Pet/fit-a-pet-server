@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.schedule.service;
 
-import com.kcy.fitapet.domain.schedule.dao.ScheduleJpaRepository;
-import com.kcy.fitapet.domain.schedule.dto.ScheduleInfoDto;
+import kr.co.fitapet.domain.domains.schedule.dto.ScheduleInfoDto;
+import kr.co.fitapet.domain.domains.schedule.repository.ScheduleJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

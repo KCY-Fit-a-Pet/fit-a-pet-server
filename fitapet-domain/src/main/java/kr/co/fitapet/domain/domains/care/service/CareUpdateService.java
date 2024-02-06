@@ -1,12 +1,12 @@
 package kr.co.fitapet.domain.domains.care.service;
 
-import com.kcy.fitapet.domain.care.dao.CareCategoryRepository;
-import com.kcy.fitapet.domain.care.dao.CareDateRepository;
-import com.kcy.fitapet.domain.care.dao.CareRepository;
-import com.kcy.fitapet.domain.care.domain.Care;
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.domain.care.domain.CareDate;
 import jakarta.transaction.Transactional;
+import kr.co.fitapet.domain.domains.care.domain.Care;
+import kr.co.fitapet.domain.domains.care.domain.CareCategory;
+import kr.co.fitapet.domain.domains.care.domain.CareDate;
+import kr.co.fitapet.domain.domains.care.repository.CareCategoryRepository;
+import kr.co.fitapet.domain.domains.care.repository.CareDateRepository;
+import kr.co.fitapet.domain.domains.care.repository.CareRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

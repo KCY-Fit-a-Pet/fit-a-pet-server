@@ -1,9 +1,10 @@
 package kr.co.fitapet.domain.domains.care_log.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.kcy.fitapet.domain.care.domain.CareDate;
-import com.kcy.fitapet.domain.member.domain.Member;
+
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.domains.care.domain.CareDate;
+import kr.co.fitapet.domain.domains.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

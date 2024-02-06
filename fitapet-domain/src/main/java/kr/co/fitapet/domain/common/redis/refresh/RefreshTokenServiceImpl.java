@@ -23,7 +23,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public RefreshToken refresh(RefreshToken requestRefreshToken, String newRefreshToken) {
+    public RefreshToken refresh(RefreshToken requestRefreshToken, String newRefreshToken) throws RedisErrorException {
         RefreshToken refreshToken = findOrElseThrow(requestRefreshToken.getUserId());
 
         validateToken(requestRefreshToken.getToken(), refreshToken);

@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.domains.member.domain;
 
-import com.kcy.fitapet.domain.notification.type.NotificationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import kr.co.fitapet.domain.domains.notification.type.NotificationType;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;

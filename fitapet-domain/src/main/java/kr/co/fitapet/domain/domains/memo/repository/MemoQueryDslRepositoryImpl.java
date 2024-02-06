@@ -1,16 +1,16 @@
 package kr.co.fitapet.domain.domains.memo.repository;
 
-import com.kcy.fitapet.domain.memo.domain.QMemo;
-import com.kcy.fitapet.domain.memo.domain.QMemoCategory;
-import com.kcy.fitapet.domain.memo.domain.QMemoImage;
-import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
-import com.kcy.fitapet.global.common.util.querydsl.QueryDslUtil;
-import com.kcy.fitapet.global.common.util.querydsl.RepositorySliceHelper;
 import com.querydsl.core.ResultTransformer;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.co.fitapet.domain.common.util.QueryDslUtil;
+import kr.co.fitapet.domain.common.util.SliceUtil;
+import kr.co.fitapet.domain.domains.memo.domain.QMemo;
+import kr.co.fitapet.domain.domains.memo.domain.QMemoCategory;
+import kr.co.fitapet.domain.domains.memo.domain.QMemoImage;
+import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.types.Projections.list;
 
 @Repository
 @RequiredArgsConstructor
@@ -103,7 +104,7 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                  .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .transform(createMemoInfoDtoResultTransformer());
 
-         return RepositorySliceHelper.toSlice(results, pageable);
+         return SliceUtil.toSlice(results, pageable);
     }
 
     @Override
@@ -125,7 +126,7 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                 .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .transform(createMemoInfoDtoResultTransformer());
 
-        return RepositorySliceHelper.toSlice(results, pageable);
+        return SliceUtil.toSlice(results, pageable);
     }
 
     private ResultTransformer<List<MemoInfoDto.MemoSummaryInfo>> createMemoInfoDtoResultTransformer() {
@@ -143,12 +144,7 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                                         memoImage.id,
                                         memoImage.imgUrl
                                 )
-                        ).getExpression()
-//                        Projections.constructor( // TODO: 2024-02-02 : memoImage 결과가 여러 개일 때, 어떤 결과를 반환하는지? LIMIT을 밖으로 빼도 되는지?
-//                                MemoInfoDto.MemoImageInfo.class,
-//                                memoImage.id,
-//                                memoImage.imgUrl
-//                        )
+                        )
                 )
         );
     }

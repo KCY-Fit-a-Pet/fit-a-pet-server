@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.domains.care.domain;
 
-import com.kcy.fitapet.domain.model.DateAuditable;
-import com.kcy.fitapet.domain.pet.domain.Pet;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.DateAuditable;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

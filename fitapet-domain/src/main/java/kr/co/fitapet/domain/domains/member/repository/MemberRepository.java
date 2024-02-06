@@ -1,7 +1,8 @@
 package kr.co.fitapet.domain.domains.member.repository;
 
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.global.common.repository.ExtendedRepository;
+
+import kr.co.fitapet.domain.common.repository.ExtendedRepository;
+import kr.co.fitapet.domain.domains.member.domain.Member;
 
 import java.util.Optional;
 

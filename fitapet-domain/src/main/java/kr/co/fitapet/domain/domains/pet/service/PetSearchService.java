@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.domains.pet.service;
 
-import com.kcy.fitapet.domain.care.dao.CareCategoryRepository;
-import com.kcy.fitapet.domain.pet.dao.PetRepository;
-import com.kcy.fitapet.domain.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.care.repository.CareCategoryRepository;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.pet.repository.PetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

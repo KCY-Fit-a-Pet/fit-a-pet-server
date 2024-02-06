@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.common.repository;
 
-import com.kcy.fitapet.global.common.response.code.ErrorCode;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import jakarta.persistence.EntityManager;
+import kr.co.fitapet.domain.common.exception.DomainErrorCode;
+import kr.co.fitapet.domain.common.exception.DomainErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -32,7 +32,7 @@ public class ExtendedJpaRepositoryImpl<T, ID extends Serializable>
         log.info("domain class name : {}", getClassName());
         if (result == null) {
             log.error("{} id not found", domainType.getSimpleName());
-            throw new GlobalErrorException(ErrorCode.valueOf("NOT_FOUND_" + getClassName()));
+            throw new DomainErrorException(DomainErrorCode.valueOf("NOT_FOUND_" + getClassName()));
         }
         return result;
     }

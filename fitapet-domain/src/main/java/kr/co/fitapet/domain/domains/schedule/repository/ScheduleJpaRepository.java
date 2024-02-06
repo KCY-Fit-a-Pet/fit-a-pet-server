@@ -1,7 +1,8 @@
 package kr.co.fitapet.domain.domains.schedule.repository;
 
-import com.kcy.fitapet.domain.schedule.domain.Schedule;
-import com.kcy.fitapet.global.common.repository.ExtendedJpaRepository;
+
+import kr.co.fitapet.domain.common.repository.ExtendedJpaRepository;
+import kr.co.fitapet.domain.domains.schedule.domain.Schedule;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package kr.co.fitapet.domain.domains.oauth.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import kr.co.fitapet.domain.common.converter.LegacyCommonType;
+import kr.co.fitapet.domain.common.util.converter.LegacyCommonType;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;

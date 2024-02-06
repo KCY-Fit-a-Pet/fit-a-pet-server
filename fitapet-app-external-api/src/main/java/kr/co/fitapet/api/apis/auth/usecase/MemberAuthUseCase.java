@@ -16,15 +16,19 @@ import com.kcy.fitapet.global.common.resolver.access.AccessToken;
 import com.kcy.fitapet.global.common.response.code.StatusCode;
 import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
 import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
-import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
+
 import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
 import com.kcy.fitapet.global.common.util.sms.SmsProvider;
 import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
 import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
+import kr.co.fitapet.api.common.security.jwt.JwtProvider;
+import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
+import kr.co.fitapet.api.common.security.jwt.qualifier.AccessTokenQualifier;
+import kr.co.fitapet.api.common.security.jwt.qualifier.RefreshTokenQualifier;
+import kr.co.fitapet.api.common.security.jwt.qualifier.SmsAuthTokenQualifier;
+import kr.co.fitapet.domain.common.redis.refresh.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,9 +38,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
 import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.SMS_AUTH_TOKEN;
+import static java.util.Calendar.ZONE_OFFSET;
 
 @Slf4j
 @Service
@@ -52,6 +58,13 @@ public class MemberAuthUseCase {
 
     private final SmsProvider smsProvider;
     private final JwtProviderMapper jwtMapper;
+
+    @AccessTokenQualifier
+    private final JwtProvider accessTokenProvider;
+    @RefreshTokenQualifier
+    private final JwtProvider refreshTokenProvider;
+    @SmsAuthTokenQualifier
+    private final JwtProvider smsAuthTokenProvider;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
@@ -179,8 +192,10 @@ public class MemberAuthUseCase {
     }
 
     private Jwt generateToken(JwtUserInfo jwtUserInfo) {
-        String accessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(jwtUserInfo);
-        String refreshToken = refreshTokenService.issueRefreshToken(accessToken);
+        String accessToken = accessTokenProvider.generateToken(jwtUserInfo);
+        String refreshToken = refreshTokenProvider.generateToken(jwtUserInfo);
+        refreshTokenService.issueRefreshToken(
+                RefreshToken.of(jwtUserInfo.id(), refreshToken, refreshTokenProvider.getExpiryDate(refreshToken).toEpochSecond(ZoneOffset.ofHours(ZONE_OFFSET))));
         log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
 
         return Jwt.of(accessToken, refreshToken);

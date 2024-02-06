@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.common.redis.sms.service;
 
-import com.kcy.fitapet.global.common.redis.sms.provider.SmsRedisProvider;
-import com.kcy.fitapet.global.common.redis.sms.qualify.SmsRegisterQualifier;
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
+import kr.co.fitapet.domain.common.redis.sms.provider.SmsRedisProvider;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsRegisterQualifier;
+import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

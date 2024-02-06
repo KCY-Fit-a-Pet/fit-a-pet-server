@@ -1,11 +1,11 @@
 package kr.co.fitapet.domain.common.redis.sms.provider;
 
-import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
-import com.kcy.fitapet.global.common.redis.sms.dao.SmsUidRepository;
-import com.kcy.fitapet.global.common.redis.sms.domain.SmsUid;
-import com.kcy.fitapet.global.common.redis.sms.qualify.SmsUidQualifier;
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import kr.co.fitapet.domain.common.redis.exception.RedisErrorCode;
+import kr.co.fitapet.domain.common.redis.exception.RedisErrorException;
+import kr.co.fitapet.domain.common.redis.sms.dao.SmsUidRepository;
+import kr.co.fitapet.domain.common.redis.sms.domain.SmsUid;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsUidQualifier;
+import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -49,7 +49,7 @@ public class SmsUidProvider implements SmsRedisProvider {
         log.info("ttl: {}", ttl);
 
         if (ttl == null || ttl < 0L)
-            throw new GlobalErrorException(SmsErrorCode.EXPIRED_AUTH_CODE);
+            throw new RedisErrorException(RedisErrorCode.EXPIRED_VALUE);
 
         return LocalDateTime.now().plusSeconds(ttl);
     }

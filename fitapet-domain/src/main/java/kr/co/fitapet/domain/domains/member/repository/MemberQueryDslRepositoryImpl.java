@@ -1,9 +1,9 @@
 package kr.co.fitapet.domain.domains.member.repository;
 
-import com.kcy.fitapet.domain.member.domain.QManager;
-import com.kcy.fitapet.domain.member.domain.QMember;
-import com.kcy.fitapet.domain.pet.domain.QPet;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.co.fitapet.domain.domains.member.domain.QManager;
+import kr.co.fitapet.domain.domains.member.domain.QMember;
+import kr.co.fitapet.domain.domains.pet.domain.QPet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

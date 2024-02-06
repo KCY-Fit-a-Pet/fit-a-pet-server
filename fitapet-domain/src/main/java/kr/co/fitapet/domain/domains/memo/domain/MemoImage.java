@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.memo.domain;
 
-import com.kcy.fitapet.domain.model.DateAuditable;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.DateAuditable;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

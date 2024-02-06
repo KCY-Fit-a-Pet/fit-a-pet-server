@@ -1,13 +1,13 @@
 package kr.co.fitapet.domain.domains.memo.service;
 
-import com.kcy.fitapet.domain.memo.dao.MemoCategoryRepository;
-import com.kcy.fitapet.domain.memo.dao.MemoImageRepository;
-import com.kcy.fitapet.domain.memo.dao.MemoRepository;
-import com.kcy.fitapet.domain.memo.domain.MemoCategory;
-import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
-import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
-import com.kcy.fitapet.domain.memo.exception.MemoErrorCode;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
+import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
+import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
+import kr.co.fitapet.domain.domains.memo.exception.MemoErrorCode;
+import kr.co.fitapet.domain.domains.memo.repository.MemoCategoryRepository;
+import kr.co.fitapet.domain.domains.memo.repository.MemoImageRepository;
+import kr.co.fitapet.domain.domains.memo.repository.MemoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;

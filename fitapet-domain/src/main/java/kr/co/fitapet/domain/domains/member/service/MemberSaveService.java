@@ -1,11 +1,11 @@
 package kr.co.fitapet.domain.domains.member.service;
 
-import com.kcy.fitapet.domain.member.dao.ManagerRepository;
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
-import com.kcy.fitapet.domain.member.domain.Manager;
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.type.ManageType;
-import com.kcy.fitapet.domain.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.member.domain.Manager;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.repository.ManagerRepository;
+import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
+import kr.co.fitapet.domain.domains.member.type.ManageType;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

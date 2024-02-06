@@ -1,23 +1,5 @@
 package kr.co.fitapet.api.apis.auth.controller;
 
-import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
-import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
-import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
-import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
-import com.kcy.fitapet.global.common.resolver.access.AccessToken;
-import com.kcy.fitapet.global.common.resolver.access.AccessTokenInfo;
-import com.kcy.fitapet.global.common.response.ErrorResponse;
-import com.kcy.fitapet.global.common.response.FailureResponse;
-import com.kcy.fitapet.global.common.response.SuccessResponse;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
-import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -31,6 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import kr.co.fitapet.api.apis.auth.usecase.MemberAuthUseCase;
+import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
+import kr.co.fitapet.api.common.util.cookie.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -43,8 +28,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Tag(name = "유저 관리 API", description = "유저 인증과 관련된 API")
 @RestController
@@ -52,7 +35,7 @@ import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_T
 @RequiredArgsConstructor
 @Slf4j
 public class AuthApi {
-    private final MemberAuthService memberAuthService;
+    private final MemberAuthUseCase memberAuthService;
     private final CookieUtil cookieUtil;
 
     @Operation(summary = "회원가입", description = "유저 닉네임, 패스워드를 입력받고 유효하다면 액세스 토큰(헤더)과 리프레시 토큰(쿠키)을 반환합니다.")

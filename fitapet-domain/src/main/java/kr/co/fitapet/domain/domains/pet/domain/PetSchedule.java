@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.pet.domain;
 
-import com.kcy.fitapet.domain.schedule.domain.Schedule;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.domains.schedule.domain.Schedule;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

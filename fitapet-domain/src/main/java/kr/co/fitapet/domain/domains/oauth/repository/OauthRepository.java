@@ -1,8 +1,8 @@
 package kr.co.fitapet.domain.domains.oauth.repository;
 
-import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
-import com.kcy.fitapet.domain.oauth.type.ProviderType;
-import com.kcy.fitapet.global.common.repository.ExtendedJpaRepository;
+import kr.co.fitapet.domain.common.repository.ExtendedJpaRepository;
+import kr.co.fitapet.domain.domains.oauth.domain.OauthAccount;
+import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
 
 import java.util.Optional;
 

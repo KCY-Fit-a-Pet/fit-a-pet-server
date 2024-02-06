@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.domains.memo.repository;
 
-import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
+
+import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
 
 import java.util.List;
 

@@ -1,7 +1,8 @@
 package kr.co.fitapet.domain.domains.care.repository;
 
-import com.kcy.fitapet.domain.care.domain.Care;
-import com.kcy.fitapet.global.common.repository.ExtendedRepository;
+
+import kr.co.fitapet.domain.common.repository.ExtendedRepository;
+import kr.co.fitapet.domain.domains.care.domain.Care;
 
 public interface CareRepository extends ExtendedRepository<Care, Long>, CareQueryDslRepository {
 

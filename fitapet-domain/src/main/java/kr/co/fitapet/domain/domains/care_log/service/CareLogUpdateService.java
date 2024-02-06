@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.care_log.service;
 
-import com.kcy.fitapet.domain.log.dao.CareLogRepository;
-import com.kcy.fitapet.domain.log.domain.CareLog;
+import kr.co.fitapet.domain.domains.care_log.domain.CareLog;
+import kr.co.fitapet.domain.domains.care_log.repository.CareLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

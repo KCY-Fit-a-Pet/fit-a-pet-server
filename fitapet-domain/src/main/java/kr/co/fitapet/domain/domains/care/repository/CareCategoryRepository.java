@@ -1,7 +1,8 @@
 package kr.co.fitapet.domain.domains.care.repository;
 
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.global.common.repository.ExtendedJpaRepository;
+
+import kr.co.fitapet.domain.common.repository.ExtendedJpaRepository;
+import kr.co.fitapet.domain.domains.care.domain.CareCategory;
 
 import java.util.List;
 

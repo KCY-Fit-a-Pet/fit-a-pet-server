@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.pet.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kcy.fitapet.global.common.util.converter.LegacyCommonType;
+import kr.co.fitapet.domain.common.util.converter.LegacyCommonType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

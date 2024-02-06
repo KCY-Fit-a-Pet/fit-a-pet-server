@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.memo.domain;
 
-import com.kcy.fitapet.domain.model.AuthorAuditable;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.AuthorAuditable;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

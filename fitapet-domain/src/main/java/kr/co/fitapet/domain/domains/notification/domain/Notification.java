@@ -1,10 +1,10 @@
 package kr.co.fitapet.domain.domains.notification.domain;
 
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.model.DateAuditable;
-import com.kcy.fitapet.domain.notification.type.NotificationType;
-import com.kcy.fitapet.domain.notification.type.converter.NotificationTypeConverter;
 import jakarta.persistence.*;
+import kr.co.fitapet.domain.common.model.DateAuditable;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.notification.type.NotificationType;
+import kr.co.fitapet.domain.common.converter.NotificationTypeConverter;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
