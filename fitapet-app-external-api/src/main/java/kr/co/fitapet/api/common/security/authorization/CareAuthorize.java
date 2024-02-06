@@ -1,7 +1,7 @@
 package kr.co.fitapet.api.common.security.authorization;
 
-import com.kcy.fitapet.domain.care.dao.CareDateRepository;
-import com.kcy.fitapet.domain.care.dao.CareRepository;
+import kr.co.fitapet.domain.domains.care.repository.CareDateRepository;
+import kr.co.fitapet.domain.domains.care.repository.CareRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

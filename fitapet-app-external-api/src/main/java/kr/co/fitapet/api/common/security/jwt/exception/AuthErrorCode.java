@@ -1,6 +1,6 @@
 package kr.co.fitapet.api.common.security.jwt.exception;
 
-import com.kcy.fitapet.global.common.response.code.StatusCode;
+import kr.co.fitapet.api.common.response.code.StatusCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

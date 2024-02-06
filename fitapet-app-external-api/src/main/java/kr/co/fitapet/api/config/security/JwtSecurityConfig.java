@@ -1,7 +1,7 @@
 package kr.co.fitapet.api.config.security;
 
-import com.kcy.fitapet.global.common.security.filter.JwtAuthenticationFilter;
-import com.kcy.fitapet.global.common.security.filter.JwtExceptionFilter;
+import kr.co.fitapet.api.common.security.filter.JwtAuthenticationFilter;
+import kr.co.fitapet.api.common.security.filter.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;

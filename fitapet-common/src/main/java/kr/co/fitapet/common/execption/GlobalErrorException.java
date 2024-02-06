@@ -14,4 +14,10 @@ public class GlobalErrorException extends RuntimeException {
     public CausedBy causedBy() {
         return baseErrorCode.causedBy();
     }
+
+    @Override
+    public String toString() {
+        return "GlobalErrorException(code=" + baseErrorCode.causedBy().name()
+                + ", message=" + baseErrorCode.getExplainError() + ")";
+    }
 }

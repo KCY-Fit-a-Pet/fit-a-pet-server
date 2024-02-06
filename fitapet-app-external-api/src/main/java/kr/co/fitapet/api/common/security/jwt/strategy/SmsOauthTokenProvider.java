@@ -1,24 +1,22 @@
 package kr.co.fitapet.api.common.security.jwt.strategy;
 
-import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.SmsAuthInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.SmsOauthInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
-import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
-import com.kcy.fitapet.global.common.security.jwt.qualifier.SmsOauthTokenQualifier;
-import com.kcy.fitapet.global.common.util.DateUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import kr.co.fitapet.api.common.security.jwt.JwtProvider;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
+import kr.co.fitapet.api.common.security.jwt.dto.SmsOauthInfo;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
+import kr.co.fitapet.api.common.security.jwt.exception.JwtErrorCodeUtil;
+import kr.co.fitapet.api.common.security.jwt.qualifier.SmsOauthTokenQualifier;
+import kr.co.fitapet.common.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
 import java.security.Key;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -26,8 +24,8 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
-import static com.kcy.fitapet.global.common.security.jwt.JwtField.PHONE_NUMBER;
-import static com.kcy.fitapet.global.common.security.jwt.JwtField.USER_ID;
+import static kr.co.fitapet.api.common.security.jwt.JwtField.PHONE_NUMBER;
+import static kr.co.fitapet.api.common.security.jwt.JwtField.USER_ID;
 
 @Slf4j
 @Component

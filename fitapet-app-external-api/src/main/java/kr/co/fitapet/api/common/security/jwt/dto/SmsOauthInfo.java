@@ -1,9 +1,7 @@
 package kr.co.fitapet.api.common.security.jwt.dto;
 
-import com.kcy.fitapet.domain.member.type.RoleType;
+import kr.co.fitapet.domain.domains.member.type.RoleType;
 import lombok.Builder;
-
-import java.math.BigInteger;
 
 @Builder
 public record SmsOauthInfo(

@@ -1,10 +1,8 @@
 package kr.co.fitapet.api.common.security.jwt;
 
-import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
 import io.jsonwebtoken.Claims;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;

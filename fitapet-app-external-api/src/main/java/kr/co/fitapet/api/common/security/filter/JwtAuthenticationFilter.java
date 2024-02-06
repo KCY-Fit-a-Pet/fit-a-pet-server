@@ -1,25 +1,18 @@
 package kr.co.fitapet.api.common.security.filter;
 
-import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
-import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
-import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
-import com.kcy.fitapet.global.common.security.authentication.UserDetailServiceImpl;
-import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
-import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
-import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
+import kr.co.fitapet.api.common.security.authentication.UserDetailServiceImpl;
+import kr.co.fitapet.api.common.security.jwt.JwtProvider;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
+import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +24,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
+import static kr.co.fitapet.api.common.security.jwt.AuthConstants.AUTH_HEADER;
+import static kr.co.fitapet.api.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 /**
  * JWT 인증 필터 <br/>

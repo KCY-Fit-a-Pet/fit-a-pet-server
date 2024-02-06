@@ -1,9 +1,9 @@
 package kr.co.fitapet.api.common.security.authentication;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.type.RoleType;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -53,7 +53,7 @@ public final class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Arrays.stream(RoleType.values())
                 .filter(roleType -> roleType == role)
-                .map(roleType -> (GrantedAuthority) roleType::name)
+                .map(roleType -> (GrantedAuthority) roleType::getRole)
                 .toList();
     }
 

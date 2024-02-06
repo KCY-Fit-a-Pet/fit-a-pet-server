@@ -1,37 +1,22 @@
 package kr.co.fitapet.api.apis.auth.usecase;
 
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.auth.SignInReq;
-import com.kcy.fitapet.domain.member.dto.auth.SignUpReq;
-import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
-import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
-import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
-import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
-import com.kcy.fitapet.global.common.redis.refresh.RefreshToken;
-import com.kcy.fitapet.global.common.redis.refresh.RefreshTokenService;
-import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
-import com.kcy.fitapet.global.common.resolver.access.AccessToken;
-import com.kcy.fitapet.global.common.response.code.StatusCode;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
-
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.util.sms.SmsProvider;
-import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsReq;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import kr.co.fitapet.api.common.security.jwt.JwtProvider;
 import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
 import kr.co.fitapet.api.common.security.jwt.qualifier.AccessTokenQualifier;
 import kr.co.fitapet.api.common.security.jwt.qualifier.RefreshTokenQualifier;
 import kr.co.fitapet.api.common.security.jwt.qualifier.SmsAuthTokenQualifier;
+import kr.co.fitapet.api.common.security.jwt.strategy.AccessTokenProvider;
+import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
 import kr.co.fitapet.domain.common.redis.refresh.RefreshToken;
+import kr.co.fitapet.domain.common.redis.refresh.RefreshTokenService;
+import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
+import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
+import kr.co.fitapet.infra.client.sms.snes.SmsProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,8 +25,6 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.SMS_AUTH_TOKEN;
 import static java.util.Calendar.ZONE_OFFSET;
 
 @Slf4j
@@ -57,7 +40,6 @@ public class MemberAuthUseCase {
     private final SmsRedisHelper smsRedisHelper;
 
     private final SmsProvider smsProvider;
-    private final JwtProviderMapper jwtMapper;
 
     @AccessTokenQualifier
     private final JwtProvider accessTokenProvider;
@@ -70,12 +52,12 @@ public class MemberAuthUseCase {
 
     @Transactional
     public Pair<Long, Jwt> register(String requestSmsAccessToken, SignUpReq dto) {
-        String accessToken = jwtMapper.getProvider(SMS_AUTH_TOKEN).resolveToken(requestSmsAccessToken);
+        String accessToken = smsAuthTokenProvider.resolveToken(requestSmsAccessToken);
 
         if (forbiddenTokenService.isForbidden(accessToken))
             throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
 
-        JwtSubInfo jwtSubInfo = jwtMapper.getProvider(SMS_AUTH_TOKEN).getSubInfoFromToken(accessToken);
+        JwtSubInfo jwtSubInfo = smsAuthTokenProvider.getSubInfoFromToken(accessToken);
         smsRedisHelper.removeCode(jwtSubInfo.phoneNumber(), SmsPrefix.REGISTER);
 
         Member requestMember = dto.toEntity(jwtSubInfo.phoneNumber());

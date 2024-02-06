@@ -1,7 +1,7 @@
 package kr.co.fitapet.api.config.security;
 
-import com.kcy.fitapet.global.common.security.handler.JwtAccessDeniedHandler;
-import com.kcy.fitapet.global.common.security.handler.JwtAuthenticationEntryPoint;
+import kr.co.fitapet.api.common.security.handler.JwtAccessDeniedHandler;
+import kr.co.fitapet.api.common.security.handler.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;

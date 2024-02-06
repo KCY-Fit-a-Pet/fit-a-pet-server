@@ -1,7 +1,7 @@
 package kr.co.fitapet.api.common.security.authorization;
 
-import com.kcy.fitapet.domain.memo.dao.MemoCategoryRepository;
-import com.kcy.fitapet.domain.memo.dao.MemoRepository;
+import kr.co.fitapet.domain.domains.memo.repository.MemoCategoryRepository;
+import kr.co.fitapet.domain.domains.memo.repository.MemoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

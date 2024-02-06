@@ -1,6 +1,6 @@
 package kr.co.fitapet.api.common.security.authentication;
 
-import com.kcy.fitapet.domain.member.dao.MemberRepository;
+import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;

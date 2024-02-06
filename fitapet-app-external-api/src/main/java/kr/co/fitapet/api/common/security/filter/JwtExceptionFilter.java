@@ -1,13 +1,13 @@
 package kr.co.fitapet.api.common.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorResponse;
+import kr.co.fitapet.api.common.security.jwt.exception.JwtErrorCodeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.OncePerRequestFilter;

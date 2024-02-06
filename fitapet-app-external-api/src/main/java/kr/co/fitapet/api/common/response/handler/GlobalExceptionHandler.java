@@ -1,10 +1,10 @@
 package kr.co.fitapet.api.common.response.handler;
 
-import com.kcy.fitapet.global.common.response.ErrorResponse;
-import com.kcy.fitapet.global.common.response.FailureResponse;
-import com.kcy.fitapet.global.common.response.code.ErrorCode;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
+import kr.co.fitapet.api.common.response.ErrorResponse;
+import kr.co.fitapet.api.common.response.FailureResponse;
+import kr.co.fitapet.api.common.response.code.ErrorCode;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
+import kr.co.fitapet.common.execption.GlobalErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleGlobalErrorException(GlobalErrorException e) {
         log.warn("handleGlobalErrorException : {}", e.getMessage());
         final ErrorResponse response = ErrorResponse.of(e.getMessage());
-        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+        return ResponseEntity.status(e.getBaseErrorCode().causedBy().code()).body(response);
     }
 
     /**
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AuthErrorException.class)
     protected ResponseEntity<ErrorResponse> handleAuthErrorException(AuthErrorException e) {
-        log.warn("handleAuthErrorException : {}", e.getMessage());
+        log.warn("handleAuthErrorException : {}", e.getErrorCode().getMessage());
         final ErrorResponse response = ErrorResponse.of(e.getErrorCode().getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }

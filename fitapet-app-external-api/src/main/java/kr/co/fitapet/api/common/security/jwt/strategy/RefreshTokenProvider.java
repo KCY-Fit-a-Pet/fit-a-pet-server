@@ -1,16 +1,16 @@
 package kr.co.fitapet.api.common.security.jwt.strategy;
 
-import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.global.common.security.jwt.JwtProvider;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorException;
-import com.kcy.fitapet.global.common.security.jwt.exception.JwtErrorCodeUtil;
-import com.kcy.fitapet.global.common.security.jwt.qualifier.RefreshTokenQualifier;
-import com.kcy.fitapet.global.common.util.DateUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import kr.co.fitapet.api.common.security.jwt.JwtProvider;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
+import kr.co.fitapet.api.common.security.jwt.exception.JwtErrorCodeUtil;
+import kr.co.fitapet.api.common.security.jwt.qualifier.RefreshTokenQualifier;
+import kr.co.fitapet.common.date.DateUtil;
+import kr.co.fitapet.domain.domains.member.type.RoleType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.kcy.fitapet.global.common.security.jwt.JwtField.ROLE;
-import static com.kcy.fitapet.global.common.security.jwt.JwtField.USER_ID;
+import static kr.co.fitapet.api.common.security.jwt.JwtField.ROLE;
+import static kr.co.fitapet.api.common.security.jwt.JwtField.USER_ID;
 
 @Slf4j
 @Component

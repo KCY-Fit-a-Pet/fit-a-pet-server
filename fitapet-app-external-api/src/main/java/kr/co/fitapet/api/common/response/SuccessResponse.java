@@ -1,7 +1,7 @@
 package kr.co.fitapet.api.common.response;
 
-import com.kcy.fitapet.global.common.util.bind.Dto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.co.fitapet.domain.common.annotation.Dto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
