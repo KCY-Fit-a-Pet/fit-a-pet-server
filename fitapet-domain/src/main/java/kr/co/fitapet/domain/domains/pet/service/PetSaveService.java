@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.pet.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import kr.co.fitapet.domain.domains.pet.domain.PetSchedule;
 import kr.co.fitapet.domain.domains.pet.repository.PetRepository;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@DomainService
 @RequiredArgsConstructor
 public class PetSaveService {
     private final PetRepository petRepository;

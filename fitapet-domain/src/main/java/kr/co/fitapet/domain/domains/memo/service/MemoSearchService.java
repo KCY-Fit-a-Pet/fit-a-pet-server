@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.memo.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
 import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@DomainService
 @Slf4j
 @RequiredArgsConstructor
 public class MemoSearchService {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@SmsPasswordQualifier
 public class SmsPasswordService {
     private final SmsRedisProvider smsRedisProvider;
 

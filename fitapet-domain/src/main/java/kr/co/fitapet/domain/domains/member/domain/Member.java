@@ -111,11 +111,11 @@ public class Member extends DateAuditable {
 //    public boolean checkPassword(String plainPassword, PasswordEncoder passwordEncoder) {
 //        return passwordEncoder.matches(plainPassword, this.password);
 //    }
-//
-//    public void updateName(String name) {
-//        this.name = name;
-//    }
-//
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
 //    public void updatePassword(String password, PasswordEncoder passwordEncoder) {
 //        this.password = passwordEncoder.encode(password);
 //    }

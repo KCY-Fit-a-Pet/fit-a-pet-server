@@ -1,23 +1,23 @@
 package kr.co.fitapet.api.apis.memo.controller;
 
-import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
-import com.kcy.fitapet.domain.memo.dto.MemoSaveReq;
-import com.kcy.fitapet.domain.memo.dto.SubMemoCategorySaveReq;
-import com.kcy.fitapet.domain.memo.service.component.MemoManageService;
-import com.kcy.fitapet.global.common.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.fitapet.api.apis.memo.usecase.MemoUseCase;
+import kr.co.fitapet.api.common.response.SuccessResponse;
+import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
+import kr.co.fitapet.domain.domains.memo.dto.MemoSaveReq;
+import kr.co.fitapet.api.apis.memo.dto.SubMemoCategorySaveReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/pets/{pet_id}")
 public class MemoApi {
-    private final MemoManageService memoManageService;
+    private final MemoUseCase memoUseCase;
 
     @Operation(summary = "서브 메모 카테고리 저장")
     @Parameters({
@@ -42,8 +42,8 @@ public class MemoApi {
             @PathVariable("root_memo_category_id") Long rootMemoCategoryId,
             @RequestBody @Valid SubMemoCategorySaveReq req
     ) {
-        memoManageService.saveSubMemoCategory(petId, rootMemoCategoryId, req);
-        return ResponseEntity.status(HttpStatus.SC_CREATED).body(SuccessResponse.noContent());
+        memoUseCase.saveSubMemoCategory(petId, rootMemoCategoryId, req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.noContent());
     }
 
     @Operation(summary = "메모 카테고리 리스트 조회", description = "메모 카테고리 타입이 root인 경우, 서브 메모 카테고리 리스트도 함께 조회합니다.")
@@ -57,7 +57,7 @@ public class MemoApi {
             @PathVariable("pet_id") Long petId,
             @PathVariable("memo_category_id") Long memoCategoryId
     ) {
-        return ResponseEntity.ok(SuccessResponse.from(memoManageService.findCategoryById(memoCategoryId)));
+        return ResponseEntity.ok(SuccessResponse.from(memoUseCase.findCategoryById(memoCategoryId)));
     }
 
     @Operation(summary = "서브 메모 카테고리 삭제")
@@ -95,7 +95,7 @@ public class MemoApi {
                     @SortDefault(sort = "memoImage.id", direction = Sort.Direction.ASC)}
             ) Pageable pageable
     ) {
-        MemoInfoDto.PageResponse res = memoManageService.findMemosInMemoCategory(memoCategoryId, pageable, search);
+        MemoInfoDto.PageResponse res = memoUseCase.findMemosInMemoCategory(memoCategoryId, pageable, search);
         return ResponseEntity.ok(SuccessResponse.from(res));
     }
 
@@ -121,7 +121,7 @@ public class MemoApi {
                     @SortDefault(sort = "memoImage.id", direction = Sort.Direction.ASC)}
             ) Pageable pageable
     ) {
-        MemoInfoDto.PageResponse res = memoManageService.findMemosByPetId(petId, pageable);
+        MemoInfoDto.PageResponse res = memoUseCase.findMemosByPetId(petId, pageable);
         return ResponseEntity.ok(SuccessResponse.from(res));
     }
 
@@ -138,7 +138,7 @@ public class MemoApi {
             @PathVariable("memo_category_id") Long memoCategoryId,
             @PathVariable("memo_id") Long memoId
     ) {
-        MemoInfoDto.MemoInfo info = memoManageService.findMemoAndMemoImageUrlsById(memoId);
+        MemoInfoDto.MemoInfo info = memoUseCase.findMemoAndMemoImageUrlsById(memoId);
         return ResponseEntity.ok(SuccessResponse.from(info));
     }
 
@@ -154,8 +154,8 @@ public class MemoApi {
             @PathVariable("memo_category_id") Long memoCategoryId,
             @RequestBody @Valid MemoSaveReq req
     ) {
-        memoManageService.saveMemo(memoCategoryId, req);
-        return ResponseEntity.status(HttpStatus.SC_CREATED).body(SuccessResponse.noContent());
+        memoUseCase.saveMemo(memoCategoryId, req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.noContent());
     }
 
     @Operation(summary = "메모 삭제")

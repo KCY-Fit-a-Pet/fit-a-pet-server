@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.memo.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.memo.domain.Memo;
 import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
 import kr.co.fitapet.domain.domains.memo.repository.MemoCategoryRepository;
@@ -9,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Service
+@DomainService
 @Slf4j
 @RequiredArgsConstructor
 public class MemoSaveService {

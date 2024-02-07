@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.pet.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.care.repository.CareCategoryRepository;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import kr.co.fitapet.domain.domains.pet.repository.PetRepository;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@DomainService
 @RequiredArgsConstructor
 public class PetSearchService {
     private final PetRepository petRepository;

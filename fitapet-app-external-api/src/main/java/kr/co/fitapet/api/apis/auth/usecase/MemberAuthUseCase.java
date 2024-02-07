@@ -1,18 +1,37 @@
 package kr.co.fitapet.api.apis.auth.usecase;
 
+import kr.co.fitapet.api.apis.auth.dto.SmsReq;
+import kr.co.fitapet.api.apis.auth.dto.SmsRes;
 import kr.co.fitapet.api.common.security.jwt.JwtProvider;
 import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
+import kr.co.fitapet.api.common.security.jwt.dto.SmsAuthInfo;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
 import kr.co.fitapet.api.common.security.jwt.qualifier.AccessTokenQualifier;
 import kr.co.fitapet.api.common.security.jwt.qualifier.RefreshTokenQualifier;
 import kr.co.fitapet.api.common.security.jwt.qualifier.SmsAuthTokenQualifier;
 import kr.co.fitapet.api.common.security.jwt.strategy.AccessTokenProvider;
+import kr.co.fitapet.common.annotation.UseCase;
+import kr.co.fitapet.common.execption.BaseErrorCode;
+import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
 import kr.co.fitapet.domain.common.redis.refresh.RefreshToken;
 import kr.co.fitapet.domain.common.redis.refresh.RefreshTokenService;
+import kr.co.fitapet.domain.common.redis.sms.provider.SmsRedisProvider;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsRegisterQualifier;
+import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
+import kr.co.fitapet.domain.domains.member.domain.AccessToken;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.dto.auth.SignInReq;
+import kr.co.fitapet.domain.domains.member.dto.auth.SignUpReq;
+import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.infra.client.sms.snes.SmsProvider;
+import kr.co.fitapet.infra.client.sms.snes.dto.SnesDto;
+import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,7 +47,7 @@ import java.time.ZoneOffset;
 import static java.util.Calendar.ZONE_OFFSET;
 
 @Slf4j
-@Service
+@UseCase
 @RequiredArgsConstructor
 public class MemberAuthUseCase {
     private final MemberSearchService memberSearchService;
@@ -37,7 +56,8 @@ public class MemberAuthUseCase {
     private final RefreshTokenService refreshTokenService;
     private final ForbiddenTokenService forbiddenTokenService;
 
-    private final SmsRedisHelper smsRedisHelper;
+    @SmsRegisterQualifier
+    private final SmsRedisProvider smsRegisterService;
 
     private final SmsProvider smsProvider;
 
@@ -55,10 +75,10 @@ public class MemberAuthUseCase {
         String accessToken = smsAuthTokenProvider.resolveToken(requestSmsAccessToken);
 
         if (forbiddenTokenService.isForbidden(accessToken))
-            throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
+            throw new AuthErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "허용되지 않은 토큰입니다.");
 
         JwtSubInfo jwtSubInfo = smsAuthTokenProvider.getSubInfoFromToken(accessToken);
-        smsRedisHelper.removeCode(jwtSubInfo.phoneNumber(), SmsPrefix.REGISTER);
+        smsRegisterService.removeCode(jwtSubInfo.phoneNumber(), SmsPrefix.REGISTER);
 
         Member requestMember = dto.toEntity(jwtSubInfo.phoneNumber());
         requestMember.encodePassword(bCryptPasswordEncoder);
@@ -68,7 +88,7 @@ public class MemberAuthUseCase {
 
         forbiddenTokenService.register(
                 AccessToken.of(accessToken, jwtSubInfo.id(),
-                        jwtMapper.getProvider(SMS_AUTH_TOKEN).getExpiryDate(accessToken), false)
+                        smsAuthTokenProvider.getExpiryDate(accessToken))
         );
 
         return Pair.of(registeredMember.getId(), generateToken(JwtUserInfo.from(registeredMember)));
@@ -87,17 +107,26 @@ public class MemberAuthUseCase {
     public void logout(AccessToken requestAccessToken, String requestRefreshToken) {
         forbiddenTokenService.register(requestAccessToken);
 
-        if (!StringUtils.hasText(requestRefreshToken))
-            refreshTokenService.logout(requestRefreshToken);
+        if (!StringUtils.hasText(requestRefreshToken)) {
+            // TODO: refresh 중복 코드 -> Helper로 분리
+            JwtSubInfo info = refreshTokenProvider.getSubInfoFromToken(requestRefreshToken);
+            RefreshToken refreshToken = RefreshToken.of(info.id(), requestRefreshToken, refreshTokenProvider.getExpiryDate(requestRefreshToken).toEpochSecond(ZoneOffset.ofHours(ZONE_OFFSET)));
+
+            refreshTokenService.logout(refreshToken);
+        }
     }
 
     @Transactional
     public Jwt refresh(String requestRefreshToken) {
-        RefreshToken refreshToken = refreshTokenService.refresh(requestRefreshToken);
+        // TODO: refresh 중복 코드 -> Helper로 분리
+        JwtSubInfo info = refreshTokenProvider.getSubInfoFromToken(requestRefreshToken);
+        RefreshToken refreshTokenEntity = RefreshToken.of(info.id(), requestRefreshToken, refreshTokenProvider.getExpiryDate(requestRefreshToken).toEpochSecond(ZoneOffset.ofHours(ZONE_OFFSET)));
+
+        RefreshToken refreshToken = refreshTokenService.refresh(refreshTokenEntity, refreshTokenProvider.generateToken(info));
 
         Long memberId = refreshToken.getUserId();
         JwtUserInfo dto = JwtUserInfo.from(memberSearchService.findById(memberId));
-        String accessToken = jwtMapper.getProvider(ACCESS_TOKEN).generateToken(dto);
+        String accessToken = accessTokenProvider.generateToken(dto);
 
         return Jwt.of(accessToken, refreshToken.getToken());
     }
@@ -105,21 +134,21 @@ public class MemberAuthUseCase {
     @Transactional
     public SmsRes sendCode(SmsReq dto, SmsPrefix prefix) {
         validateForSms(prefix, dto);
-        SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto);
+        SnesDto.SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(SnesDto.Request.of(dto.to()));
 
-        smsRedisHelper.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
-        LocalDateTime expireTime = smsRedisHelper.getExpiredTime(dto.to(), prefix);
+        smsRegisterService.saveSmsAuthToken(dto.to(), smsInfo.code(), prefix);
+        LocalDateTime expireTime = smsRegisterService.getExpiredTime(dto.to(), prefix);
         log.info("인증번호 만료 시간: {}", expireTime);
         return SmsRes.of(dto.to(), smsInfo.requestTime(), expireTime);
     }
 
     @Transactional
     public Jwt checkCodeForRegister(SmsReq smsReq, String requestCode) {
-        if (!smsRedisHelper.isCorrectCode(smsReq.to(), requestCode, SmsPrefix.REGISTER)) {
+        if (!smsRegisterService.isCorrectCode(smsReq.to(), requestCode, SmsPrefix.REGISTER)) {
             log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", requestCode);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
-        smsRedisHelper.removeCode(smsReq.to(), SmsPrefix.REGISTER);
+        smsRegisterService.removeCode(smsReq.to(), SmsPrefix.REGISTER);
 
         if (memberSearchService.isExistByPhone(smsReq.to())) {
             Member member = memberSearchService.findByPhone(smsReq.to());
@@ -129,20 +158,20 @@ public class MemberAuthUseCase {
             }
         }
 
-        return Jwt.of(jwtMapper.getProvider(SMS_AUTH_TOKEN).generateToken(SmsAuthInfo.of(1L, smsReq.to())), null);
+        return Jwt.of(smsAuthTokenProvider.generateToken(SmsAuthInfo.of(1L, smsReq.to())), null);
     }
 
     @Transactional(readOnly = true)
     public void checkCodeForSearch(SmsReq req, String code, SmsPrefix prefix) {
-        if (!smsRedisHelper.isExistsCode(req.to(), prefix)) {
-            StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
-            log.warn("인증번호 유효성 검사 실패: {}", errorCode);
+        if (!smsRegisterService.isExistsCode(req.to(), prefix)) {
+            BaseErrorCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
+            log.warn("인증번호 유효성 검사 실패: {}", errorCode.getExplainError());
             throw new GlobalErrorException(errorCode);
         }
 
-        if (!smsRedisHelper.isCorrectCode(req.to(), code, prefix)) {
-            StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
-            log.warn("인증번호 유효성 검사 실패: {}", errorCode);
+        if (!smsRegisterService.isCorrectCode(req.to(), code, prefix)) {
+            BaseErrorCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
+            log.warn("인증번호 유효성 검사 실패: {}", errorCode.getExplainError());
             throw new GlobalErrorException(errorCode);
         }
     }

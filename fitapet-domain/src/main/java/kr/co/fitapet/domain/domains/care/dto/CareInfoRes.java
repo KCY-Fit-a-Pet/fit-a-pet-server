@@ -2,6 +2,7 @@ package kr.co.fitapet.domain.domains.care.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import lombok.Getter;
 
 import java.time.LocalTime;
@@ -34,7 +35,7 @@ public class CareInfoRes {
             Long careId,
             Long careDateId,
             String careName,
-//            @JsonSerialize(using = LocalTimeSerializer.class)
+            @JsonSerialize(using = LocalTimeSerializer.class)
             @JsonFormat(pattern = "HH:mm:ss")
             LocalTime careDate,
             boolean isClear

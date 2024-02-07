@@ -3,6 +3,7 @@ package kr.co.fitapet.domain.domains.schedule.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import kr.co.fitapet.domain.domains.schedule.domain.Schedule;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class ScheduleInfoDto {
             Long scheduleId,
             String scheduleName,
             String location,
-//            @JsonSerialize(using = LocalDateTimeSerializer.class)
+            @JsonSerialize(using = LocalDateTimeSerializer.class)
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             @JsonProperty("reservationDate")
             LocalDateTime reservationDt,

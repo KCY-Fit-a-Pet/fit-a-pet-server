@@ -1,13 +1,5 @@
 package kr.co.fitapet.api.apis.pet.controller;
 
-import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
-import com.kcy.fitapet.domain.pet.dto.PetInfoRes;
-import com.kcy.fitapet.domain.pet.dto.PetSaveReq;
-import com.kcy.fitapet.domain.pet.service.component.PetManageService;
-import com.kcy.fitapet.global.common.response.ErrorResponse;
-import com.kcy.fitapet.global.common.response.FailureResponse;
-import com.kcy.fitapet.global.common.response.SuccessResponse;
-import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -17,6 +9,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.fitapet.api.apis.pet.usecase.PetUseCase;
+import kr.co.fitapet.api.common.response.ErrorResponse;
+import kr.co.fitapet.api.common.response.FailureResponse;
+import kr.co.fitapet.api.common.response.SuccessResponse;
+import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
+import kr.co.fitapet.domain.domains.care.dto.CareCategoryInfo;
+import kr.co.fitapet.domain.domains.pet.dto.PetInfoRes;
+import kr.co.fitapet.domain.domains.pet.dto.PetSaveReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class PetApi {
-    private final PetManageService petManageService;
+    private final PetUseCase petUseCase;
 
     @Operation(summary = "반려동물 등록")
     @Parameter(name = "req", description = "반려동물 등록 요청", required = true)
@@ -44,7 +44,7 @@ public class PetApi {
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> savePet(@RequestBody @Valid PetSaveReq req, @AuthenticationPrincipal CustomUserDetails user) {
-        petManageService.savePet(req.toPetEntity(), user.getUserId());
+        petUseCase.savePet(req.toPetEntity(), user.getUserId());
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
@@ -53,7 +53,7 @@ public class PetApi {
     @GetMapping("")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId")
     public ResponseEntity<?> getPets(@PathVariable("user_id") Long userId) {
-        PetInfoRes pets = petManageService.getPets(userId);
+        PetInfoRes pets = petUseCase.getPets(userId);
         return ResponseEntity.ok(SuccessResponse.from("pets", pets.getPets()));
     }
 
@@ -62,7 +62,7 @@ public class PetApi {
     @GetMapping("/summary")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId")
     public ResponseEntity<?> findPets(@PathVariable("user_id") Long userId) {
-        List<?> pets = petManageService.findPetsSummaryByUserId(userId).getPets();
+        List<?> pets = petUseCase.findPetsSummaryByUserId(userId).getPets();
         return ResponseEntity.ok(SuccessResponse.from("pets", pets));
     }
 
@@ -70,8 +70,8 @@ public class PetApi {
     @Parameter(name = "user_id", description = "조회할 유저 ID", in = ParameterIn.PATH, required = true)
     @PostMapping("/categories-check")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId")
-    public ResponseEntity<?> checkCategoryExist(@PathVariable("user_id") Long userId, @RequestBody @Valid CareCategoryDto.CareCategoryExistRequest request) {
-        List<?> result = petManageService.checkCategoryExist(userId, request.categoryName(), request.pets());
+    public ResponseEntity<?> checkCategoryExist(@PathVariable("user_id") Long userId, @RequestBody @Valid CareCategoryInfo.CareCategoryExistRequest request) {
+        List<?> result = petUseCase.checkCategoryExist(userId, request.categoryName(), request.pets());
         return ResponseEntity.ok(SuccessResponse.from("categories", result));
     }
 }

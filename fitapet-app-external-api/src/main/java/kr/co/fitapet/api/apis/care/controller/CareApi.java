@@ -1,16 +1,16 @@
 package kr.co.fitapet.api.apis.care.controller;
 
-import com.kcy.fitapet.domain.care.dto.CareInfoRes;
-import com.kcy.fitapet.domain.care.dto.CareSaveReq;
-import com.kcy.fitapet.domain.care.service.component.CareManageService;
-import com.kcy.fitapet.domain.log.dto.CareLogInfo;
-import com.kcy.fitapet.global.common.response.SuccessResponse;
-import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.fitapet.api.apis.care.usecase.CareUseCase;
+import kr.co.fitapet.api.common.response.SuccessResponse;
+import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
+import kr.co.fitapet.domain.domains.care.dto.CareInfoRes;
+import kr.co.fitapet.domain.domains.care.dto.CareSaveReq;
+import kr.co.fitapet.domain.domains.care_log.dto.CareLogInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/api/v2/pets/{pet_id}/cares")
 @RequiredArgsConstructor
 public class CareApi {
-    private final CareManageService careManageService;
+    private final CareUseCase careUseCase;
 
     @Operation(summary = "케어 등록")
     @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true)
@@ -37,7 +37,7 @@ public class CareApi {
             @RequestBody @Valid CareSaveReq.Request request,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        careManageService.saveCare(user.getUserId(), petId, request);
+        careUseCase.saveCare(user.getUserId(), petId, request);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
@@ -46,7 +46,7 @@ public class CareApi {
     @GetMapping("")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getCares(@PathVariable("pet_id") Long petId) {
-        CareInfoRes res = careManageService.findCaresByPetId(petId);
+        CareInfoRes res = careUseCase.findCaresByPetId(petId);
         return ResponseEntity.ok(SuccessResponse.from("careCategories", res.getInfo()));
     }
 
@@ -54,7 +54,7 @@ public class CareApi {
     @GetMapping("/categories")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getCareCategoryNames(@PathVariable("pet_id") Long petId) {
-        List<?> careCategories = careManageService.findCareCategoryNamesByPetId(petId);
+        List<?> careCategories = careUseCase.findCareCategoryNamesByPetId(petId);
         return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
 
@@ -67,7 +67,7 @@ public class CareApi {
             @PathVariable("care_date_id") Long careDateId,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        CareLogInfo careLog = careManageService.doCare(careDateId, user.getUserId());
+        CareLogInfo careLog = careUseCase.doCare(careDateId, user.getUserId());
         return ResponseEntity.ok(SuccessResponse.from(careLog));
     }
 }

@@ -1,7 +1,8 @@
 package kr.co.fitapet.domain.domains.memo.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import kr.co.fitapet.domain.common.annotation.Dto;
+import io.swagger.v3.oas.annotations.media.Schema;
+import kr.co.fitapet.common.annotation.Dto;
 import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
 import kr.co.fitapet.domain.domains.memo.type.MemoCategoryType;
 import lombok.Builder;
@@ -22,19 +23,19 @@ public class MemoCategoryInfoDto {
         return new MemoCategoryInfoDto(memoCategories);
     }
 
-//    @Schema(description = "메모 카테고리 정보")
+    @Schema(description = "메모 카테고리 정보")
     @Builder
     @Dto(name = "memoCategory")
     public record MemoCategoryInfo(
-//        @Schema(description = "메모 카테고리 ID")
+        @Schema(description = "메모 카테고리 ID")
         Long memoCategoryId,
-//        @Schema(description = "메모 카테고리 이름")
+        @Schema(description = "메모 카테고리 이름")
         String memoCategoryName,
-//        @Schema(description = "메모 카테고리 타입 (root: 상위 카테고리, sub: 하위 카테고리)")
+        @Schema(description = "메모 카테고리 타입 (root: 상위 카테고리, sub: 하위 카테고리)")
         MemoCategoryType type,
-//        @Schema(description = "메모 카테고리에 속한 메모 개수")
+        @Schema(description = "메모 카테고리에 속한 메모 개수")
         Long totalMemoCount,
-//        @Schema(description = "하위 메모 카테고리 리스트. 메모 카테고리 타입이 root일 경우에만 존재합니다.")
+        @Schema(description = "하위 메모 카테고리 리스트. 메모 카테고리 타입이 root일 경우에만 존재합니다.")
         @JsonInclude(JsonInclude.Include.NON_NULL)
         List<MemoCategoryInfo> subMemoCategories
     ) {

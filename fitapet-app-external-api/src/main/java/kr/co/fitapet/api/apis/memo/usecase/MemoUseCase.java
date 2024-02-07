@@ -1,23 +1,23 @@
 package kr.co.fitapet.api.apis.memo.usecase;
 
-import com.kcy.fitapet.domain.memo.domain.Memo;
-import com.kcy.fitapet.domain.memo.domain.MemoCategory;
-import com.kcy.fitapet.domain.memo.domain.MemoImage;
-import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
-import com.kcy.fitapet.domain.memo.dto.MemoInfoDto;
-import com.kcy.fitapet.domain.memo.dto.MemoSaveReq;
-import com.kcy.fitapet.domain.memo.dto.SubMemoCategorySaveReq;
-import com.kcy.fitapet.domain.memo.service.module.MemoSaveService;
-import com.kcy.fitapet.domain.memo.service.module.MemoSearchService;
-import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
+import kr.co.fitapet.common.annotation.UseCase;
+import kr.co.fitapet.domain.domains.memo.domain.Memo;
+import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
+import kr.co.fitapet.domain.domains.memo.domain.MemoImage;
+import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
+import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
+import kr.co.fitapet.domain.domains.memo.dto.MemoSaveReq;
+import kr.co.fitapet.api.apis.memo.dto.SubMemoCategorySaveReq;
+import kr.co.fitapet.domain.domains.memo.service.MemoSaveService;
+import kr.co.fitapet.domain.domains.memo.service.MemoSearchService;
+import kr.co.fitapet.domain.domains.pet.service.PetSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Service
+@UseCase
 @RequiredArgsConstructor
 public class MemoUseCase {
     private final PetSearchService petSearchService;

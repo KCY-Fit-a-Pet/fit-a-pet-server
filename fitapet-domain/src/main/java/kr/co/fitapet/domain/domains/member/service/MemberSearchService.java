@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.domains.member.service;
 
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.member.domain.Manager;
 import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@DomainService
 @RequiredArgsConstructor
 public class MemberSearchService {
     private final MemberRepository memberRepository;

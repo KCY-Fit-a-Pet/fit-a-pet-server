@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.domains.care.service;
 
 import jakarta.transaction.Transactional;
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.care.domain.Care;
 import kr.co.fitapet.domain.domains.care.domain.CareCategory;
 import kr.co.fitapet.domain.domains.care.domain.CareDate;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@DomainService
 @RequiredArgsConstructor
 @Slf4j
 public class CareUpdateService {

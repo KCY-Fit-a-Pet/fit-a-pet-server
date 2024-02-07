@@ -1,25 +1,24 @@
 package kr.co.fitapet.api.apis.profile.usecase;
 
-import com.kcy.fitapet.domain.member.domain.Manager;
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
-import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
-import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
-import com.kcy.fitapet.domain.member.dto.account.UidRes;
-import com.kcy.fitapet.domain.member.exception.AccountErrorCode;
-import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
-import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.domain.member.type.MemberAttrType;
-import com.kcy.fitapet.domain.memo.dto.MemoCategoryInfoDto;
-import com.kcy.fitapet.domain.memo.service.module.MemoSearchService;
-import com.kcy.fitapet.domain.notification.type.NotificationType;
-import com.kcy.fitapet.domain.pet.domain.Pet;
-import com.kcy.fitapet.domain.schedule.dto.ScheduleInfoDto;
-import com.kcy.fitapet.domain.schedule.service.module.ScheduleSearchService;
-import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
-import com.kcy.fitapet.global.common.response.code.StatusCode;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import kr.co.fitapet.common.annotation.UseCase;
+import kr.co.fitapet.common.execption.BaseErrorCode;
+import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.dto.account.AccountProfileRes;
+import kr.co.fitapet.domain.domains.member.dto.account.AccountSearchReq;
+import kr.co.fitapet.domain.domains.member.dto.account.ProfilePatchReq;
+import kr.co.fitapet.domain.domains.member.dto.account.UidRes;
+import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
+import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
+import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
+import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
+import kr.co.fitapet.domain.domains.memo.service.MemoSearchService;
+import kr.co.fitapet.domain.domains.notification.type.NotificationType;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.schedule.dto.ScheduleInfoDto;
+import kr.co.fitapet.domain.domains.schedule.service.ScheduleSearchService;
+import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +30,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@UseCase
 @RequiredArgsConstructor
 @Slf4j
 public class MemberAccountUseCase {
@@ -84,8 +83,8 @@ public class MemberAccountUseCase {
         Member member = memberSearchService.findByPhone(req.phone());
 
         if (!StringUtils.hasText(req.newPassword())) {
-            StatusCode errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
-            log.warn("비밀번호 변경 실패: {}", errorCode);
+            BaseErrorCode errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
+            log.warn("비밀번호 변경 실패: {}", errorCode.getExplainError());
             throw new GlobalErrorException(errorCode);
         }
         member.updatePassword(req.newPassword(), bCryptPasswordEncoder);
@@ -131,7 +130,7 @@ public class MemberAccountUseCase {
      */
     private void validateUsername(Member member, String username) {
         if (!StringUtils.hasText(username) || member.getName().equals(username)) {
-            StatusCode errorCode = AccountErrorCode.NOT_CHANGE_NAME_ERROR;
+            BaseErrorCode errorCode = AccountErrorCode.NOT_CHANGE_NAME_ERROR;
             log.warn("닉네임 변경 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
@@ -147,7 +146,7 @@ public class MemberAccountUseCase {
      * @throws GlobalErrorException : 비밀번호 변경 실패
      */
     private void validatePassword(Member member, String prePassword, String newPassword) {
-        StatusCode errorCode = null;
+        BaseErrorCode errorCode = null;
         if (!StringUtils.hasText(newPassword) || prePassword.equals(newPassword)) {
             errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
         } else if (!member.checkPassword(prePassword, bCryptPasswordEncoder)) {
@@ -169,13 +168,13 @@ public class MemberAccountUseCase {
      */
     private void validatePhone(String phone, String code, SmsPrefix prefix) {
         if (!smsRedisHelper.isExistsCode(phone, prefix)) {
-            StatusCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
+            BaseErrorCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
 
         if (!smsRedisHelper.isCorrectCode(phone, code, prefix)) {
-            StatusCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
+            BaseErrorCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }

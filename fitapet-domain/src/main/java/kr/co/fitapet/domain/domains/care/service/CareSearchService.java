@@ -1,20 +1,20 @@
 package kr.co.fitapet.domain.domains.care.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.care.domain.Care;
 import kr.co.fitapet.domain.domains.care.domain.CareCategory;
 import kr.co.fitapet.domain.domains.care.domain.CareDate;
-import kr.co.fitapet.domain.domains.care.dto.CareCategoryInfoRes;
+import kr.co.fitapet.domain.domains.care.dto.CareCategoryInfo;
 import kr.co.fitapet.domain.domains.care.repository.CareCategoryRepository;
 import kr.co.fitapet.domain.domains.care.repository.CareDateRepository;
 import kr.co.fitapet.domain.domains.care.repository.CareRepository;
 import kr.co.fitapet.domain.domains.care.type.WeekType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service
+@DomainService
 @RequiredArgsConstructor
 public class CareSearchService {
     private final CareRepository careRepository;
@@ -53,7 +53,7 @@ public class CareSearchService {
 
     @Transactional(readOnly = true)
     public List<?> checkCategoryExist(String categoryName, List<Long> petIds) {
-        CareCategoryInfoRes dto = new CareCategoryInfoRes();
+        CareCategoryInfo dto = new CareCategoryInfo();
 
         for (Long petId : petIds) {
             List<CareCategory> careCategories = careCategoryRepository.findAllByPet_Id(petId);

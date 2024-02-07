@@ -1,4 +1,4 @@
-package kr.co.fitapet.domain.common.annotation;
+package kr.co.fitapet.common.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

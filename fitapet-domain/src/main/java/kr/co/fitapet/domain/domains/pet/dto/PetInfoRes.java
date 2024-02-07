@@ -1,6 +1,6 @@
 package kr.co.fitapet.domain.domains.pet.dto;
 
-import kr.co.fitapet.domain.common.annotation.Dto;
+import kr.co.fitapet.common.annotation.Dto;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import kr.co.fitapet.domain.domains.pet.type.GenderType;
 import lombok.Getter;

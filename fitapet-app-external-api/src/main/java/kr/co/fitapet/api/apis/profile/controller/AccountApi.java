@@ -1,15 +1,5 @@
 package kr.co.fitapet.api.apis.profile.controller;
 
-import com.kcy.fitapet.domain.member.dto.account.AccountProfileRes;
-import com.kcy.fitapet.domain.member.dto.account.AccountSearchReq;
-import com.kcy.fitapet.domain.member.dto.account.ProfilePatchReq;
-import com.kcy.fitapet.domain.member.dto.account.UidRes;
-import com.kcy.fitapet.domain.member.service.component.MemberAccountService;
-import com.kcy.fitapet.domain.member.type.MemberAttrType;
-import com.kcy.fitapet.domain.notification.type.NotificationType;
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
-import com.kcy.fitapet.global.common.response.SuccessResponse;
-import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -17,6 +7,16 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import kr.co.fitapet.api.apis.profile.usecase.MemberAccountUseCase;
+import kr.co.fitapet.api.common.response.SuccessResponse;
+import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
+import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
+import kr.co.fitapet.domain.domains.member.dto.account.AccountProfileRes;
+import kr.co.fitapet.domain.domains.member.dto.account.AccountSearchReq;
+import kr.co.fitapet.domain.domains.member.dto.account.ProfilePatchReq;
+import kr.co.fitapet.domain.domains.member.dto.account.UidRes;
+import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
+import kr.co.fitapet.domain.domains.notification.type.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +34,14 @@ import java.util.Map;
 @RequestMapping("/api/v2/accounts")
 @RequiredArgsConstructor
 public class AccountApi {
-    private final MemberAccountService memberAccountService;
+    private final MemberAccountUseCase memberAccountUseCase;
 
     @Operation(summary = "프로필 조회")
     @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> getProfile(@PathVariable("id") Long id) {
-        AccountProfileRes member = memberAccountService.getProfile(id);
+        AccountProfileRes member = memberAccountUseCase.getProfile(id);
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
@@ -50,7 +50,7 @@ public class AccountApi {
     @GetMapping("/exists")
     @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> getExistsUid(@RequestParam("uid") @NotBlank String uid) {
-        boolean exists = memberAccountService.existsUid(uid);
+        boolean exists = memberAccountUseCase.existsUid(uid);
         return ResponseEntity.ok(SuccessResponse.from(Map.of("valid", exists)));
     }
 
@@ -67,7 +67,7 @@ public class AccountApi {
             @RequestBody @Valid ProfilePatchReq req
     ) {
         log.info("type: {}", type);
-        memberAccountService.updateProfile(id, req, type);
+        memberAccountUseCase.updateProfile(id, req, type);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
@@ -85,10 +85,10 @@ public class AccountApi {
             @RequestBody @Valid AccountSearchReq req
     ) {
         if (type.equals(SmsPrefix.UID)) {
-            UidRes res = memberAccountService.getUidWhenSmsAuthenticated(req.phone(), code, type);
+            UidRes res = memberAccountUseCase.getUidWhenSmsAuthenticated(req.phone(), code, type);
             return ResponseEntity.ok(SuccessResponse.from(res));
         } else {
-            memberAccountService.overwritePassword(req, code, type);
+            memberAccountUseCase.overwritePassword(req, code, type);
             return ResponseEntity.ok(SuccessResponse.noContent());
         }
     }
@@ -104,7 +104,7 @@ public class AccountApi {
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam("type") @NotBlank NotificationType type) {
-        memberAccountService.updateNotification(id, user.getUserId(), type);
+        memberAccountUseCase.updateNotification(id, user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
@@ -119,7 +119,7 @@ public class AccountApi {
     ) {
         LocalDateTime date = LocalDate.of(year, month, day).atStartOfDay();
         log.info("date: {}", date);
-        return ResponseEntity.ok(SuccessResponse.from("schedules", memberAccountService.findPetSchedules(userId, date).getSchedules()));
+        return ResponseEntity.ok(SuccessResponse.from("schedules", memberAccountUseCase.findPetSchedules(userId, date).getSchedules()));
     }
 
     @Operation(summary = "관리 중인 반려동물의 모든 메모 카테고리 조회")
@@ -127,6 +127,6 @@ public class AccountApi {
     @GetMapping("/{id}/memo-categories")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> getMemoCategories(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(SuccessResponse.from("rootMemoCategories", memberAccountService.getMemoCategories(id)));
+        return ResponseEntity.ok(SuccessResponse.from("rootMemoCategories", memberAccountUseCase.getMemoCategories(id)));
     }
 }

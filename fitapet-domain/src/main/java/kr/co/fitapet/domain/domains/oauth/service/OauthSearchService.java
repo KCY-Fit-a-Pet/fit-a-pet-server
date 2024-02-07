@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.oauth.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.oauth.domain.OauthAccount;
@@ -10,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@DomainService
 @RequiredArgsConstructor
 public class OauthSearchService {
     private final OauthRepository oauthRepository;

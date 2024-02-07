@@ -1,26 +1,26 @@
 package kr.co.fitapet.api.apis.oauth.controller;
 
-import com.kcy.fitapet.domain.member.service.component.MemberAuthService;
-import com.kcy.fitapet.domain.oauth.dto.OauthSignInReq;
-import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
-import com.kcy.fitapet.domain.oauth.dto.OauthSmsReq;
-import com.kcy.fitapet.domain.oauth.service.component.OauthService;
-import com.kcy.fitapet.domain.oauth.type.ProviderType;
-import com.kcy.fitapet.global.common.response.SuccessResponse;
-import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
-import com.kcy.fitapet.global.common.util.cookie.CookieUtil;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.fitapet.api.apis.auth.dto.SmsRes;
+import kr.co.fitapet.api.apis.auth.usecase.MemberAuthUseCase;
+import kr.co.fitapet.api.apis.oauth.dto.OauthSmsReq;
+import kr.co.fitapet.api.apis.oauth.usecase.OauthUseCase;
+import kr.co.fitapet.api.common.response.SuccessResponse;
+import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
+import kr.co.fitapet.api.common.util.cookie.CookieUtil;
+import kr.co.fitapet.domain.domains.oauth.dto.OauthSignInReq;
+import kr.co.fitapet.domain.domains.oauth.dto.OauthSignUpReq;
+import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.ACCESS_TOKEN;
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.AuthConstants.ACCESS_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.AuthConstants.REFRESH_TOKEN;
 
 @Tag(name = "OAuth API")
 @RestController
@@ -38,8 +38,8 @@ import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.REFRESH_T
 @RequestMapping("/api/v1/auth/oauth")
 @Slf4j
 public class OauthApi {
-    private final MemberAuthService memberAuthService;
-    private final OauthService oAuthService;
+    private final MemberAuthUseCase memberAuthUseCase;
+    private final OauthUseCase oauthUseCase;
     private final CookieUtil cookieUtil;
 
     @Operation(summary = "OAuth 로그인")
@@ -54,7 +54,7 @@ public class OauthApi {
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
-            jwt = oAuthService.signInByOIDC(req.id(), req.idToken(), provider, req.nonce());
+            jwt = oauthUseCase.signInByOIDC(req.id(), req.idToken(), provider, req.nonce());
         }
 
         return jwt.isPresent()
@@ -80,7 +80,7 @@ public class OauthApi {
         if (ProviderType.NAVER.equals(provider)) {
             return null; // TODO: 2023-12-24 네이버 로그인 구현
         } else {
-            jwt = oAuthService.signUpByOIDC(id, provider, accessToken, req);
+            jwt = oauthUseCase.signUpByOIDC(id, provider, accessToken, req);
         }
 
         return getJwtResponseEntity(jwt.getKey(), jwt.getValue());
@@ -101,13 +101,13 @@ public class OauthApi {
         @RequestBody @Valid OauthSmsReq req
     ) {
         if (code == null) {
-            SmsRes smsRes = oAuthService.sendCode(req, provider);
+            SmsRes smsRes = oauthUseCase.sendCode(req, provider);
             return ResponseEntity.ok(SuccessResponse.from(smsRes));
         }
 
-        Pair<Long, Jwt> token = oAuthService.checkCertificationNumber(req, id, code, provider);
+        Pair<Long, Jwt> token = oauthUseCase.checkCertificationNumber(req, id, code, provider);
         if (token.getValue() == null)
-            return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         else if (token.getValue().refreshToken() == null)
             return ResponseEntity.ok()
                     .header(ACCESS_TOKEN.getValue(), token.getValue().accessToken())

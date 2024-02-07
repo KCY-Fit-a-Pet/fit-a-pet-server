@@ -1,16 +1,19 @@
 package kr.co.fitapet.domain.domains.oauth.dto;
 
 
-//@Schema(description = "Oauth Sign In Request")
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+
+@Schema(description = "Oauth Sign In Request")
 public record OauthSignInReq(
-//        @Schema(description = "Member Oauth Id")
-//        @NotEmpty
+        @Schema(description = "Member Oauth Id")
+        @NotEmpty
         String id,
-//        @Schema(description = "Member Oauth Id Token")
-//        @NotEmpty
+        @Schema(description = "Member Oauth Id Token")
+        @NotEmpty
         String idToken,
-//        @Schema(description = "Member Oauth Nonce")
-//        @NotEmpty
+        @Schema(description = "Member Oauth Nonce")
+        @NotEmpty
         String nonce
 ) {
 }

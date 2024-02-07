@@ -3,12 +3,14 @@ package kr.co.fitapet.domain.common.redis.sms.service;
 import kr.co.fitapet.domain.common.redis.sms.provider.SmsRedisProvider;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Primary
 public class SmsOauthService {
     private final SmsRedisProvider smsRedisProvider;
 

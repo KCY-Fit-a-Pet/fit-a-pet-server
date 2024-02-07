@@ -1,34 +1,35 @@
 package kr.co.fitapet.api.apis.care.usecase;
 
-import com.kcy.fitapet.domain.care.domain.Care;
-import com.kcy.fitapet.domain.care.domain.CareCategory;
-import com.kcy.fitapet.domain.care.domain.CareDate;
-import com.kcy.fitapet.domain.care.dto.CareCategoryDto;
-import com.kcy.fitapet.domain.care.dto.CareInfoRes;
-import com.kcy.fitapet.domain.care.dto.CareSaveReq;
-import com.kcy.fitapet.domain.care.exception.CareErrorCode;
-import com.kcy.fitapet.domain.care.service.module.CareSearchService;
-import com.kcy.fitapet.domain.care.service.module.CareUpdateService;
-import com.kcy.fitapet.domain.care.type.WeekType;
-import com.kcy.fitapet.domain.log.domain.CareLog;
-import com.kcy.fitapet.domain.log.dto.CareLogInfo;
-import com.kcy.fitapet.domain.log.service.CareLogSearchService;
-import com.kcy.fitapet.domain.log.service.CareLogUpdateService;
-import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.domain.pet.domain.Pet;
-import com.kcy.fitapet.domain.pet.exception.PetErrorCode;
-import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+
+import kr.co.fitapet.common.annotation.UseCase;
+import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.domains.care.domain.Care;
+import kr.co.fitapet.domain.domains.care.domain.CareCategory;
+import kr.co.fitapet.domain.domains.care.domain.CareDate;
+import kr.co.fitapet.domain.domains.care.dto.CareCategoryInfo;
+import kr.co.fitapet.domain.domains.care.dto.CareInfoRes;
+import kr.co.fitapet.domain.domains.care.dto.CareSaveReq;
+import kr.co.fitapet.domain.domains.care.exception.CareErrorCode;
+import kr.co.fitapet.domain.domains.care.service.CareSearchService;
+import kr.co.fitapet.domain.domains.care.service.CareUpdateService;
+import kr.co.fitapet.domain.domains.care.type.WeekType;
+import kr.co.fitapet.domain.domains.care_log.domain.CareLog;
+import kr.co.fitapet.domain.domains.care_log.dto.CareLogInfo;
+import kr.co.fitapet.domain.domains.care_log.service.CareLogSearchService;
+import kr.co.fitapet.domain.domains.care_log.service.CareLogUpdateService;
+import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.pet.exception.PetErrorCode;
+import kr.co.fitapet.domain.domains.pet.service.PetSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@UseCase
 @RequiredArgsConstructor
 @Slf4j
 public class CareUseCase {
@@ -43,7 +44,7 @@ public class CareUseCase {
     @Transactional
     public List<?> findCareCategoryNamesByPetId(Long petId) {
          List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
-         return CareCategoryDto.from(careCategories).getCareCategorySummaries();
+         return CareCategoryInfo.from(careCategories).getCareCategorySummaries();
     }
 
     @Transactional(readOnly = true)

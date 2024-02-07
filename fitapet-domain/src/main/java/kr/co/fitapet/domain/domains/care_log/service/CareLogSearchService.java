@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.care_log.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.care_log.repository.CareLogQueryRepository;
 import kr.co.fitapet.domain.domains.care_log.repository.CareLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-@Service
+@DomainService
 @RequiredArgsConstructor
 public class CareLogSearchService {
     private final CareLogRepository careLogRepository;

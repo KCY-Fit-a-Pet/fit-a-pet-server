@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.care_log.dto;
 
 
-import kr.co.fitapet.domain.common.annotation.Dto;
+import kr.co.fitapet.common.annotation.Dto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,12 +1,12 @@
 package kr.co.fitapet.api.apis.schedule.controller;
 
-import com.kcy.fitapet.domain.schedule.dto.ScheduleSaveDto;
-import com.kcy.fitapet.domain.schedule.service.component.ScheduleManageService;
-import com.kcy.fitapet.global.common.response.SuccessResponse;
-import com.kcy.fitapet.global.common.security.authentication.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.fitapet.api.apis.schedule.usecase.ScheduleUseCase;
+import kr.co.fitapet.api.common.response.SuccessResponse;
+import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
+import kr.co.fitapet.domain.domains.schedule.dto.ScheduleSaveDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v2")
 public class ScheduleApi {
-    private final ScheduleManageService scheduleManageService;
+    private final ScheduleUseCase scheduleUseCase;
 
     @Operation(summary = "스케줄 등록")
     @PostMapping("/schedules")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> saveSchedule(@RequestBody @Valid ScheduleSaveDto.Request request, @AuthenticationPrincipal CustomUserDetails principal) {
-        scheduleManageService.saveSchedule(principal.getUserId(), request);
+        scheduleUseCase.saveSchedule(principal.getUserId(), request);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
@@ -37,6 +37,6 @@ public class ScheduleApi {
             @PathVariable("pet_id") Long petId,
             @RequestParam(value = "count", required = false, defaultValue = "-1") int count
     ) {
-        return ResponseEntity.ok(SuccessResponse.from("schedules", scheduleManageService.findPetSchedules(petId, count).getSchedules()));
+        return ResponseEntity.ok(SuccessResponse.from("schedules", scheduleUseCase.findPetSchedules(petId, count).getSchedules()));
     }
 }

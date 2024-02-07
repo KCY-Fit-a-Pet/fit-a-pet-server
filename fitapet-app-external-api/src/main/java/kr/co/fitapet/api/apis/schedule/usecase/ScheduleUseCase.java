@@ -1,26 +1,26 @@
 package kr.co.fitapet.api.apis.schedule.usecase;
 
-import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.domain.pet.domain.Pet;
-import com.kcy.fitapet.domain.pet.exception.PetErrorCode;
-import com.kcy.fitapet.domain.pet.service.module.PetSaveService;
-import com.kcy.fitapet.domain.pet.service.module.PetSearchService;
-import com.kcy.fitapet.domain.schedule.domain.Schedule;
-import com.kcy.fitapet.domain.schedule.dto.ScheduleInfoDto;
-import com.kcy.fitapet.domain.schedule.dto.ScheduleSaveDto;
-import com.kcy.fitapet.domain.schedule.service.module.ScheduleSaveService;
-import com.kcy.fitapet.domain.schedule.service.module.ScheduleSearchService;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
+import kr.co.fitapet.common.annotation.UseCase;
+import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.pet.exception.PetErrorCode;
+import kr.co.fitapet.domain.domains.pet.service.PetSaveService;
+import kr.co.fitapet.domain.domains.pet.service.PetSearchService;
+import kr.co.fitapet.domain.domains.schedule.domain.Schedule;
+import kr.co.fitapet.domain.domains.schedule.dto.ScheduleInfoDto;
+import kr.co.fitapet.domain.domains.schedule.dto.ScheduleSaveDto;
+import kr.co.fitapet.domain.domains.schedule.service.ScheduleSaveService;
+import kr.co.fitapet.domain.domains.schedule.service.ScheduleSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service
+@UseCase
 @Slf4j
 @RequiredArgsConstructor
 public class ScheduleUseCase {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@SmsRegisterQualifier
 public class SmsRegisterService {
     private final SmsRedisProvider smsRedisProvider;
 

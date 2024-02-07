@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.schedule.service;
 
+import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.schedule.dto.ScheduleInfoDto;
 import kr.co.fitapet.domain.domains.schedule.repository.ScheduleJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service
+@DomainService
 @Slf4j
 @RequiredArgsConstructor
 public class ScheduleSearchService {

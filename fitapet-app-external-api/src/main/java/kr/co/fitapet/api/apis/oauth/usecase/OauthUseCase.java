@@ -1,47 +1,53 @@
 package kr.co.fitapet.api.apis.oauth.usecase;
 
-import com.kcy.fitapet.domain.member.domain.Member;
-import com.kcy.fitapet.domain.member.exception.SmsErrorCode;
-import com.kcy.fitapet.domain.member.service.module.MemberSaveService;
-import com.kcy.fitapet.domain.member.service.module.MemberSearchService;
-import com.kcy.fitapet.domain.member.type.RoleType;
-import com.kcy.fitapet.domain.oauth.domain.OauthAccount;
-import com.kcy.fitapet.domain.oauth.dto.OauthSignUpReq;
-import com.kcy.fitapet.domain.oauth.dto.OauthSmsReq;
-import com.kcy.fitapet.domain.oauth.exception.OauthException;
-import com.kcy.fitapet.domain.oauth.service.module.OauthSearchService;
-import com.kcy.fitapet.domain.oauth.type.ProviderType;
-import com.kcy.fitapet.global.common.redis.forbidden.ForbiddenTokenService;
-import com.kcy.fitapet.global.common.redis.oauth.OIDCTokenService;
-import com.kcy.fitapet.global.common.redis.sms.SmsRedisHelper;
-import com.kcy.fitapet.global.common.redis.sms.type.SmsPrefix;
-import com.kcy.fitapet.global.common.resolver.access.AccessToken;
-import com.kcy.fitapet.global.common.response.exception.GlobalErrorException;
-import com.kcy.fitapet.global.common.security.jwt.AuthConstants;
-import com.kcy.fitapet.global.common.security.jwt.JwtProviderMapper;
-import com.kcy.fitapet.global.common.security.jwt.dto.Jwt;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtSubInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.JwtUserInfo;
-import com.kcy.fitapet.global.common.security.jwt.dto.SmsOauthInfo;
-import com.kcy.fitapet.global.common.security.jwt.exception.AuthErrorCode;
-import com.kcy.fitapet.global.common.security.oauth.*;
-import com.kcy.fitapet.global.common.security.oauth.dto.OIDCDecodePayload;
-import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
-import com.kcy.fitapet.global.common.util.sms.SmsProvider;
-import com.kcy.fitapet.global.common.util.sms.dto.SensInfo;
-import com.kcy.fitapet.global.common.util.sms.dto.SmsRes;
+import kr.co.fitapet.api.apis.auth.dto.SmsRes;
+import kr.co.fitapet.api.apis.oauth.dto.OauthSmsReq;
+import kr.co.fitapet.api.apis.oauth.helper.OauthOIDCHelper;
+import kr.co.fitapet.api.common.security.jwt.AuthConstants;
+import kr.co.fitapet.api.common.security.jwt.JwtProvider;
+import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
+import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
+import kr.co.fitapet.api.common.security.jwt.dto.SmsOauthInfo;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
+import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
+import kr.co.fitapet.api.common.security.jwt.qualifier.AccessTokenQualifier;
+import kr.co.fitapet.api.common.security.jwt.qualifier.RefreshTokenQualifier;
+import kr.co.fitapet.api.common.security.jwt.qualifier.SmsOauthTokenQualifier;
+import kr.co.fitapet.common.annotation.UseCase;
+import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
+import kr.co.fitapet.domain.common.redis.oauth.OIDCTokenService;
+import kr.co.fitapet.domain.common.redis.sms.provider.SmsRedisProvider;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsRegisterQualifier;
+import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
+import kr.co.fitapet.domain.domains.member.domain.AccessToken;
+import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
+import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
+import kr.co.fitapet.domain.domains.member.type.RoleType;
+import kr.co.fitapet.domain.domains.oauth.domain.OauthAccount;
+import kr.co.fitapet.domain.domains.oauth.dto.OauthSignUpReq;
+import kr.co.fitapet.domain.domains.oauth.exception.OauthException;
+import kr.co.fitapet.domain.domains.oauth.service.OauthSearchService;
+import kr.co.fitapet.infra.client.oauth.OauthClient;
+import kr.co.fitapet.infra.client.oauth.OauthClientMapper;
+import kr.co.fitapet.infra.client.oauth.dto.OIDCDecodePayload;
+import kr.co.fitapet.infra.client.oauth.dto.OIDCPublicKeyResponse;
+import kr.co.fitapet.infra.client.oauth.environment.OauthApplicationConfig;
+import kr.co.fitapet.infra.client.oauth.environment.OauthApplicationConfigMapper;
+import kr.co.fitapet.infra.client.sms.snes.SmsProvider;
+import kr.co.fitapet.infra.client.sms.snes.dto.SnesDto;
+import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.kcy.fitapet.global.common.security.jwt.AuthConstants.*;
-
-@Service
+@UseCase
 @RequiredArgsConstructor
 @Slf4j
 public class OauthUseCase {
@@ -53,12 +59,18 @@ public class OauthUseCase {
     private final OauthApplicationConfigMapper oauthApplicationConfigMapper;
     private final OauthClientMapper oauthClientMapper;
 
-    private final JwtProviderMapper jwtMapper;
+    @AccessTokenQualifier
+    private final JwtProvider accessTokenProvider;
+    @RefreshTokenQualifier
+    private final JwtProvider refreshTokenProvider;
+    @SmsOauthTokenQualifier
+    private final JwtProvider smsOauthTokenProvider;
     private final ForbiddenTokenService forbiddenTokenService;
 
     private final OIDCTokenService oidcTokenService;
     private final SmsProvider smsProvider;
-    private final SmsRedisHelper smsRedisHelper;
+    @SmsRegisterQualifier
+    private final SmsRedisProvider smsRedisHelper;
 
     @Transactional
     public Optional<Pair<Long, Jwt>> signInByOIDC(String id, String idToken, ProviderType provider, String nonce) {
@@ -77,8 +89,8 @@ public class OauthUseCase {
 
     @Transactional
     public Pair<Long, Jwt> signUpByOIDC(String id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
-        String accessToken = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).resolveToken(requestOauthAccessToken);
-        JwtSubInfo subs = jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).getSubInfoFromToken(accessToken);
+        String accessToken = smsOauthTokenProvider.resolveToken(requestOauthAccessToken);
+        JwtSubInfo subs = smsOauthTokenProvider.getSubInfoFromToken(accessToken);
         String phone = getPhoneByTopic(subs.phoneNumber());
 
         validateToken(accessToken, subs.phoneNumber(), provider);
@@ -94,8 +106,7 @@ public class OauthUseCase {
         oidcTokenService.deleteOIDCToken(req.idToken());
 
         forbiddenTokenService.register(
-                AccessToken.of(accessToken, subs.id(),
-                        jwtMapper.getProvider(AuthConstants.SMS_OAUTH_TOKEN).getExpiryDate(accessToken), false)
+                AccessToken.of(accessToken, subs.id(), smsOauthTokenProvider.getExpiryDate(accessToken))
         );
 
         log.info("success oauth signup member id : {} - oauth id : {} [provider: {}]",
@@ -105,7 +116,7 @@ public class OauthUseCase {
 
     @Transactional
     public SmsRes sendCode(OauthSmsReq dto, ProviderType provider) {
-        SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(dto.toSmsReq());
+        SnesDto.SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(SnesDto.Request.of(dto.to()));
         String key = makeTopic(dto.to(), provider);
 
         smsRedisHelper.saveSmsAuthToken(key, smsInfo.code(), SmsPrefix.OAUTH);
@@ -135,7 +146,7 @@ public class OauthUseCase {
             return Pair.of(member.getId(), generateToken(JwtUserInfo.from(member)));
         }
 
-        return Pair.of(0L, Jwt.of(jwtMapper.getProvider(SMS_OAUTH_TOKEN).generateToken(SmsOauthInfo.of(id, key)), null));
+        return Pair.of(0L, Jwt.of(smsOauthTokenProvider.generateToken(SmsOauthInfo.of(id, key)), null));
     }
 
     /**
@@ -166,7 +177,7 @@ public class OauthUseCase {
 
     private void validateToken(String accessToken, String value, ProviderType provider) {
         if (forbiddenTokenService.isForbidden(accessToken))
-            throw new GlobalErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN);
+            throw new AuthErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "forbidden access token");
 
         ProviderType tokenProvider = getProviderByTopic(value);
         if (!provider.equals(tokenProvider))
@@ -183,8 +194,8 @@ public class OauthUseCase {
 
     private Jwt generateToken(JwtSubInfo jwtSubInfo) {
         return Jwt.builder()
-                .accessToken(jwtMapper.getProvider(ACCESS_TOKEN).generateToken(jwtSubInfo))
-                .refreshToken(jwtMapper.getProvider(REFRESH_TOKEN).generateToken(jwtSubInfo))
+                .accessToken(accessTokenProvider.generateToken(jwtSubInfo))
+                .refreshToken(refreshTokenProvider.generateToken(jwtSubInfo))
                 .build();
     }
 }

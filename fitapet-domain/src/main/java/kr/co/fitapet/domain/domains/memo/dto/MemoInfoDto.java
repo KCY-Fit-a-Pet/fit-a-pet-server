@@ -3,7 +3,9 @@ package kr.co.fitapet.domain.domains.memo.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import kr.co.fitapet.domain.common.annotation.Dto;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import io.swagger.v3.oas.annotations.media.Schema;
+import kr.co.fitapet.common.annotation.Dto;
 import lombok.Builder;
 import lombok.Getter;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -32,7 +34,7 @@ public class MemoInfoDto {
             String categorySuffix,
             String title,
             String content,
-//            @JsonSerialize(using = LocalDateTimeSerializer.class)
+            @JsonSerialize(using = LocalDateTimeSerializer.class)
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime createdAt,
             List<MemoImageInfo> memoImages
@@ -54,7 +56,7 @@ public class MemoInfoDto {
             String categorySuffix,
             String title,
             String content,
-//            @JsonSerialize(using = LocalDateTimeSerializer.class)
+            @JsonSerialize(using = LocalDateTimeSerializer.class)
             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
             LocalDateTime createdAt,
             MemoImageInfo memoImage
@@ -82,15 +84,15 @@ public class MemoInfoDto {
     }
 
     public record PageResponse(
-//            @Schema(description = "메모 목록")
+            @Schema(description = "메모 목록")
             List<?> memos,
-//            @Schema(description = "현재 페이지")
+            @Schema(description = "현재 페이지")
             int currentPageNumber,
-//            @Schema(description = "페이지 크기")
+            @Schema(description = "페이지 크기")
             int pageSize,
-//            @Schema(description = "현재 페이지의 데이터 개수")
+            @Schema(description = "현재 페이지의 데이터 개수")
             int numberOfElements,
-//            @Schema(description = "다음 페이지 존재 여부")
+            @Schema(description = "다음 페이지 존재 여부")
             boolean hasNext
     ) {
         public static PageResponse from(@NotNull Slice<?> page) {

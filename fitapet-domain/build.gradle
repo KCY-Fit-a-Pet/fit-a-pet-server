@@ -2,7 +2,7 @@ bootJar {enabled = false}
 jar {enabled = true}
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     implementation 'mysql:mysql-connector-java:8.0.28'
 
@@ -15,6 +15,13 @@ dependencies {
 
     /* redis */
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    /* jackson */
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.5'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.5'
+
+    /* Swagger */
+    api 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 
     implementation project(':fitapet-common')
 }
