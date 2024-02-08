@@ -41,7 +41,7 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew -version
-          ./gradlew bootJar
+          ./gradlew build --stacktrace --info -x test
         shell: bash
 
       - name: docker image build & push
