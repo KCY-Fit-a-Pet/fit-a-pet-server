@@ -104,7 +104,7 @@ public class Member extends DateAuditable {
         this.notificationSetting.updateNotificationFromType(type);
     }
 
-    public void updateOathToOriginAccount() {
+    public void updateOauthToOriginAccount() {
         this.isOauth = Boolean.FALSE;
     }
 }

@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-import static kr.co.fitapet.api.common.security.jwt.AuthConstants.ACCESS_TOKEN;
-import static kr.co.fitapet.api.common.security.jwt.AuthConstants.REFRESH_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.ACCESS_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.REFRESH_TOKEN;
 
 @Tag(name = "OAuth API")
 @RestController

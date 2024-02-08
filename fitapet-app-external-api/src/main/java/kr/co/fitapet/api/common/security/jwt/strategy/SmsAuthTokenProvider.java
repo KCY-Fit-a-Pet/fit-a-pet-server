@@ -24,7 +24,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 
-import static kr.co.fitapet.api.common.security.jwt.JwtField.PHONE_NUMBER;
+import static kr.co.fitapet.api.common.security.jwt.consts.JwtField.PHONE_NUMBER;
 
 @Slf4j
 @Component
@@ -50,6 +50,7 @@ public class SmsAuthTokenProvider implements JwtProvider {
 
     @Override
     public String generateToken(JwtSubInfo subs) {
+        log.info("smsAuthTokenProvider generate");
         final Date now = new Date();
 
         return Jwts.builder()

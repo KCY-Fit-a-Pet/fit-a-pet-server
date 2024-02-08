@@ -29,7 +29,6 @@ public class ExtendedJpaRepositoryImpl<T, ID extends Serializable>
         Class<T> domainType = getDomainClass();
         T result = em.find(domainType, id);
 
-        log.info("domain class name : {}", getClassName());
         if (result == null) {
             log.error("{} id not found", domainType.getSimpleName());
             throw new DomainErrorException(DomainErrorCode.valueOf("NOT_FOUND_" + getClassName()));

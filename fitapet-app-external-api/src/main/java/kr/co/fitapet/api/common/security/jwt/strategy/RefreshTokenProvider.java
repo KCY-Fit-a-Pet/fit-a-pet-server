@@ -23,8 +23,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static kr.co.fitapet.api.common.security.jwt.JwtField.ROLE;
-import static kr.co.fitapet.api.common.security.jwt.JwtField.USER_ID;
+import static kr.co.fitapet.api.common.security.jwt.consts.JwtField.ROLE;
+import static kr.co.fitapet.api.common.security.jwt.consts.JwtField.USER_ID;
 
 @Slf4j
 @Component
@@ -50,6 +50,7 @@ public class RefreshTokenProvider implements JwtProvider {
 
     @Override
     public String generateToken(JwtSubInfo subs) {
+        log.info("refreshTokenProvider generate");
         final Date now = new Date();
 
         return Jwts.builder()

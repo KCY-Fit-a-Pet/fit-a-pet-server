@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static kr.co.fitapet.api.common.security.jwt.AuthConstants.AUTH_HEADER;
-import static kr.co.fitapet.api.common.security.jwt.AuthConstants.REFRESH_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.AUTH_HEADER;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.REFRESH_TOKEN;
 
 /**
  * JWT 인증 필터 <br/>

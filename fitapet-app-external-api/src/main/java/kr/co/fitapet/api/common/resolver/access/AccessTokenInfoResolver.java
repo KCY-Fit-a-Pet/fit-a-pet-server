@@ -1,8 +1,7 @@
 package kr.co.fitapet.api.common.resolver.access;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import kr.co.fitapet.api.common.security.jwt.AuthConstants;
+import kr.co.fitapet.api.common.security.jwt.consts.AuthConstants;
 import kr.co.fitapet.api.common.security.jwt.JwtProvider;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;

@@ -1,4 +1,4 @@
-package kr.co.fitapet.api.common.security.jwt;
+package kr.co.fitapet.api.common.security.jwt.consts;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

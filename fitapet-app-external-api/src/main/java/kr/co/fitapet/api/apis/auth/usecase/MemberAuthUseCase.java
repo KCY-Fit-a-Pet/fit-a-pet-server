@@ -1,29 +1,24 @@
 package kr.co.fitapet.api.apis.auth.usecase;
 
+import kr.co.fitapet.api.apis.auth.dto.SignInReq;
+import kr.co.fitapet.api.apis.auth.dto.SignUpReq;
 import kr.co.fitapet.api.apis.auth.dto.SmsReq;
 import kr.co.fitapet.api.apis.auth.dto.SmsRes;
+import kr.co.fitapet.api.apis.auth.mapper.JwtMapper;
 import kr.co.fitapet.api.apis.auth.mapper.SmsRedisMapper;
-import kr.co.fitapet.api.common.security.jwt.JwtProvider;
+import kr.co.fitapet.api.common.security.jwt.consts.JwtType;
 import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
 import kr.co.fitapet.api.common.security.jwt.dto.SmsAuthInfo;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
-import kr.co.fitapet.api.common.security.jwt.qualifier.AccessTokenQualifier;
-import kr.co.fitapet.api.common.security.jwt.qualifier.RefreshTokenQualifier;
-import kr.co.fitapet.api.common.security.jwt.qualifier.SmsAuthTokenQualifier;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.BaseErrorCode;
 import kr.co.fitapet.common.execption.GlobalErrorException;
-import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
-import kr.co.fitapet.domain.common.redis.refresh.RefreshToken;
-import kr.co.fitapet.domain.common.redis.refresh.RefreshTokenService;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import kr.co.fitapet.domain.domains.member.domain.AccessToken;
 import kr.co.fitapet.domain.domains.member.domain.Member;
-import kr.co.fitapet.api.apis.auth.dto.SignInReq;
-import kr.co.fitapet.api.apis.auth.dto.SignUpReq;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
@@ -35,12 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
-import static java.util.Calendar.ZONE_OFFSET;
 
 @Slf4j
 @UseCase
@@ -49,30 +40,21 @@ public class MemberAuthUseCase {
     private final MemberSearchService memberSearchService;
     private final MemberSaveService memberSaveService;
 
-    private final RefreshTokenService refreshTokenService;
-    private final ForbiddenTokenService forbiddenTokenService;
-
     private final SmsRedisMapper smsRedisMapper;
-
     private final SmsProvider smsProvider;
 
-    @AccessTokenQualifier
-    private final JwtProvider accessTokenProvider;
-    @RefreshTokenQualifier
-    private final JwtProvider refreshTokenProvider;
-    @SmsAuthTokenQualifier
-    private final JwtProvider smsAuthTokenProvider;
+    private final JwtMapper jwtMapper;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     public Pair<Long, Jwt> register(String requestSmsAccessToken, SignUpReq dto) {
-        String accessToken = smsAuthTokenProvider.resolveToken(requestSmsAccessToken);
+        String smsToken = jwtMapper.resolveToken(requestSmsAccessToken, JwtType.SMS_AUTH_TOKEN);
 
-        if (forbiddenTokenService.isForbidden(accessToken))
+        if (jwtMapper.isForbidden(smsToken))
             throw new AuthErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "허용되지 않은 토큰입니다.");
 
-        JwtSubInfo jwtSubInfo = smsAuthTokenProvider.getSubInfoFromToken(accessToken);
+        JwtSubInfo jwtSubInfo = jwtMapper.getSubInfoFromToken(smsToken, JwtType.SMS_AUTH_TOKEN);
         smsRedisMapper.removeCode(jwtSubInfo.phoneNumber(), SmsPrefix.REGISTER);
 
         Member requestMember = dto.toEntity(jwtSubInfo.phoneNumber(), bCryptPasswordEncoder);
@@ -80,12 +62,8 @@ public class MemberAuthUseCase {
 
         Member registeredMember = memberSaveService.saveMember(requestMember);
 
-        forbiddenTokenService.register(
-                AccessToken.of(accessToken, jwtSubInfo.id(),
-                        smsAuthTokenProvider.getExpiryDate(accessToken))
-        );
-
-        return Pair.of(registeredMember.getId(), generateToken(JwtUserInfo.from(registeredMember)));
+        jwtMapper.ban(smsToken, JwtType.SMS_AUTH_TOKEN);
+        return Pair.of(registeredMember.getId(), jwtMapper.login(JwtUserInfo.from(registeredMember)));
     }
 
     @Transactional
@@ -94,35 +72,15 @@ public class MemberAuthUseCase {
         if (!bCryptPasswordEncoder.matches(dto.password(), member.getPassword()))
             throw new GlobalErrorException(AccountErrorCode.NOT_MATCH_PASSWORD_ERROR);
 
-        return Pair.of(member.getId(), generateToken(JwtUserInfo.from(member)));
+        return Pair.of(member.getId(), jwtMapper.login(JwtUserInfo.from(member)));
     }
 
-    @Transactional
     public void logout(AccessToken requestAccessToken, String requestRefreshToken) {
-        forbiddenTokenService.register(requestAccessToken);
-
-        if (!StringUtils.hasText(requestRefreshToken)) {
-            // TODO: refresh 중복 코드 -> Helper로 분리
-            JwtSubInfo info = refreshTokenProvider.getSubInfoFromToken(requestRefreshToken);
-            RefreshToken refreshToken = RefreshToken.of(info.id(), requestRefreshToken, refreshTokenProvider.getExpiryDate(requestRefreshToken).toEpochSecond(ZoneOffset.ofHours(ZONE_OFFSET)));
-
-            refreshTokenService.logout(refreshToken);
-        }
+        jwtMapper.logout(requestAccessToken, requestRefreshToken);
     }
 
-    @Transactional
     public Jwt refresh(String requestRefreshToken) {
-        // TODO: refresh 중복 코드 -> Helper로 분리
-        JwtSubInfo info = refreshTokenProvider.getSubInfoFromToken(requestRefreshToken);
-        RefreshToken refreshTokenEntity = RefreshToken.of(info.id(), requestRefreshToken, refreshTokenProvider.getExpiryDate(requestRefreshToken).toEpochSecond(ZoneOffset.ofHours(ZONE_OFFSET)));
-
-        RefreshToken refreshToken = refreshTokenService.refresh(refreshTokenEntity, refreshTokenProvider.generateToken(info));
-
-        Long memberId = refreshToken.getUserId();
-        JwtUserInfo dto = JwtUserInfo.from(memberSearchService.findById(memberId));
-        String accessToken = accessTokenProvider.generateToken(dto);
-
-        return Jwt.of(accessToken, refreshToken.getToken());
+        return jwtMapper.refresh(requestRefreshToken);
     }
 
     @Transactional
@@ -147,12 +105,12 @@ public class MemberAuthUseCase {
         if (memberSearchService.isExistByPhone(smsReq.to())) {
             Member member = memberSearchService.findByPhone(smsReq.to());
             if (member.getIsOauth().equals(Boolean.TRUE)) {
-                member.updateOathToOriginAccount();
-                return generateToken(JwtUserInfo.from(member));
+                member.updateOauthToOriginAccount();
+                return jwtMapper.login(JwtUserInfo.from(member));
             }
         }
 
-        return Jwt.of(smsAuthTokenProvider.generateToken(SmsAuthInfo.of(1L, smsReq.to())), null);
+        return Jwt.of(jwtMapper.generateToken(SmsAuthInfo.of(1L, smsReq.to()), JwtType.SMS_AUTH_TOKEN), null);
     }
 
     @Transactional(readOnly = true)
@@ -194,15 +152,5 @@ public class MemberAuthUseCase {
     private void validateMember(Member member) {
         if (memberSearchService.isExistByUidOrPhone(member.getUid(), member.getPhone()))
             throw new GlobalErrorException(AccountErrorCode.DUPLICATE_USER_INFO_ERROR);
-    }
-
-    private Jwt generateToken(JwtUserInfo jwtUserInfo) {
-        String accessToken = accessTokenProvider.generateToken(jwtUserInfo);
-        String refreshToken = refreshTokenProvider.generateToken(jwtUserInfo);
-        refreshTokenService.issueRefreshToken(
-                RefreshToken.of(jwtUserInfo.id(), refreshToken, refreshTokenProvider.getExpiryDate(refreshToken).toEpochSecond(ZoneOffset.ofHours(ZONE_OFFSET))));
-        log.debug("accessToken : {}, refreshToken : {}", accessToken, refreshToken);
-
-        return Jwt.of(accessToken, refreshToken);
     }
 }

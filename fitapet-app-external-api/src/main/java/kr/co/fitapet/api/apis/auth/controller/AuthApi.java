@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import kr.co.fitapet.api.apis.auth.dto.SignInReq;
+import kr.co.fitapet.api.apis.auth.dto.SignUpReq;
 import kr.co.fitapet.api.apis.auth.dto.SmsReq;
 import kr.co.fitapet.api.apis.auth.dto.SmsRes;
 import kr.co.fitapet.api.apis.auth.usecase.MemberAuthUseCase;
@@ -27,8 +29,6 @@ import kr.co.fitapet.api.common.util.cookie.CookieUtil;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import kr.co.fitapet.domain.domains.member.domain.AccessToken;
-import kr.co.fitapet.api.apis.auth.dto.SignInReq;
-import kr.co.fitapet.api.apis.auth.dto.SignUpReq;
 import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +42,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static kr.co.fitapet.api.common.security.jwt.AuthConstants.ACCESS_TOKEN;
-import static kr.co.fitapet.api.common.security.jwt.AuthConstants.REFRESH_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.ACCESS_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.REFRESH_TOKEN;
 
 
 @Tag(name = "유저 관리 API", description = "유저 인증과 관련된 API")

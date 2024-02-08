@@ -1,6 +1,7 @@
 package kr.co.fitapet.api.common.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import kr.co.fitapet.api.common.security.jwt.consts.AuthConstants;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
 import org.springframework.util.StringUtils;

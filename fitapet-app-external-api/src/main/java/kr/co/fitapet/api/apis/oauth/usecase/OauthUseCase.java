@@ -3,7 +3,6 @@ package kr.co.fitapet.api.apis.oauth.usecase;
 import kr.co.fitapet.api.apis.auth.dto.SmsRes;
 import kr.co.fitapet.api.apis.oauth.dto.OauthSmsReq;
 import kr.co.fitapet.api.apis.oauth.helper.OauthOIDCHelper;
-import kr.co.fitapet.api.common.security.jwt.AuthConstants;
 import kr.co.fitapet.api.common.security.jwt.JwtProvider;
 import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
