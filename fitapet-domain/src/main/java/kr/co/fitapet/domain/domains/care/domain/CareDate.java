@@ -5,10 +5,7 @@ import kr.co.fitapet.domain.common.model.DateAuditable;
 import kr.co.fitapet.domain.domains.care.type.WeekType;
 import kr.co.fitapet.domain.common.converter.WeekTypeConverter;
 import kr.co.fitapet.domain.domains.care_log.domain.CareLog;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalTime;
 import java.util.ArrayList;

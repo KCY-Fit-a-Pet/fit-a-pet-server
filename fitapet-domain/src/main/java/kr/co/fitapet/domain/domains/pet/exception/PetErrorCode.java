@@ -18,11 +18,11 @@ public enum PetErrorCode implements BaseErrorCode {
 
     @Override
     public CausedBy causedBy() {
-        return null;
+        return CausedBy.of(code, name(), message);
     }
 
     @Override
     public String getExplainError() throws NoSuchFieldError {
-        return null;
+        return message;
     }
 }

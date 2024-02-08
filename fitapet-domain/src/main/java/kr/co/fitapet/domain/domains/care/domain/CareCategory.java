@@ -6,6 +6,7 @@ import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @Table(name = "CARE_CATEGORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@ToString(of = {"id", "categoryName"})
 public class CareCategory extends DateAuditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

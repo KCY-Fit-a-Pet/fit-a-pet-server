@@ -59,7 +59,8 @@ public class CareUseCase {
             List<CareInfoRes.CareDto> careDtos = new ArrayList<>();
             for (Care care : cares) {
                 WeekType todayWeek = WeekType.fromLegacyType(LocalDateTime.now().getDayOfWeek().toString());
-                List<CareDate> careDates = careSearchService.findCareDatesCareIdAndWeek(care.getId(), todayWeek);
+                List<CareDate> careDates = careSearchService.findCareDatesFromCareIdAndWeek(care.getId(), todayWeek);
+
                 for (CareDate careDate : careDates) {
                     LocalDateTime today = LocalDateTime.now();
 
@@ -69,6 +70,7 @@ public class CareUseCase {
                     careDtos.add(CareInfoRes.CareDto.of(care.getId(), careDate.getId(), care.getCareName(), careDate.getCareTime(), isClear));
                 }
             }
+            if (careDtos.isEmpty()) continue;
 
             careCategoryDtos.add(CareInfoRes.CareCategoryDto.of(careCategory.getId(), careCategory.getCategoryName(), careDtos));
         }

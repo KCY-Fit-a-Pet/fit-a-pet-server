@@ -30,7 +30,6 @@ public class QueryDslUtil {
     public static BooleanExpression matchAgainst(final StringPath c1, final StringPath c2, final String target) {
         if (!StringUtils.hasText(target)) { return null; }
         String template = "'" + target + "*'";
-        log.info("template: {}", template);
         return Expressions.booleanTemplate( "function('match_against', {0}, {1}, {2})", c1, c2, template);
     }
 
@@ -58,7 +57,6 @@ public class QueryDslUtil {
 
     private static OrderSpecifier<?> getOrderSpecifier(Sort.Order order, OrderSpecifier.NullHandling nullHandling) {
         Order orderBy = order.isAscending() ? Order.ASC : Order.DESC;
-        log.info("isAscending: {}", order.isAscending());
 
         return createOrderSpecifier(orderBy, Expressions.stringPath(order.getProperty()), nullHandling);
     }

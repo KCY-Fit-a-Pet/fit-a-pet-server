@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "CARE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(of = {"careName"})
+@ToString(of = {"id", "careName"})
 @Getter
 public class Care extends AuthorAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

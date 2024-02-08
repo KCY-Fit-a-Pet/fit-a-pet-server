@@ -32,7 +32,7 @@ public class CareSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<CareDate> findCareDatesCareIdAndWeek(Long careId, WeekType week) {
+    public List<CareDate> findCareDatesFromCareIdAndWeek(Long careId, WeekType week) {
         return careDateRepository.findAllByCare_IdAndWeek(careId, week);
     }
 

@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.domains.memo.repository;
 
 import com.querydsl.core.ResultTransformer;
+import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -138,13 +139,13 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                         QueryDslUtil.left(memo.title, Expressions.constant(19)),
                         QueryDslUtil.left(memo.content, Expressions.constant(16)),
                         memo.createdAt,
-                        list(
+                        GroupBy.list(
                                 Projections.constructor(
                                         MemoInfoDto.MemoImageInfo.class,
                                         memoImage.id,
                                         memoImage.imgUrl
                                 )
-                        )
+                        ).getExpression()
                 )
         );
     }

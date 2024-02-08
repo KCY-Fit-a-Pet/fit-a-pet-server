@@ -36,6 +36,10 @@ sourceSets {
     main.java.srcDirs += [querydslDir]
 }
 
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+
 tasks.withType(JavaCompile).configureEach {
 	options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
 }

@@ -34,11 +34,11 @@ public class ScheduleUseCase {
     @Transactional
     public void saveSchedule(Long userId, ScheduleSaveDto.Request request) {
         List<Long> petIds = request.petIds();
+
         if (!memberSearchService.isManagerAll(userId, petIds))
             throw new GlobalErrorException(PetErrorCode.NOT_MANAGER_PET);
 
         Schedule schedule = scheduleSaveService.saveSchedule(request.toEntity());
-
         List<Pet> pets = petSearchService.findPetsByIds(petIds);
         petSaveService.mappingAllPetAndSchedule(pets, schedule);
     }
