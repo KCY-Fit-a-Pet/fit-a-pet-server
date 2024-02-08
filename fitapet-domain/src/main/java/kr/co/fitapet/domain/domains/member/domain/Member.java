@@ -17,23 +17,19 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Getter
 @Table(name = "MEMBER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert
 @ToString(of = {"id", "name", "phone", "email", "role"})
 public class Member extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     private Long id;
 
-    @Getter
     private String uid;
-    @Getter
     private String name;
     private String password;
-    @Getter
     private String phone;
-    @Getter
     private String email;
     @Column(name = "profile_img") @ColumnDefault("NULL") @Getter
     private String profileImg;
@@ -42,9 +38,8 @@ public class Member extends DateAuditable {
     @Column(name = "is_oauth") @ColumnDefault("false") @Getter
     private Boolean isOauth;
     @Convert(converter = RoleTypeConverter.class)
-    @Getter
     private RoleType role;
-    @Embedded @Getter
+    @Embedded
     private NotificationSetting notificationSetting;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -94,31 +89,16 @@ public class Member extends DateAuditable {
     }
 
     /**
-     * 비밀번호 암호화
-     * @param passwordEncoder : 비밀번호 암호화 객체
-     * @return 변경된 유저 객체
+     * 비밀번호 변경
+     * @param encodedPassword : 변경할 비밀번호는 암호화되어 있어야 함
      */
-//    public void encodePassword(PasswordEncoder passwordEncoder) {
-//        this.password = passwordEncoder.encode(this.password);
-//    }
-
-//    /**
-//     * 비밀번호 확인
-//     * @param plainPassword : 평문 비밀번호
-//     * @param passwordEncoder : 비밀번호 암호화 객체
-//     * @return true or false : 비밀번호가 일치하면 true, 일치하지 않으면 false
-//     */
-//    public boolean checkPassword(String plainPassword, PasswordEncoder passwordEncoder) {
-//        return passwordEncoder.matches(plainPassword, this.password);
-//    }
+    public void updateEncodedPassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 
     public void updateName(String name) {
         this.name = name;
     }
-
-//    public void updatePassword(String password, PasswordEncoder passwordEncoder) {
-//        this.password = passwordEncoder.encode(password);
-//    }
 
     public void updateNotificationFromType(NotificationType type) {
         this.notificationSetting.updateNotificationFromType(type);

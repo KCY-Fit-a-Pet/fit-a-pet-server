@@ -1,4 +1,4 @@
-package kr.co.fitapet.domain.domains.member.dto.auth;
+package kr.co.fitapet.api.apis.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

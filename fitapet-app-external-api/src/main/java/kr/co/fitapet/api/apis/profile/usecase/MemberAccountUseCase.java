@@ -1,14 +1,16 @@
 package kr.co.fitapet.api.apis.profile.usecase;
 
+import kr.co.fitapet.api.apis.auth.mapper.SmsRedisMapper;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.BaseErrorCode;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
+import kr.co.fitapet.domain.domains.member.domain.Manager;
 import kr.co.fitapet.domain.domains.member.domain.Member;
-import kr.co.fitapet.domain.domains.member.dto.account.AccountProfileRes;
-import kr.co.fitapet.domain.domains.member.dto.account.AccountSearchReq;
-import kr.co.fitapet.domain.domains.member.dto.account.ProfilePatchReq;
-import kr.co.fitapet.domain.domains.member.dto.account.UidRes;
+import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
+import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
+import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
+import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
@@ -22,7 +24,6 @@ import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -39,7 +40,7 @@ public class MemberAccountUseCase {
     private final ScheduleSearchService scheduleSearchService;
     private final MemoSearchService memoSearchService;
 
-    private final SmsRedisHelper smsRedisHelper;
+    private final SmsRedisMapper smsRedisMapper;
 
     private final PasswordEncoder bCryptPasswordEncoder;
 
@@ -62,8 +63,8 @@ public class MemberAccountUseCase {
             validateUsername(member, req.getName());
             member.updateName(req.getName());
         } else if (type == MemberAttrType.PASSWORD) {
-            validatePassword(member, req.getPrePassword(), req.getNewPassword());
-            member.updatePassword(req.getNewPassword(), bCryptPasswordEncoder);
+            validatePassword(member, req.getPrePassword(), req.getNewEncodedPassword(bCryptPasswordEncoder));
+            member.updateEncodedPassword(req.getNewEncodedPassword(bCryptPasswordEncoder));
         }
     }
 
@@ -73,7 +74,7 @@ public class MemberAccountUseCase {
         validatePhone(phone, code, prefix);
         log.info("isValid");
         Member member = memberSearchService.findByPhone(phone);
-        smsRedisHelper.removeCode(phone, prefix);
+        smsRedisMapper.removeCode(phone, prefix);
         return UidRes.of(member.getUid(), member.getCreatedAt());
     }
 
@@ -87,8 +88,8 @@ public class MemberAccountUseCase {
             log.warn("비밀번호 변경 실패: {}", errorCode.getExplainError());
             throw new GlobalErrorException(errorCode);
         }
-        member.updatePassword(req.newPassword(), bCryptPasswordEncoder);
-        smsRedisHelper.removeCode(req.phone(), prefix);
+        member.updateEncodedPassword(req.getNewEncodedPassword(bCryptPasswordEncoder));
+        smsRedisMapper.removeCode(req.phone(), prefix);
     }
 
     @Transactional
@@ -149,7 +150,7 @@ public class MemberAccountUseCase {
         BaseErrorCode errorCode = null;
         if (!StringUtils.hasText(newPassword) || prePassword.equals(newPassword)) {
             errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
-        } else if (!member.checkPassword(prePassword, bCryptPasswordEncoder)) {
+        } else if (!bCryptPasswordEncoder.matches(prePassword, member.getPassword())) {
             errorCode = AccountErrorCode.NOT_MATCH_PASSWORD_ERROR;
         }
 
@@ -167,13 +168,13 @@ public class MemberAccountUseCase {
      * @param prefix : 인증번호 타입
      */
     private void validatePhone(String phone, String code, SmsPrefix prefix) {
-        if (!smsRedisHelper.isExistsCode(phone, prefix)) {
+        if (!smsRedisMapper.isExistsCode(phone, prefix)) {
             BaseErrorCode errorCode = SmsErrorCode.EXPIRED_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);
         }
 
-        if (!smsRedisHelper.isCorrectCode(phone, code, prefix)) {
+        if (!smsRedisMapper.isCorrectCode(phone, code, prefix)) {
             BaseErrorCode errorCode = SmsErrorCode.INVALID_AUTH_CODE;
             log.warn("인증번호 유효성 검사 실패: {}", errorCode);
             throw new GlobalErrorException(errorCode);

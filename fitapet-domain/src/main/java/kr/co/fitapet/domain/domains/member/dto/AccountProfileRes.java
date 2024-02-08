@@ -1,4 +1,4 @@
-package kr.co.fitapet.domain.domains.member.dto.account;
+package kr.co.fitapet.domain.domains.member.dto;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;

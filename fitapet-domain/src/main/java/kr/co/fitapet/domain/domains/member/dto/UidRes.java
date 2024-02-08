@@ -1,4 +1,4 @@
-package kr.co.fitapet.domain.domains.member.dto.account;
+package kr.co.fitapet.domain.domains.member.dto;
 
 
 import kr.co.fitapet.common.annotation.Dto;

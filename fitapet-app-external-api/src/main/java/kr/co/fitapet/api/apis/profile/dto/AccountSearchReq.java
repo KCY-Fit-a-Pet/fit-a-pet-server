@@ -1,8 +1,9 @@
-package kr.co.fitapet.domain.domains.member.dto.account;
+package kr.co.fitapet.api.apis.profile.dto;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Schema(description = "비밀번호 변경 요청")
 public record AccountSearchReq(
@@ -12,4 +13,12 @@ public record AccountSearchReq(
         @Schema(description = "새 비밀번호", example = "1234")
         String newPassword
 ) {
+        public String getNewEncodedPassword(PasswordEncoder passwordEncoder) {
+                return passwordEncoder.encode(newPassword);
+        }
+
+        @Override
+        public String newPassword() {
+                throw new UnsupportedOperationException();
+        }
 }
