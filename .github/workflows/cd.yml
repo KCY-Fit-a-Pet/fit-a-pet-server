@@ -35,13 +35,12 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
-          cache: 'gradle'
 
       - name: Build Gradle
         run: |
           chmod +x ./gradlew
           ./gradlew -version
-          ./gradlew bootJar
+          ./gradlew build --stacktrace --info -x test
         shell: bash
 
       - name: docker image build & push

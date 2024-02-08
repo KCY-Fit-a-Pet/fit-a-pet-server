@@ -2,6 +2,9 @@ plugins {
     id 'java'
 }
 
+bootJar {enabled = true}
+jar {enabled = false}
+
 group = 'kr.co'
 version = 'unspecified'
 

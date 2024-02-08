@@ -37,6 +37,4 @@ out/
 ### VS Code ###
 .vscode/
 
-### test ###
-src/main/java/com/kcy/fitapet/test/
-src/main/generated
+fitapet-domain/src/main/generated
