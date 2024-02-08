@@ -1,0 +1,21 @@
+fitapet:
+  domain:
+    backend: ${FITAPET_DOMAIN_BACKEND}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  main:
+    allow-bean-definition-overriding: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  main:
+    allow-bean-definition-overriding: true

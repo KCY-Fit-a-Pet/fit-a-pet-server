@@ -1,0 +1,92 @@
+spring:
+  profiles:
+    group:
+        local: common
+        prod: common
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 10000
+            loggerLevel: full
+
+oauth2:
+  client:
+    provider:
+      kakao:
+        jwks-uri: ${KAKAO_JWKS_URI}
+        client-id: ${KAKAO_CLIENT_ID}
+        client-secret: ${KAKAO_CLIENT_SECRET}
+        client-name: Kakao
+      google:
+        auth-uri: ${GOOGLE_AUTH_URI}
+        jwks-uri: ${GOOGLE_JWKS_URI}
+        client-id: ${GOOGLE_CLIENT_ID}
+        client-secret: ${GOOGLE_CLIENT_SECRET}
+        client-name: Google
+      apple:
+        jwks-uri: ${APPLE_JWKS_URI}
+        client-id: ${APPLE_CLIENT_ID}
+        client-secret: ${APPLE_CLIENT_SECRET}
+        client-name: Apple
+
+ncp:
+  api-key: ${NCP_API_ACCESS_KEY}
+  secret-key: ${NCP_SECRET_KEY}
+  sms:
+    service-key: ${NCP_SMS_KEY}
+    sender-phone: ${SENDER_PHONE}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 10000
+            loggerLevel: full
+
+oauth2:
+  client:
+    provider:
+      kakao:
+        jwks-uri: ${KAKAO_JWKS_URI}
+        client-id: ${KAKAO_CLIENT_ID}
+        client-secret: ${KAKAO_CLIENT_SECRET}
+        client-name: Kakao
+      google:
+        auth-uri: ${GOOGLE_AUTH_URI}
+        jwks-uri: ${GOOGLE_JWKS_URI}
+        client-id: ${GOOGLE_CLIENT_ID}
+        client-secret: ${GOOGLE_CLIENT_SECRET}
+        client-name: Google
+      apple:
+        jwks-uri: ${APPLE_JWKS_URI}
+        client-id: ${APPLE_CLIENT_ID}
+        client-secret: ${APPLE_CLIENT_SECRET}
+        client-name: Apple
+
+ncp:
+  api-key: ${NCP_API_ACCESS_KEY}
+  secret-key: ${NCP_SECRET_KEY}
+  sms:
+    service-key: ${NCP_SMS_KEY}
+    sender-phone: ${SENDER_PHONE}

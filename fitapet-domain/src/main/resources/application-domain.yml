@@ -1,0 +1,63 @@
+spring:
+  profiles:
+    group:
+      local: common
+      prod: common
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: MySQL
+    database-platform: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  data.redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
+
+logging:
+  level:
+    org.hibernate.sql: debug
+    org.hibernate.type: trace
+    com.zaxxer.hikari.HikariConfig: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: MySQL
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  data.redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+

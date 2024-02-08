@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
         name = "AppleOauthClient",
         url = "${oauth2.client.provider.apple.jwks-uri}",
         configuration = AppleOauthConfig.class,
-        qualifiers = "AppleOauth"
+        qualifiers = "appleOauthClient",
+        primary = false
 )
 public interface AppleOauthClient extends OauthClient {
     @Override

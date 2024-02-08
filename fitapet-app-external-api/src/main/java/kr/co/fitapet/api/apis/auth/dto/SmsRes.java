@@ -1,7 +1,6 @@
 package kr.co.fitapet.api.apis.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.co.fitapet.api.common.util.bind.Dto;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
  */
 @Builder
 @Schema(description = "SMS 인증번호 발송 응답")
-@Dto(name = "sms")
 public record SmsRes(
         @Schema(description = "수신자 번호")
         String to,

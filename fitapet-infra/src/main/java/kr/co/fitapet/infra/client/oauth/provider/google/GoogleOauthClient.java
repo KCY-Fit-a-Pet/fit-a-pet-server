@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
         name = "GoogleOauthClient",
         url = "${oauth2.client.provider.google.jwks-uri}",
         configuration = GoogleOauthConfig.class,
-        qualifiers = "GoogleOauth"
+        qualifiers = "googleOauthClient",
+        primary = false
 )
 public interface GoogleOauthClient extends OauthClient {
     @Override

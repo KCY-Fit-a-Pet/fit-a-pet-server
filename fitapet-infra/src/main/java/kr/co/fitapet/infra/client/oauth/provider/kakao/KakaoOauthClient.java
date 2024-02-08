@@ -1,8 +1,8 @@
 package kr.co.fitapet.infra.client.oauth.provider.kakao;
 
-import com.kcy.fitapet.global.common.security.oauth.OauthClient;
-import com.kcy.fitapet.global.common.security.oauth.dto.OIDCPublicKeyResponse;
-import com.kcy.fitapet.global.config.feign.KakaoOauthConfig;
+import kr.co.fitapet.infra.client.oauth.OauthClient;
+import kr.co.fitapet.infra.client.oauth.dto.OIDCPublicKeyResponse;
+import kr.co.fitapet.infra.config.feign.KakaoOauthConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(
         name = "KakaoOauthClient",
         url = "${oauth2.client.provider.kakao.jwks-uri}",
-        configuration = KakaoOauthConfig.class
+        configuration = KakaoOauthConfig.class,
+        qualifiers = "kakaoOauthClient"
 )
 public interface KakaoOauthClient extends OauthClient {
     @Override

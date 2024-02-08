@@ -1,7 +1,6 @@
 package kr.co.fitapet.infra.client.oauth;
 
-import kr.co.fitapet.common.execption.GlobalErrorException;
-import kr.co.fitapet.infra.client.oauth.type.ProviderType;
+import kr.co.fitapet.infra.client.oauth.type.Provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +11,7 @@ public class OauthClientMapper {
     private final OauthClient googleOauthClient;
     private final OauthClient appleOauthClient;
 
-    public OauthClient getOauthClient(ProviderType provider) {
+    public OauthClient getOauthClient(Provider provider) {
         return switch (provider) {
             case KAKAO -> kakaoOauthClient;
             case GOOGLE -> googleOauthClient;

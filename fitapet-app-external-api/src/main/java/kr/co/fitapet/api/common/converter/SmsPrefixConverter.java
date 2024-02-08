@@ -1,5 +1,7 @@
 package kr.co.fitapet.api.common.converter;
 
+import kr.co.fitapet.api.common.response.code.ErrorCode;
+import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import org.springframework.core.convert.converter.Converter;
 

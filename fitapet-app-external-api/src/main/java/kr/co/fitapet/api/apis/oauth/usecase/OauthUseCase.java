@@ -30,12 +30,14 @@ import kr.co.fitapet.domain.domains.oauth.domain.OauthAccount;
 import kr.co.fitapet.domain.domains.oauth.dto.OauthSignUpReq;
 import kr.co.fitapet.domain.domains.oauth.exception.OauthException;
 import kr.co.fitapet.domain.domains.oauth.service.OauthSearchService;
+import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
 import kr.co.fitapet.infra.client.oauth.OauthClient;
 import kr.co.fitapet.infra.client.oauth.OauthClientMapper;
 import kr.co.fitapet.infra.client.oauth.dto.OIDCDecodePayload;
 import kr.co.fitapet.infra.client.oauth.dto.OIDCPublicKeyResponse;
 import kr.co.fitapet.infra.client.oauth.environment.OauthApplicationConfig;
 import kr.co.fitapet.infra.client.oauth.environment.OauthApplicationConfigMapper;
+import kr.co.fitapet.infra.client.oauth.type.Provider;
 import kr.co.fitapet.infra.client.sms.snes.SmsProvider;
 import kr.co.fitapet.infra.client.sms.snes.dto.SnesDto;
 import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
@@ -153,8 +155,8 @@ public class OauthUseCase {
      * idToken을 통해 payload를 가져온다.
      */
     private OIDCDecodePayload getPayload(ProviderType provider, String idToken, String nonce) {
-        OauthClient oauthClient = oauthClientMapper.getOauthClient(provider);
-        OauthApplicationConfig oauthApplicationConfig = oauthApplicationConfigMapper.getOauthApplicationConfig(provider);
+        OauthClient oauthClient = oauthClientMapper.getOauthClient(Provider.valueOf(provider.name()));
+        OauthApplicationConfig oauthApplicationConfig = oauthApplicationConfigMapper.getOauthApplicationConfig(Provider.valueOf(provider.name()));
         OIDCPublicKeyResponse oidcPublicKeyResponse = oauthClient.getOIDCPublicKey();
 
         return oauthOIDCHelper.getPayloadFromIdToken(

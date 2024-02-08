@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import java.util.TimeZone;
 
 @SpringBootApplication
-@EnableJpaRepositories(repositoryFactoryBeanClass = ExtendedRepositoryFactory.class)
 public class FitapetDomainApplication {
     @PostConstruct
     public void init() {
