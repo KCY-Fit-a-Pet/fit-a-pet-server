@@ -1,0 +1,65 @@
+spring:
+  profiles:
+    group:
+      local: common, domain, infra
+      prod: common, domain, infra
+
+jwt:
+  secret:
+    access: ${JWT_SECRET_ACCESS}
+    refresh: ${JWT_SECRET_REFRESH}
+    sms-auth: ${JWT_SECRET_SMS_AUTH}
+    sms-oauth: ${JWT_SECRET_SMS_OAUTH}
+  token:
+    # milliseconds 단위
+    access-expiration-time: 1800000 # 30m (30 * 60 * 1000)
+    refresh-expiration-time: 604800000 # 7d (7 * 24 * 60 * 60 * 1000)
+    sms-auth-expiration-time: 300000 # 5m (5 * 60 * 1000)
+    sms-oauth-expiration-time: 300000 # 5m (5 * 60 * 1000)
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+  api-docs:
+    groups:
+      enabled: true
+
+---
+server:
+  address: 0.0.0.0
+  port: 8082
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  main:
+    allow-bean-definition-overriding: true
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+
+---
+server:
+  port: 8080
+  forward-headers-strategy: framework
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
