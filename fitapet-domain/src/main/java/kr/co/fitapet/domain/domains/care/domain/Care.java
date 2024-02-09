@@ -24,7 +24,7 @@ public class Care extends AuthorAuditable {
     @JoinColumn(name = "care_category_id")
     private CareCategory careCategory;
 
-    @OneToMany(mappedBy = "care", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "care", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CareDate> careDates = new ArrayList<>();
 
     @Builder

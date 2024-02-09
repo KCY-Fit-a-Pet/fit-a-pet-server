@@ -42,17 +42,17 @@ public class Member extends DateAuditable {
     @Embedded
     private NotificationSetting notificationSetting;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OauthAccount> oauthIDs = new HashSet<>();
-    @OneToMany(mappedBy = "from", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "from", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MemberNickname> fromMemberNickname = new HashSet<>();
-    @OneToMany(mappedBy = "to", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "to", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MemberNickname> toMemberNickname = new HashSet<>();
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) @Getter
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) @Getter
     private List<Manager> underCares = new ArrayList<>();
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) @Getter
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) @Getter
     private List<OauthAccount> oauthAccounts = new ArrayList<>();
 
     @Builder

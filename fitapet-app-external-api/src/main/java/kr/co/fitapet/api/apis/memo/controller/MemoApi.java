@@ -171,6 +171,7 @@ public class MemoApi {
             @PathVariable("memo_category_id") Long memoCategoryId,
             @PathVariable("memo_id") Long memoId
     ) {
+        memoUseCase.deleteMemo(memoId);
         return null;
     }
 }

@@ -30,7 +30,7 @@ public class Schedule extends AuthorAuditable {
     @Column(name = "notify_dt")
     private LocalDateTime notifyDt;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PetSchedule> pets = new ArrayList<>();
 
     @Builder

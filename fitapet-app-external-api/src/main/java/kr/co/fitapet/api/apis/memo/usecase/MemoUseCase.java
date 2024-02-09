@@ -8,6 +8,7 @@ import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
 import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
 import kr.co.fitapet.domain.domains.memo.dto.MemoSaveReq;
 import kr.co.fitapet.api.apis.memo.dto.SubMemoCategorySaveReq;
+import kr.co.fitapet.domain.domains.memo.service.MemoDeleteService;
 import kr.co.fitapet.domain.domains.memo.service.MemoSaveService;
 import kr.co.fitapet.domain.domains.memo.service.MemoSearchService;
 import kr.co.fitapet.domain.domains.pet.service.PetSearchService;
@@ -24,6 +25,7 @@ public class MemoUseCase {
 
     private final MemoSearchService memoSearchService;
     private final MemoSaveService memoSaveService;
+    private final MemoDeleteService memoDeleteService;
 
     @Transactional
     public void saveSubMemoCategory(Long petId, Long rootMemoCategoryId, SubMemoCategorySaveReq req) {
@@ -61,5 +63,14 @@ public class MemoUseCase {
     @Transactional(readOnly = true)
     public MemoInfoDto.PageResponse findMemosByPetId(Long petId, Pageable pageable) {
         return memoSearchService.findMemosByPetId(petId, pageable);
+    }
+
+    @Transactional
+    public void deleteMemo(Long memoId) {
+        // 1. 메모와 관련된 이미지 모두 조회
+
+        // 2. Object Storage에서 이미지 제거
+
+        memoDeleteService.deleteMemoById(memoId);
     }
 }
