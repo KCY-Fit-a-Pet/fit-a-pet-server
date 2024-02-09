@@ -38,7 +38,6 @@ import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.REFRESH
 @RequestMapping("/api/v1/auth/oauth")
 @Slf4j
 public class OauthApi {
-    private final MemberAuthUseCase memberAuthUseCase;
     private final OauthUseCase oauthUseCase;
     private final CookieUtil cookieUtil;
 

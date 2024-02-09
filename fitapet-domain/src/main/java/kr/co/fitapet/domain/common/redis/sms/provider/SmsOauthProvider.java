@@ -4,6 +4,7 @@ import kr.co.fitapet.domain.common.redis.exception.RedisErrorCode;
 import kr.co.fitapet.domain.common.redis.exception.RedisErrorException;
 import kr.co.fitapet.domain.common.redis.sms.dao.SmsOauthRepository;
 import kr.co.fitapet.domain.common.redis.sms.domain.SmsOauth;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsOauthQualifier;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import java.util.Optional;
 @Service
 @Primary
 @RequiredArgsConstructor
+@SmsOauthQualifier
 public class SmsOauthProvider implements SmsRedisProvider {
     private final SmsOauthRepository smsOauthRepository;
 

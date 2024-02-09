@@ -1,18 +1,17 @@
 package kr.co.fitapet.api.apis.oauth.usecase;
 
 import kr.co.fitapet.api.apis.auth.dto.SmsRes;
+import kr.co.fitapet.api.apis.auth.mapper.JwtMapper;
+import kr.co.fitapet.api.apis.auth.mapper.SmsRedisMapper;
 import kr.co.fitapet.api.apis.oauth.dto.OauthSmsReq;
 import kr.co.fitapet.api.apis.oauth.helper.OauthOIDCHelper;
-import kr.co.fitapet.api.common.security.jwt.JwtProvider;
+import kr.co.fitapet.api.common.security.jwt.consts.JwtType;
 import kr.co.fitapet.api.common.security.jwt.dto.Jwt;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtUserInfo;
 import kr.co.fitapet.api.common.security.jwt.dto.SmsOauthInfo;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
-import kr.co.fitapet.api.common.security.jwt.qualifier.AccessTokenQualifier;
-import kr.co.fitapet.api.common.security.jwt.qualifier.RefreshTokenQualifier;
-import kr.co.fitapet.api.common.security.jwt.qualifier.SmsOauthTokenQualifier;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
@@ -60,18 +59,14 @@ public class OauthUseCase {
     private final OauthApplicationConfigMapper oauthApplicationConfigMapper;
     private final OauthClientMapper oauthClientMapper;
 
-    @AccessTokenQualifier
-    private final JwtProvider accessTokenProvider;
-    @RefreshTokenQualifier
-    private final JwtProvider refreshTokenProvider;
-    @SmsOauthTokenQualifier
-    private final JwtProvider smsOauthTokenProvider;
+    private final JwtMapper jwtMapper;
+
     private final ForbiddenTokenService forbiddenTokenService;
 
     private final OIDCTokenService oidcTokenService;
     private final SmsProvider smsProvider;
-    @SmsRegisterQualifier
-    private final SmsRedisProvider smsRedisHelper;
+
+    private final SmsRedisMapper smsRedisMapper;
 
     @Transactional
     public Optional<Pair<Long, Jwt>> signInByOIDC(String id, String idToken, ProviderType provider, String nonce) {
@@ -81,7 +76,7 @@ public class OauthUseCase {
 
         if (oauthSearchService.isExistMember(id, provider)) {
             Member member = oauthSearchService.findMemberByOauthIdAndProvider(id, provider);
-            return Optional.of(Pair.of(member.getId(), generateToken(JwtUserInfo.from(member))));
+            return Optional.of(Pair.of(member.getId(), jwtMapper.login(JwtUserInfo.from(member))));
         } else {
             oidcTokenService.saveOIDCToken(idToken, provider, id);
             return Optional.empty();
@@ -90,11 +85,11 @@ public class OauthUseCase {
 
     @Transactional
     public Pair<Long, Jwt> signUpByOIDC(String id, ProviderType provider, String requestOauthAccessToken, OauthSignUpReq req) {
-        String accessToken = smsOauthTokenProvider.resolveToken(requestOauthAccessToken);
-        JwtSubInfo subs = smsOauthTokenProvider.getSubInfoFromToken(accessToken);
+        String smsOauthToken = jwtMapper.resolveToken(requestOauthAccessToken, JwtType.SMS_OAUTH_TOKEN);
+        JwtSubInfo subs = jwtMapper.getSubInfoFromToken(smsOauthToken, JwtType.SMS_OAUTH_TOKEN);
         String phone = getPhoneByTopic(subs.phoneNumber());
 
-        validateToken(accessToken, subs.phoneNumber(), provider);
+        validateToken(smsOauthToken, subs.phoneNumber(), provider);
 
         String idToken = oidcTokenService.findOIDCToken(req.idToken()).getToken();
         OIDCDecodePayload payload = getPayload(provider, idToken, req.nonce());
@@ -102,23 +97,25 @@ public class OauthUseCase {
         Member member = Member.builder().uid(req.uid()).name(req.name())
                 .phone(phone).isOauth(Boolean.TRUE).role(RoleType.USER).build();
         memberSaveService.saveMember(member);
+
         OauthAccount oauthAccount = OauthAccount.of(id, provider, payload.email());
         oauthAccount.updateMember(member);
         oidcTokenService.deleteOIDCToken(req.idToken());
 
         forbiddenTokenService.register(
-                AccessToken.of(accessToken, subs.id(), smsOauthTokenProvider.getExpiryDate(accessToken))
+                AccessToken.of(smsOauthToken, subs.id(), jwtMapper.getExpiryDate(smsOauthToken, JwtType.SMS_OAUTH_TOKEN))
         );
 
         log.info("success oauth signup member id : {} - oauth id : {} [provider: {}]",
                 member.getId(), oauthAccount.getOauthId(), oauthAccount.getProvider());
-        return Pair.of(member.getId(), generateToken(JwtUserInfo.from(member)));
+        return Pair.of(member.getId(), jwtMapper.login(JwtUserInfo.from(member)));
     }
 
     @Transactional
     public SmsRes sendCode(OauthSmsReq dto, ProviderType provider) {
         SnesDto.SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(SnesDto.Request.of(dto.to()));
         String key = makeTopic(dto.to(), provider);
+
 
         smsRedisHelper.saveSmsAuthToken(key, smsInfo.code(), SmsPrefix.OAUTH);
         LocalDateTime expireTime = smsRedisHelper.getExpiredTime(key, SmsPrefix.OAUTH);
@@ -144,10 +141,10 @@ public class OauthUseCase {
             oauthAccount.updateMember(member);
             oidcTokenService.deleteOIDCToken(req.idToken());
 
-            return Pair.of(member.getId(), generateToken(JwtUserInfo.from(member)));
+            return Pair.of(member.getId(), jwtMapper.login(JwtUserInfo.from(member)));
         }
 
-        return Pair.of(0L, Jwt.of(smsOauthTokenProvider.generateToken(SmsOauthInfo.of(id, key)), null));
+        return Pair.of(0L, Jwt.of(jwtMapper.generateToken(SmsOauthInfo.of(id, key), JwtType.SMS_OAUTH_TOKEN), null));
     }
 
     /**
@@ -191,12 +188,5 @@ public class OauthUseCase {
 
     private String getPhoneByTopic(String topic) {
         return topic.split("_")[1];
-    }
-
-    private Jwt generateToken(JwtSubInfo jwtSubInfo) {
-        return Jwt.builder()
-                .accessToken(accessTokenProvider.generateToken(jwtSubInfo))
-                .refreshToken(refreshTokenProvider.generateToken(jwtSubInfo))
-                .build();
     }
 }
