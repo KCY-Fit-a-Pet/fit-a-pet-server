@@ -23,7 +23,6 @@ public class MemoDeleteService {
 
     @Transactional
     public void deleteMemoImages(List<MemoImage> memoImages) {
-        memoImages.forEach(memoImage -> memoImage.updateMemo(null));
         memoImageRepository.deleteAll(memoImages);
     }
 

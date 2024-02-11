@@ -106,6 +106,7 @@ public class MemoUseCase {
         }
 
         if (req.addedMemoImageUrls() != null) {
+            log.info("addedMemoImageUrls: {}", req.addedMemoImageUrls());
             req.addedMemoImageUrls().forEach(url -> MemoImage.of(url, memo));
         }
     }
