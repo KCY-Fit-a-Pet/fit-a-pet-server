@@ -131,6 +131,11 @@ public class JwtMapper {
         return jwtProviderMap.get(type).isTokenExpired(token);
     }
 
+    /**
+     * 토큰을 블랙 리스트에 등록하는 메서드
+     * @param token : 블랙 리스트에 등록할 토큰
+     * @param type : 토큰의 타입
+     */
     public void ban(String token, JwtType type) {
         AccessToken forbiddenToken = AccessToken.of(token, getSubInfoFromToken(token, type).id(), getExpiryDate(token, type));
         forbiddenTokenService.register(forbiddenToken);

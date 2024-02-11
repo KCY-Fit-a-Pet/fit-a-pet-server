@@ -60,13 +60,10 @@ public class OauthUseCase {
     private final OauthClientMapper oauthClientMapper;
 
     private final JwtMapper jwtMapper;
-
-    private final ForbiddenTokenService forbiddenTokenService;
+    private final SmsRedisMapper smsRedisMapper;
 
     private final OIDCTokenService oidcTokenService;
     private final SmsProvider smsProvider;
-
-    private final SmsRedisMapper smsRedisMapper;
 
     @Transactional
     public Optional<Pair<Long, Jwt>> signInByOIDC(String id, String idToken, ProviderType provider, String nonce) {
@@ -102,10 +99,7 @@ public class OauthUseCase {
         oauthAccount.updateMember(member);
         oidcTokenService.deleteOIDCToken(req.idToken());
 
-        forbiddenTokenService.register(
-                AccessToken.of(smsOauthToken, subs.id(), jwtMapper.getExpiryDate(smsOauthToken, JwtType.SMS_OAUTH_TOKEN))
-        );
-
+        jwtMapper.ban(smsOauthToken, JwtType.SMS_OAUTH_TOKEN);
         log.info("success oauth signup member id : {} - oauth id : {} [provider: {}]",
                 member.getId(), oauthAccount.getOauthId(), oauthAccount.getProvider());
         return Pair.of(member.getId(), jwtMapper.login(JwtUserInfo.from(member)));
@@ -117,8 +111,8 @@ public class OauthUseCase {
         String key = makeTopic(dto.to(), provider);
 
 
-        smsRedisHelper.saveSmsAuthToken(key, smsInfo.code(), SmsPrefix.OAUTH);
-        LocalDateTime expireTime = smsRedisHelper.getExpiredTime(key, SmsPrefix.OAUTH);
+        smsRedisMapper.saveSmsAuthToken(key, smsInfo.code(), SmsPrefix.OAUTH);
+        LocalDateTime expireTime = smsRedisMapper.getExpiredTime(key, SmsPrefix.OAUTH);
         log.info("인증번호 만료 시간: {}", expireTime);
         return SmsRes.of(dto.to(), smsInfo.requestTime(), expireTime);
     }
@@ -127,11 +121,11 @@ public class OauthUseCase {
     public Pair<Long, Jwt> checkCertificationNumber(OauthSmsReq req, String id, String code, ProviderType provider) {
         String key = makeTopic(req.to(), provider);
         log.info("key: {}", key);
-        if (!smsRedisHelper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
+        if (!smsRedisMapper.isCorrectCode(key, code, SmsPrefix.OAUTH)) {
             log.warn("인증번호 불일치 -> 사용자 입력 인증 번호 : {}", code);
             throw new GlobalErrorException(SmsErrorCode.INVALID_AUTH_CODE);
         }
-        smsRedisHelper.removeCode(key, SmsPrefix.OAUTH);
+        smsRedisMapper.removeCode(key, SmsPrefix.OAUTH);
 
         if (memberSearchService.isExistByPhone(req.to())) {
             Member member = memberSearchService.findByPhone(req.to());
@@ -174,7 +168,7 @@ public class OauthUseCase {
     }
 
     private void validateToken(String accessToken, String value, ProviderType provider) {
-        if (forbiddenTokenService.isForbidden(accessToken))
+        if (jwtMapper.isForbidden(accessToken))
             throw new AuthErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "forbidden access token");
 
         ProviderType tokenProvider = getProviderByTopic(value);
