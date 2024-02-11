@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,8 +21,8 @@ public class Memo extends AuthorAuditable {
     private String title;
     private String content;
 
-    @OneToMany(mappedBy = "memo", cascade = CascadeType.ALL)
-    private List<MemoImage> memoImages;
+    @OneToMany(mappedBy = "memo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MemoImage> memoImages = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -47,5 +48,13 @@ public class Memo extends AuthorAuditable {
 
         this.memoCategory = memoCategory;
         memoCategory.getMemos().add(this);
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

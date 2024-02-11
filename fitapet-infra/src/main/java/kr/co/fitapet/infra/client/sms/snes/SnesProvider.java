@@ -36,8 +36,8 @@ public class SnesProvider implements SmsProvider {
     private final String phone;
 
     public SnesProvider(
-            @Value("${ncp.api-key}") String accessKey,
-            @Value("${ncp.secret-key}") String secretKey,
+            @Value("${ncp.credentials.api-key}") String accessKey,
+            @Value("${ncp.credentials.secret-key}") String secretKey,
             @Value("${ncp.sms.service-key}") String serviceId,
             @Value("${ncp.sms.sender-phone}") String phone,
             @Autowired ObjectMapper objectMapper

@@ -22,6 +22,14 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
+    /* mapstruct */
+    implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.5.5.Final'
+    compileOnly group: 'org.mapstruct', name: 'mapstruct-processor', version: '1.5.5.Final'
+    annotationProcessor group: 'org.mapstruct', name: 'mapstruct-processor', version: '1.5.5.Final'
+
+    /* jackson */
+    implementation group: 'org.openapitools', name: 'jackson-databind-nullable', version: '0.2.6'
+
     implementation project(':fitapet-common')
     implementation project(':fitapet-domain')
     implementation project(':fitapet-infra')

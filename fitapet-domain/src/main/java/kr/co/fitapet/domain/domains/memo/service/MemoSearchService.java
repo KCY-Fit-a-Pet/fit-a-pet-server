@@ -2,7 +2,9 @@ package kr.co.fitapet.domain.domains.memo.service;
 
 import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.domains.memo.domain.Memo;
 import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
+import kr.co.fitapet.domain.domains.memo.domain.MemoImage;
 import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
 import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
 import kr.co.fitapet.domain.domains.memo.exception.MemoErrorCode;
@@ -52,6 +54,11 @@ public class MemoSearchService {
     }
 
     @Transactional(readOnly = true)
+    public Memo findMemoById(Long memoId) {
+        return memoRepository.findByIdOrElseThrow(memoId);
+    }
+
+    @Transactional(readOnly = true)
     public MemoInfoDto.MemoInfo findMemoAndMemoImageUrlsById(Long memoId) {
         return memoRepository.findMemoAndMemoImageUrlsById(memoId).orElseThrow(
                 () -> new GlobalErrorException(MemoErrorCode.MEMO_NOT_FOUND)
@@ -70,5 +77,10 @@ public class MemoSearchService {
         Slice<MemoInfoDto.MemoSummaryInfo> page = memoRepository.findMemosByPetId(petId, pageable);
 
         return MemoInfoDto.PageResponse.from(page);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemoImage> findMemoImagesByMemoId(Long memoId) {
+        return memoImageRepository.findByMemo_Id(memoId);
     }
 }

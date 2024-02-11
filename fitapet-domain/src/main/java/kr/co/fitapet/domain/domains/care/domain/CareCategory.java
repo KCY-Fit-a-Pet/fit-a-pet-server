@@ -26,7 +26,7 @@ public class CareCategory extends DateAuditable {
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
-    @OneToMany(mappedBy = "careCategory", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "careCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Care> cares = new ArrayList<>();
 
     private CareCategory(String categoryName) {
