@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.fitapet.api.apis.memo.dto.MemoPatchReq;
 import kr.co.fitapet.api.apis.memo.usecase.MemoUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
@@ -172,6 +173,24 @@ public class MemoApi {
             @PathVariable("memo_id") Long memoId
     ) {
         memoUseCase.deleteMemo(memoId);
-        return null;
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "메모 수정")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "memo_category_id", description = "메모 카테고리 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "memo_id", description = "메모 ID", in = ParameterIn.PATH, required = true)
+    })
+    @PatchMapping("/memo-categories/{memo_category_id}/memos/{memo_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategoryAndMemo(#memoCategoryId, #memoId, #petId)")
+    public ResponseEntity<?> patchMemo(
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("memo_category_id") Long memoCategoryId,
+            @PathVariable("memo_id") Long memoId,
+            @RequestBody @Valid MemoPatchReq req
+    ) {
+        memoUseCase.patchMemo(memoId, req);
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }

@@ -49,4 +49,12 @@ public class Memo extends AuthorAuditable {
         this.memoCategory = memoCategory;
         memoCategory.getMemos().add(this);
     }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

@@ -3,6 +3,7 @@ package kr.co.fitapet.domain.domains.memo.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import kr.co.fitapet.domain.domains.memo.domain.Memo;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 public record MemoSaveReq(
         @NotBlank(message = "제목은 필수입니다.")
         @Schema(description = "제목", example = "오늘의 일기", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Size(max = 21, message = "제목은 21자 이하로 입력해주세요.")
         String title,
         @NotBlank(message = "내용은 필수입니다.")
         @Schema(description = "내용", example = "오늘은 매우 행복했다.", requiredMode = Schema.RequiredMode.REQUIRED)
