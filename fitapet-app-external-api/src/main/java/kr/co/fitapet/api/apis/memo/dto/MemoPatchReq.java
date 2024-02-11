@@ -14,7 +14,9 @@ public record MemoPatchReq(
         String title,
         @Schema(description = "메모 내용", example = "메모 내용")
         String content,
-        @Schema(description = "메모 이미지 ID 리스트. 기존 memoImage 리스트와 비교하여 추가/삭제. 수정 사항이 없다면 요청에서 제외", example = "[1, 2, 3]")
-        List<String> memoImageUrls
+        @Schema(description = "기존 memoImage 리스트에서 삭제할 요소.", example = "[1, 2, 3]")
+        List<Long> removedMemoImageIds,
+        @Schema(description = "추가할 메모 이미지 URL 리스트", example = "['https://{bucket-name}.{base-url}/{object-name}']")
+        List<String> addedMemoImageUrls
 ) {
 }

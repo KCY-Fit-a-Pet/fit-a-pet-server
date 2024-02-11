@@ -1,7 +1,6 @@
 package kr.co.fitapet.api.apis.memo.usecase;
 
 import kr.co.fitapet.api.apis.memo.dto.MemoPatchReq;
-import kr.co.fitapet.api.apis.memo.mapper.MemoBindingHelper;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.domains.memo.domain.Memo;
@@ -35,8 +34,6 @@ public class MemoUseCase {
     private final MemoDeleteService memoDeleteService;
 
     private final NcpObjectStorageService ncpObjectStorageService;
-
-    private final MemoBindingHelper memoBindingHelper;
 
     @Transactional
     public void saveSubMemoCategory(Long petId, Long rootMemoCategoryId, SubMemoCategorySaveReq req) {
@@ -81,8 +78,8 @@ public class MemoUseCase {
         Memo memo = memoSearchService.findMemoById(memoId);
         List<MemoImage> memoImages = memoSearchService.findMemoImagesByMemoId(memoId);
 
-        ncpObjectStorageService.deleteObjects(memoImages.stream().map(MemoImage::getImgUrl).toList());
         memoDeleteService.deleteMemoAndMemoImages(memo, memoImages);
+        ncpObjectStorageService.deleteObjects(memoImages.stream().map(MemoImage::getImgUrl).toList());
     }
 
     @Transactional
@@ -99,15 +96,17 @@ public class MemoUseCase {
             memo.updateContent(req.content());
         }
 
-        if (req.memoImageUrls() != null) {
-            List<String> memoImages = memoSearchService.findMemoImagesByMemoId(memoId).stream().map(MemoImage::getImgUrl).toList();
+        if (req.removedMemoImageIds() != null) {
+            List<MemoImage> memoImages = memoSearchService.findMemoImagesByMemoId(memoId);
+            List<MemoImage> removedMemoImages = memoImages.stream().filter(memoImage -> req.removedMemoImageIds().contains(memoImage.getId())).toList();
+            log.info("removedMemoImages: {}", removedMemoImages);
 
-            List<String> addedMemoImageUrls = memoImages.stream().filter(imgUrl -> !req.memoImageUrls().contains(imgUrl)).toList();
-            log.info("addedMemoImageUrls: {}", addedMemoImageUrls);
+            memoDeleteService.deleteMemoImages(removedMemoImages);
+            ncpObjectStorageService.deleteObjects(removedMemoImages.stream().map(MemoImage::getImgUrl).toList());
+        }
 
-            List<String> deletedMemoImageUrls = req.memoImageUrls().stream().filter(imgUrl -> !memoImages.contains(imgUrl)).toList();
-            log.info("deletedMemoImageUrls: {}", deletedMemoImageUrls);
-
+        if (req.addedMemoImageUrls() != null) {
+            req.addedMemoImageUrls().forEach(url -> MemoImage.of(url, memo));
         }
     }
 }

@@ -2,15 +2,13 @@ package kr.co.fitapet.domain.domains.memo.domain;
 
 import jakarta.persistence.*;
 import kr.co.fitapet.domain.common.model.DateAuditable;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Entity
 @Table(name = "MEMO_IMAGE")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = "memo")
 public class MemoImage extends DateAuditable {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
