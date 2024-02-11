@@ -74,12 +74,10 @@ public class MemoUseCase {
 
     @Transactional
     public void deleteMemo(Long memoId) {
-        // 1. 메모와 관련된 이미지 모두 조회
+        Memo memo = memoSearchService.findMemoById(memoId);
+        List<MemoImage> memoImages = memoSearchService.findMemoImagesByMemoId(memoId);
 
-        // 2. Object Storage에서 이미지 제거
-        ncpObjectStorageService.deleteObjects(new ArrayList<>(Arrays.asList("https://pkcy.kr.object.ncloudstorage.com/profile/0d6a23f7add4.jpg", "https://pkcy.kr.object.ncloudstorage.com/profile/0de66c37c96d.png")));
-
-
-//        memoDeleteService.deleteMemoById(memoId);
+        ncpObjectStorageService.deleteObjects(memoImages.stream().map(MemoImage::getImgUrl).toList());
+        memoDeleteService.deleteMemoAndMemoImages(memo, memoImages);
     }
 }

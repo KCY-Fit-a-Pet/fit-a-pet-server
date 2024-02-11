@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,8 +21,10 @@ public class NcpObjectStorageService {
     private final NcpConfig config;
 
     public void deleteObjects(List<String> paths) {
-        paths.replaceAll(path -> path.replace("https://" + config.getS3().bucket() + ".kr.object.ncloudstorage.com/", ""));
-        List<DeleteObjectsRequest.KeyVersion> keys = paths.stream().map(DeleteObjectsRequest.KeyVersion::new).toList();
+        List<String> nonImmutablePaths = new ArrayList<>(paths);
+
+        nonImmutablePaths.replaceAll(path -> path.replace("https://" + config.getS3().bucket() + ".kr.object.ncloudstorage.com/", ""));
+        List<DeleteObjectsRequest.KeyVersion> keys = nonImmutablePaths.stream().map(DeleteObjectsRequest.KeyVersion::new).toList();
 
         try {
             amazonS3.deleteObjects(new DeleteObjectsRequest(config.getS3().bucket()).withKeys(keys));
