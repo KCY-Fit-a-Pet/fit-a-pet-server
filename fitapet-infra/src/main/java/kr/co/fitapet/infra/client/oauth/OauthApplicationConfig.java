@@ -1,4 +1,4 @@
-package kr.co.fitapet.infra.client.oauth.environment;
+package kr.co.fitapet.infra.client.oauth;
 
 public interface OauthApplicationConfig {
     String getJwksUri();

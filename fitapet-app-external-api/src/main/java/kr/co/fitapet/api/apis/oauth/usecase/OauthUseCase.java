@@ -14,12 +14,8 @@ import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.GlobalErrorException;
-import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
 import kr.co.fitapet.domain.common.redis.oauth.OIDCTokenService;
-import kr.co.fitapet.domain.common.redis.sms.provider.SmsRedisProvider;
-import kr.co.fitapet.domain.common.redis.sms.qualify.SmsRegisterQualifier;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
-import kr.co.fitapet.domain.domains.member.domain.AccessToken;
 import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
@@ -30,11 +26,11 @@ import kr.co.fitapet.domain.domains.oauth.exception.OauthException;
 import kr.co.fitapet.domain.domains.oauth.service.OauthSearchService;
 import kr.co.fitapet.domain.domains.oauth.type.ProviderType;
 import kr.co.fitapet.infra.client.oauth.OauthClient;
-import kr.co.fitapet.infra.client.oauth.OauthClientMapper;
+import kr.co.fitapet.api.apis.oauth.mapper.OauthClientMapper;
 import kr.co.fitapet.infra.client.oauth.dto.OIDCDecodePayload;
 import kr.co.fitapet.infra.client.oauth.dto.OIDCPublicKeyResponse;
-import kr.co.fitapet.infra.client.oauth.environment.OauthApplicationConfig;
-import kr.co.fitapet.infra.client.oauth.environment.OauthApplicationConfigMapper;
+import kr.co.fitapet.infra.client.oauth.OauthApplicationConfig;
+import kr.co.fitapet.api.apis.oauth.mapper.OauthApplicationConfigMapper;
 import kr.co.fitapet.infra.client.oauth.type.Provider;
 import kr.co.fitapet.infra.client.sms.snes.SmsProvider;
 import kr.co.fitapet.infra.client.sms.snes.dto.SnesDto;
@@ -56,7 +52,6 @@ public class OauthUseCase {
     private final MemberSearchService memberSearchService;
 
     private final OauthOIDCHelper oauthOIDCHelper;
-    private final OauthApplicationConfigMapper oauthApplicationConfigMapper;
     private final OauthClientMapper oauthClientMapper;
 
     private final JwtMapper jwtMapper;
@@ -110,7 +105,6 @@ public class OauthUseCase {
         SnesDto.SensInfo smsInfo = smsProvider.sendCodeByPhoneNumber(SnesDto.Request.of(dto.to()));
         String key = makeTopic(dto.to(), provider);
 
-
         smsRedisMapper.saveSmsAuthToken(key, smsInfo.code(), SmsPrefix.OAUTH);
         LocalDateTime expireTime = smsRedisMapper.getExpiredTime(key, SmsPrefix.OAUTH);
         log.info("인증번호 만료 시간: {}", expireTime);
@@ -145,9 +139,8 @@ public class OauthUseCase {
      * idToken을 통해 payload를 가져온다.
      */
     private OIDCDecodePayload getPayload(ProviderType provider, String idToken, String nonce) {
-        OauthClient oauthClient = oauthClientMapper.getOauthClient(Provider.valueOf(provider.name()));
-        OauthApplicationConfig oauthApplicationConfig = oauthApplicationConfigMapper.getOauthApplicationConfig(Provider.valueOf(provider.name()));
-        OIDCPublicKeyResponse oidcPublicKeyResponse = oauthClient.getOIDCPublicKey();
+        OauthApplicationConfig oauthApplicationConfig = oauthClientMapper.getOauthApplicationConfig(Provider.valueOf(provider.name()));
+        OIDCPublicKeyResponse oidcPublicKeyResponse = oauthClientMapper.getPublicKeyResponse(Provider.valueOf(provider.name()));
 
         return oauthOIDCHelper.getPayloadFromIdToken(
                 idToken, oauthApplicationConfig.getJwksUri(),

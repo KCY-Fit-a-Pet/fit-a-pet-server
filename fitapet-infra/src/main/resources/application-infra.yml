@@ -20,6 +20,10 @@ spring:
             readTimeout: 10000
             loggerLevel: full
 
+  data.redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
 oauth2:
   client:
     provider:
@@ -63,6 +67,10 @@ spring:
             connectTimeout: 5000
             readTimeout: 10000
             loggerLevel: full
+
+  data.redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
 
 oauth2:
   client:
