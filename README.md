@@ -95,6 +95,18 @@
 
 - WAS Server 내부에 Nginx를 통해 Reverse Proxy를 구현했습니다.
 
+## Multi Module Architecture
+
+<div align="center"><img src="https://github.com/KCY-Fit-a-Pet/fit-a-pet-server/assets/96044622/df673786-71d5-4a30-b0ba-2c9e9f4f2603"></img></div>
+
+- Multi Module Architecture를 적용하여 각 모듈별로 분리하여 개발하고, 빌드 및 배포를 진행하고 있습니다.
+- 각 모듈별로 담당하는 역할을 분리하여 개발하고 있습니다.
+- 각 모듈에 대한 Convention은 다음과 같습니다.
+  - [fitapet-common](https://github.com/KCY-Fit-a-Pet/fit-a-pet-server/tree/develop/fitapet-common/Readme.md) : 독립적인 오픈 소스로 배포 가능한 수준의 공통 모듈. 모든 모듈이 의존한다.
+  - [fitapet-infra](https://github.com/KCY-Fit-a-Pet/fit-a-pet-server/tree/develop/fitapet-infra/Readme.md) : 데이터베이스, 인프라스트럭처, 클라우드 서비스와 연동하는 모듈. common 모듈에 의존한다.
+  - [fitapet-domain](https://github.com/KCY-Fit-a-Pet/fit-a-pet-server/tree/develop/fitapet-domain/Readme.md) : 도메인 로직을 담당하며, repository를 보호하는 모듈. common 모듈에 의존한다.
+  - [fitapet-app-external-api](https://github.com/KCY-Fit-a-Pet/fit-a-pet-server/tree/develop/fitapet-app-external-api/Readme.md) : Client와 연동하는 외부 API를 담당하는 모듈. common, infra, domain 모든 모듈에 의존한다.
+
 ## ERD
 <div align="center"><img src="https://github.com/KCY-Fit-a-Pet/fit-a-pet-server/assets/96044622/9b75726d-1695-4459-8c3f-72f664d6d036"></img></div>
 
