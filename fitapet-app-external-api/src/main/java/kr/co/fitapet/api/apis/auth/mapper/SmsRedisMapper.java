@@ -1,65 +1,51 @@
 package kr.co.fitapet.api.apis.auth.mapper;
 
-import kr.co.fitapet.domain.common.redis.sms.service.SmsOauthService;
-import kr.co.fitapet.domain.common.redis.sms.service.SmsPasswordService;
-import kr.co.fitapet.domain.common.redis.sms.service.SmsRegisterService;
-import kr.co.fitapet.domain.common.redis.sms.service.SmsUidService;
+import kr.co.fitapet.domain.common.redis.sms.provider.SmsRedisProvider;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsOauthQualifier;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsPasswordQualifier;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsRegisterQualifier;
+import kr.co.fitapet.domain.common.redis.sms.qualify.SmsUidQualifier;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class SmsRedisMapper {
-    private final SmsOauthService smsOauthService;
-    private final SmsRegisterService smsRegisterService;
-    private final SmsPasswordService smsPasswordService;
-    private final SmsUidService smsUidService;
+    private final Map<SmsPrefix, SmsRedisProvider> smsProviderMap;
+
+    public SmsRedisMapper(
+            @SmsOauthQualifier SmsRedisProvider smsOauthService,
+            @SmsRegisterQualifier SmsRedisProvider smsRegisterService,
+            @SmsPasswordQualifier SmsRedisProvider smsPasswordService,
+            @SmsUidQualifier SmsRedisProvider smsUidService
+    ) {
+        smsProviderMap = Map.of(
+                SmsPrefix.OAUTH, smsOauthService,
+                SmsPrefix.REGISTER, smsRegisterService,
+                SmsPrefix.PASSWORD, smsPasswordService,
+                SmsPrefix.UID, smsUidService
+        );
+    }
 
     public void saveSmsAuthToken(String phone, String code, SmsPrefix prefix) {
-        switch (prefix) {
-            case OAUTH -> smsOauthService.save(phone, code, prefix);
-            case REGISTER -> smsRegisterService.save(phone, code, prefix);
-            case PASSWORD -> smsPasswordService.save(phone, code, prefix);
-            case UID -> smsUidService.save(phone, code, prefix);
-        }
+        smsProviderMap.get(prefix).saveSmsAuthToken(phone, code, prefix);
     }
 
     public boolean isCorrectCode(String phone, String code, SmsPrefix prefix) {
-        return switch (prefix) {
-            case OAUTH -> smsOauthService.isCorrectCode(phone, code, prefix);
-            case REGISTER -> smsRegisterService.isCorrectCode(phone, code, prefix);
-            case PASSWORD -> smsPasswordService.isCorrectCode(phone, code, prefix);
-            case UID -> smsUidService.isCorrectCode(phone, code, prefix);
-        };
+        return smsProviderMap.get(prefix).isCorrectCode(phone, code, prefix);
     }
 
     public boolean isExistsCode(String phone, SmsPrefix prefix) {
-        return switch (prefix) {
-            case OAUTH -> smsOauthService.isExistsCode(phone, prefix);
-            case REGISTER -> smsRegisterService.isExistsCode(phone, prefix);
-            case PASSWORD -> smsPasswordService.isExistsCode(phone, prefix);
-            case UID -> smsUidService.isExistsCode(phone, prefix);
-        };
+        return smsProviderMap.get(prefix).isExistsCode(phone, prefix);
     }
 
     public void removeCode(String phone, SmsPrefix prefix) {
-        switch (prefix) {
-            case OAUTH -> smsOauthService.removeCode(phone, prefix);
-            case REGISTER -> smsRegisterService.removeCode(phone, prefix);
-            case PASSWORD -> smsPasswordService.removeCode(phone, prefix);
-            case UID -> smsUidService.removeCode(phone, prefix);
-        };
+        smsProviderMap.get(prefix).removeCode(phone, prefix);
     }
 
     public LocalDateTime getExpiredTime(String phone, SmsPrefix prefix) {
-        return switch (prefix) {
-            case OAUTH -> smsOauthService.getExpiredTime(phone, prefix);
-            case REGISTER -> smsRegisterService.getExpiredTime(phone, prefix);
-            case PASSWORD -> smsPasswordService.getExpiredTime(phone, prefix);
-            case UID -> smsUidService.getExpiredTime(phone, prefix);
-        };
+        return smsProviderMap.get(prefix).getExpiredTime(phone, prefix);
     }
 }

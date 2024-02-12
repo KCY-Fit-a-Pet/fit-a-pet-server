@@ -1,6 +1,6 @@
 package kr.co.fitapet.infra.client.oauth.provider.kakao;
 
-import kr.co.fitapet.infra.client.oauth.environment.OauthApplicationConfig;
+import kr.co.fitapet.infra.client.oauth.OauthApplicationConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

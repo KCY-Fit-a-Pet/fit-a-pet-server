@@ -9,4 +9,11 @@ import java.util.List;
 @NoArgsConstructor
 public class OIDCPublicKeyResponse {
     List<OIDCPublicKey> keys;
+
+    @Override
+    public String toString() {
+        return "OIDCPublicKeyResponse{" +
+                "keys=" + keys +
+                '}';
+    }
 }
