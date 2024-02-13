@@ -22,4 +22,9 @@ public class ManagerAuthorize {
     public boolean isMaster(Long memberId, Long petId) {
         return memberId.equals(managerSearchService.findMasterIdByPetId(petId));
     }
+
+    public boolean isInvitedMember(Long memberId, Long petId) {
+        // TODO : Redis 조회 후 있으면 true -> 캐시 삭제
+        return true;
+    }
 }

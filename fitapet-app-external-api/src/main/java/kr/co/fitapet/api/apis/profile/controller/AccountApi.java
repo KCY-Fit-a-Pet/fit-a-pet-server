@@ -45,6 +45,15 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
+    @Operation(summary = "프로필 검색")
+    @Parameter(name = "search", description = "검색할 닉네임", in = ParameterIn.QUERY, required = true)
+    @GetMapping("")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getSearchProfile(@RequestParam("search") @NotBlank String search) {
+
+        return null;
+    }
+
     @Operation(summary = "닉네임 존재 확인")
     @Parameter(name = "uid", description = "확인할 유저 닉네임", in = ParameterIn.QUERY, required = true)
     @GetMapping("/exists")
@@ -107,6 +116,17 @@ public class AccountApi {
         memberAccountUseCase.updateNotification(id, user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
+
+    @Operation(summary = "다른 유저 별명 설정", description = "자기 자신의 별명을 설정하려는 경우 에러 응답을 반환합니다. 별명을 제거하는 경우 null을 입력합니다.")
+    @PutMapping("/{member_id}/nickname")
+    @PreAuthorize("isAuthenticated() and #memberId != principal.userId")
+    public ResponseEntity<?> putNickname(
+            @PathVariable("member_id") Long memberId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return null;
+    }
+
 
     @Operation(summary = "관리 중인 반려동물 날짜별 스케줄 전체 조회")
     @GetMapping("/{user_id}/schedules")
