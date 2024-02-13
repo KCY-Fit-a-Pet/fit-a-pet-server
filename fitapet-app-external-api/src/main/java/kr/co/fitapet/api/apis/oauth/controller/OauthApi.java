@@ -29,8 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.ACCESS_TOKEN;
-import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.REFRESH_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.*;
 
 @Tag(name = "OAuth API")
 @RestController
@@ -109,7 +108,7 @@ public class OauthApi {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         else if (token.getValue().refreshToken() == null)
             return ResponseEntity.ok()
-                    .header(ACCESS_TOKEN.getValue(), token.getValue().accessToken())
+                    .header(AUTH_HEADER.getValue(), token.getValue().accessToken())
                     .body(SuccessResponse.from(Map.of("member", "신규 회원")));
 
         return getJwtResponseEntity(token.getKey(), token.getValue());
@@ -120,7 +119,7 @@ public class OauthApi {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), jwt.accessToken())
+                .header(AUTH_HEADER.getValue(), jwt.accessToken())
                 .body(SuccessResponse.from(Map.of("userId", userId)));
     }
 }

@@ -108,8 +108,23 @@ oauth2:
         client-name: Apple
 
 ncp:
-  api-key: ${NCP_API_ACCESS_KEY}
-  secret-key: ${NCP_SECRET_KEY}
+  credentials:
+    api-key: ${NCP_API_ACCESS_KEY}
+    secret-key: ${NCP_SECRET_KEY}
   sms:
     service-key: ${NCP_SMS_KEY}
     sender-phone: ${SENDER_PHONE}
+
+cloud:
+  aws:
+    s3:
+      endpoint: ${NCP_OBJECT_STORAGE_URI}
+      bucket: ${NCP_OBJECT_STORAGE_BUCKET}
+    credentials:
+      access-key: ${NCP_API_ACCESS_KEY}
+      secret-key: ${NCP_SECRET_KEY}
+    region:
+      static: ${NCP_OBJECT_STORAGE_REGION}
+      auto: false
+    stack:
+      auto: false

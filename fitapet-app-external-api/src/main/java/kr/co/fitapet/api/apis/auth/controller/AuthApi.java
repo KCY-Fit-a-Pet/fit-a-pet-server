@@ -42,8 +42,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.ACCESS_TOKEN;
-import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.REFRESH_TOKEN;
+import static kr.co.fitapet.api.common.security.jwt.consts.AuthConstants.*;
 
 
 @Tag(name = "유저 관리 API", description = "유저 인증과 관련된 API")
@@ -98,7 +97,7 @@ public class AuthApi {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), token.accessToken())
+                .header(AUTH_HEADER.getValue(), token.accessToken())
                 .body(SuccessResponse.from(Map.of("member", "등록된 oauth 계정 연동 성공")));
     }
 
@@ -183,7 +182,7 @@ public class AuthApi {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
+                .header(AUTH_HEADER.getValue(), tokens.accessToken())
                 .body(SuccessResponse.noContent());
     }
 
@@ -205,7 +204,7 @@ public class AuthApi {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(ACCESS_TOKEN.getValue(), tokens.accessToken())
+                .header(AUTH_HEADER.getValue(), tokens.accessToken())
                 .body(SuccessResponse.from(Map.of("userId", userId)));
     }
 }
