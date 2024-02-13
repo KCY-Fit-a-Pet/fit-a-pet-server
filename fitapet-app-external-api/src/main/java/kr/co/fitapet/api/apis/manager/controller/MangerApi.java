@@ -12,10 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "매니저 API", description = "반려동물 관리자 및 어드민의 기능을 제공하는 API")
 @Slf4j
@@ -31,5 +28,14 @@ public class MangerApi {
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getManagers(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(SuccessResponse.from("managers", managerUseCase.findManagers(petId, userDetails.getUserId())));
+    }
+
+
+
+    @Operation(summary = "매니저 추방")
+    @DeleteMapping("/{manager_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isMaster(principal.userId, #petId) and @managerAuthorize.isManager(#managerId, #petId)")
+    public ResponseEntity<?> deleteManager(@PathVariable("pet_id") Long petId, @PathVariable("manager_id") Long managerId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return null;
     }
 }

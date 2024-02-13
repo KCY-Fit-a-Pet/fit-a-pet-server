@@ -1,7 +1,6 @@
 package kr.co.fitapet.domain.domains.manager.repository;
 
 import kr.co.fitapet.domain.domains.manager.dto.ManagerInfoRes;
-import kr.co.fitapet.domain.domains.member.domain.Member;
 
 import java.util.List;
 

@@ -17,4 +17,9 @@ public class ManagerAuthorize {
     public boolean isManager(Long memberId, Long petId) {
         return managerSearchService.isManager(memberId, petId);
     }
+
+    @Cacheable(value = "master", key = "#memberId + '@' + #petId", unless = "#result == false", cacheManager = "managerCacheManager")
+    public boolean isMaster(Long memberId, Long petId) {
+        return memberId.equals(managerSearchService.findMasterIdByPetId(petId));
+    }
 }
