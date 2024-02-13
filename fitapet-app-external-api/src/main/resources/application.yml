@@ -52,11 +52,16 @@ spring:
 server:
   port: 8080
   forward-headers-strategy: framework
+  http2:
+    enabled: true
 
 spring:
   config:
     activate:
       on-profile: prod
+
+  main:
+    allow-bean-definition-overriding: true
 
   mvc:
     throw-exception-if-no-handler-found: true
