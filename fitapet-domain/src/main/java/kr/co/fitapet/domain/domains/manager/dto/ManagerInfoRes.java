@@ -1,4 +1,4 @@
-package kr.co.fitapet.api.apis.manager.dto;
+package kr.co.fitapet.domain.domains.manager.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.fitapet.domain.domains.member.domain.Member;
@@ -20,13 +20,16 @@ public record ManagerInfoRes(
         @Schema(description = "마스터 여부", example = "true")
         Boolean isMaster
 ) {
-    public static ManagerInfoRes valueOf(Member member, Long masterId) {
-        return ManagerInfoRes.builder()
-                .id(member.getId())
-                .uid(member.getUid())
-                .name(member.getName())
-                .profileImageUrl(Objects.toString(member.getProfileImg(), ""))
-                .isMaster(member.getId().equals(masterId))
-                .build();
+    public ManagerInfoRes(Long id, String uid, String name, String profileImageUrl, Boolean isMaster) {
+//        this.id = Objects.requireNonNull(id);
+//        this.uid = Objects.requireNonNull(uid);
+//        this.name = Objects.requireNonNull(name);
+//        this.profileImageUrl = Objects.toString(profileImageUrl, "");
+//        this.isMaster = Objects.requireNonNull(isMaster);
+        this.id = id;
+        this.uid = uid;
+        this.name = name;
+        this.profileImageUrl = Objects.toString(profileImageUrl, "");
+        this.isMaster = isMaster;
     }
 }
