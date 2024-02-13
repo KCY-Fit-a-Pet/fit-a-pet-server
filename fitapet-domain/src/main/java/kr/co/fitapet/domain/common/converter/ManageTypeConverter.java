@@ -2,7 +2,7 @@ package kr.co.fitapet.domain.common.converter;
 
 import jakarta.persistence.Converter;
 import kr.co.fitapet.domain.common.util.converter.AbstractLegacyEnumAttributeConverter;
-import kr.co.fitapet.domain.domains.member.type.ManageType;
+import kr.co.fitapet.domain.domains.manager.type.ManageType;
 
 @Converter
 public class ManageTypeConverter extends AbstractLegacyEnumAttributeConverter<ManageType> {

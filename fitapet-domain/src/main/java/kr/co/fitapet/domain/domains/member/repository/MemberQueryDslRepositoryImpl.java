@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.member.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.fitapet.domain.domains.member.domain.QManager;
+import kr.co.fitapet.domain.domains.manager.domain.QManager;
 import kr.co.fitapet.domain.domains.member.domain.QMember;
 import kr.co.fitapet.domain.domains.pet.domain.QPet;
 import lombok.RequiredArgsConstructor;

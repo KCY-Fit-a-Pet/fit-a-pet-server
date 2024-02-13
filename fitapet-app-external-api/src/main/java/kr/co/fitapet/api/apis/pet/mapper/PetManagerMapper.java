@@ -5,7 +5,7 @@ import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSaveService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
-import kr.co.fitapet.domain.domains.member.type.ManageType;
+import kr.co.fitapet.domain.domains.manager.type.ManageType;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

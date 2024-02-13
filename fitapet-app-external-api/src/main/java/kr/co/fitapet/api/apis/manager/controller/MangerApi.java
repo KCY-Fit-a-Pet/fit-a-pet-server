@@ -1,12 +1,17 @@
 package kr.co.fitapet.api.apis.manager.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.fitapet.api.apis.manager.usecase.ManagerUseCase;
+import kr.co.fitapet.api.common.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,11 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class MangerApi {
     private final ManagerUseCase managerUseCase;
 
+    @Operation(summary = "매니저 목록 조회")
+    @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("")
-    @PreAuthorize("isAuthenticated() and hasp")
-    public ResponseEntity<?> getManagers(
-
-    ) {
-
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
+    public ResponseEntity<?> getManagers(@PathVariable("pet_id") Long petId) {
+        return ResponseEntity.ok(SuccessResponse.from("managers", managerUseCase.findManagers(petId)));
     }
 }
