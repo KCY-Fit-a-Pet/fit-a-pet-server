@@ -5,7 +5,8 @@ import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.BaseErrorCode;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
-import kr.co.fitapet.domain.domains.member.domain.Manager;
+import kr.co.fitapet.domain.domains.manager.domain.Manager;
+import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
 import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
@@ -36,6 +37,7 @@ import java.util.List;
 @Slf4j
 public class MemberAccountUseCase {
     private final MemberSearchService memberSearchService;
+    private final ManagerSearchService managerSearchService;
 
     private final ScheduleSearchService scheduleSearchService;
     private final MemoSearchService memoSearchService;
@@ -70,9 +72,7 @@ public class MemberAccountUseCase {
 
     @Transactional(readOnly = true)
     public UidRes getUidWhenSmsAuthenticated(String phone, String code, SmsPrefix prefix) {
-        log.info("phone: {}, code: {}, prefix: {}", phone, code, prefix);
         validatePhone(phone, code, prefix);
-        log.info("isValid");
         Member member = memberSearchService.findByPhone(phone);
         smsRedisMapper.removeCode(phone, prefix);
         return UidRes.of(member.getUid(), member.getCreatedAt());
@@ -100,7 +100,7 @@ public class MemberAccountUseCase {
 
     @Transactional(readOnly = true)
     public ScheduleInfoDto findPetSchedules(Long userId, LocalDateTime date) {
-        List<Pet> pets = memberSearchService.findAllManagerByMemberId(userId)
+        List<Pet> pets = managerSearchService.findAllManagerByMemberId(userId)
                 .stream().map(Manager::getPet).toList();
         List<Long> petIds = pets.stream().map(Pet::getId).toList();
 

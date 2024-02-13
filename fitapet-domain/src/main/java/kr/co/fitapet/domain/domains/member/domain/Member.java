@@ -2,6 +2,7 @@ package kr.co.fitapet.domain.domains.member.domain;
 
 import jakarta.persistence.*;
 import kr.co.fitapet.domain.common.model.DateAuditable;
+import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.member.type.RoleType;
 import kr.co.fitapet.domain.common.converter.RoleTypeConverter;
 import kr.co.fitapet.domain.domains.notification.domain.Notification;

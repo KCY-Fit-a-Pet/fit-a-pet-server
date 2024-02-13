@@ -2,6 +2,7 @@ package kr.co.fitapet.api.apis.schedule.usecase;
 
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.GlobalErrorException;
+import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import kr.co.fitapet.domain.domains.pet.exception.PetErrorCode;
@@ -24,7 +25,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ScheduleUseCase {
-    private final MemberSearchService memberSearchService;
+    private final ManagerSearchService managerSearchService;
 
     private final ScheduleSearchService scheduleSearchService;
     private final ScheduleSaveService scheduleSaveService;
@@ -35,7 +36,7 @@ public class ScheduleUseCase {
     public void saveSchedule(Long userId, ScheduleSaveDto.Request request) {
         List<Long> petIds = request.petIds();
 
-        if (!memberSearchService.isManagerAll(userId, petIds))
+        if (!managerSearchService.isManagerAll(userId, petIds))
             throw new GlobalErrorException(PetErrorCode.NOT_MANAGER_PET);
 
         Schedule schedule = scheduleSaveService.saveSchedule(request.toEntity());

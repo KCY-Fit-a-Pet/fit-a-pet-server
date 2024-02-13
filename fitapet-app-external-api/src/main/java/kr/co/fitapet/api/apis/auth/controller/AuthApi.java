@@ -28,7 +28,7 @@ import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
 import kr.co.fitapet.api.common.util.cookie.CookieUtil;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
-import kr.co.fitapet.domain.domains.member.domain.AccessToken;
+import kr.co.fitapet.domain.common.redis.AccessToken;
 import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

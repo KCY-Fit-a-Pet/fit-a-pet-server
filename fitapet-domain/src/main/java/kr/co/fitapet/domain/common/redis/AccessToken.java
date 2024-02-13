@@ -1,4 +1,4 @@
-package kr.co.fitapet.domain.domains.member.domain;
+package kr.co.fitapet.domain.common.redis;
 
 import java.time.LocalDateTime;
 

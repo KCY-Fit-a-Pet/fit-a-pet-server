@@ -11,15 +11,13 @@ import kr.co.fitapet.common.annotation.Mapper;
 import kr.co.fitapet.domain.common.redis.forbidden.ForbiddenTokenService;
 import kr.co.fitapet.domain.common.redis.refresh.RefreshToken;
 import kr.co.fitapet.domain.common.redis.refresh.RefreshTokenService;
-import kr.co.fitapet.domain.domains.member.domain.AccessToken;
+import kr.co.fitapet.domain.common.redis.AccessToken;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Map;
 
-import static java.util.Calendar.ZONE_OFFSET;
 import static kr.co.fitapet.api.common.security.jwt.consts.JwtType.*;
 
 @Mapper

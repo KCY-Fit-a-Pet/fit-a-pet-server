@@ -1,8 +1,8 @@
-package kr.co.fitapet.domain.domains.member.repository;
+package kr.co.fitapet.domain.domains.manager.repository;
 
 
 import kr.co.fitapet.domain.common.repository.ExtendedJpaRepository;
-import kr.co.fitapet.domain.domains.member.domain.Manager;
+import kr.co.fitapet.domain.domains.manager.domain.Manager;
 
 import java.util.List;
 

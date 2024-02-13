@@ -17,6 +17,7 @@ import kr.co.fitapet.domain.domains.care_log.domain.CareLog;
 import kr.co.fitapet.domain.domains.care_log.dto.CareLogInfo;
 import kr.co.fitapet.domain.domains.care_log.service.CareLogSearchService;
 import kr.co.fitapet.domain.domains.care_log.service.CareLogUpdateService;
+import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import kr.co.fitapet.domain.domains.pet.exception.PetErrorCode;
@@ -36,6 +37,7 @@ public class CareUseCase {
     private final CareUpdateService careUpdateService;
 
     private final MemberSearchService memberSearchService;
+    private final ManagerSearchService managerSearchService;
     private final PetSearchService petSearchService;
     private final CareSearchService careSearchService;
     private final CareLogSearchService careLogSearchService;
@@ -105,7 +107,7 @@ public class CareUseCase {
         List<CareSaveReq.AdditionalPetDto> additionalPetDtos = request.pets();
 
         List<Long> petIds = additionalPetDtos.stream().map(CareSaveReq.AdditionalPetDto::petId).toList();
-        if (!memberSearchService.isManagerAll(userId, petIds)) {
+        if (!managerSearchService.isManagerAll(userId, petIds)) {
             throw new GlobalErrorException(PetErrorCode.NOT_MANAGER_PET);
         }
 
