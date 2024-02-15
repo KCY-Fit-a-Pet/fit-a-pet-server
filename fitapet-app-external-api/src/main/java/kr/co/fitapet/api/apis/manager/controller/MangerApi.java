@@ -31,7 +31,7 @@ public class MangerApi {
         return ResponseEntity.ok(SuccessResponse.from("managers", managerUseCase.findManagers(petId, userDetails.getUserId())));
     }
 
-    @Operation(summary = "매니저 추가", description = "요청자와 유저 아이디가 동일한 경우 에러 응답을 반환합니다. 초대 요청에 대한 승인 유효 기간은 1일입니다.")
+    @Operation(summary = "매니저 초대", description = "요청자와 유저 아이디가 동일한 경우 에러 응답을 반환합니다. 초대 요청에 대한 승인 유효 기간은 1일입니다.")
     @Parameters({
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "id", description = "초대할 유저 ID", in = ParameterIn.QUERY, required = true)
