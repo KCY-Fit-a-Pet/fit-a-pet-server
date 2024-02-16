@@ -11,6 +11,7 @@ public enum RedisErrorCode implements BaseErrorCode {
     /* 400 BAD REQUEST */
     MISS_MATCHED_VALUES(400, "값이 일치하지 않습니다."),
     EXPIRED_VALUE(400, "값이 만료되었습니다."),
+    ALREADY_EXISTS_VALUE(400, "이미 존재하는 값입니다."),
 
     /* 404 NOT FOUND */
     NOT_FOUND_KEY(404, "키를 찾을 수 없습니다."),

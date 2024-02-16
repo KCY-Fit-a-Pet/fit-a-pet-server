@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import kr.co.fitapet.api.apis.manager.dto.InviteMember;
 import kr.co.fitapet.api.apis.manager.usecase.ManagerUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
@@ -31,19 +34,23 @@ public class MangerApi {
         return ResponseEntity.ok(SuccessResponse.from("managers", managerUseCase.findManagers(petId, userDetails.getUserId())));
     }
 
-    @Operation(summary = "매니저 초대", description = "요청자와 유저 아이디가 동일한 경우 에러 응답을 반환합니다. 초대 요청에 대한 승인 유효 기간은 1일입니다.")
-    @Parameters({
-            @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
-            @Parameter(name = "id", description = "초대할 유저 ID", in = ParameterIn.QUERY, required = true)
-    })
+    @Operation(summary = "반려동물 관리자 초대 리스트 조회")
+    @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/invite")
-    @PreAuthorize("isAuthenticated() and principal.userId != #inviteId and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> inviteManager(
-            @PathVariable("pet_id") Long petId,
-            @RequestParam("id") Long inviteId,
-            @AuthenticationPrincipal CustomUserDetails userDetails)
-    {
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
+    public ResponseEntity<?> getInvitedMembers(@PathVariable("pet_id") Long petId) {
+//        return ResponseEntity.ok(SuccessResponse.from("invitedMembers", managerUseCase.findInvitedMembers(petId)));
         return null;
+    }
+
+    @Operation(summary = "매니저 초대", description = "요청자와 유저 아이디가 동일한 경우 에러 응답을 반환합니다. 초대 요청에 대한 승인 유효 기간은 1일입니다.")
+    @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
+    @PostMapping("/invite")
+    @PreAuthorize("isAuthenticated() and not #req.inviteId().equals(principal.userId) and @managerAuthorize.isManager(principal.userId, #petId)")
+    public ResponseEntity<?> inviteManager(@PathVariable("pet_id") Long petId, @RequestBody @Valid InviteMember req, @AuthenticationPrincipal CustomUserDetails principal)
+    {
+        managerUseCase.invite(petId, req.inviteId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
     @Operation(summary = "매니저 초대 승인", description = "매니저 초대 요청에 대한 승인을 진행합니다. 1일 이내에 승인하지 않으면 초대 요청이 만료됩니다.")

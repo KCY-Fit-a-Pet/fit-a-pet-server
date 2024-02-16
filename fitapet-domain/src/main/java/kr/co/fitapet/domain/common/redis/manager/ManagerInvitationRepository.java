@@ -1,6 +1,13 @@
 package kr.co.fitapet.domain.common.redis.manager;
 
-import org.springframework.data.repository.CrudRepository;
+import java.time.LocalDateTime;
+import java.util.Map;
 
-public interface ManagerInvitationRepository extends CrudRepository<ManagerInvitation, String> {
+public interface ManagerInvitationRepository {
+    void save(String petId, String invitedId, LocalDateTime ttl);
+
+    Boolean exists(String petId, String invitedId);
+    LocalDateTime getTtl(String petId, String invitedId);
+    Map<Object, Object> findAll(String petId);
+    void delete(String petId, String invitedId);
 }

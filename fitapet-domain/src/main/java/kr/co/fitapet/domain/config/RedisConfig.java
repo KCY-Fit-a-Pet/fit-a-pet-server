@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.config;
 
 import kr.co.fitapet.domain.common.annotation.RedisCacheConnectionFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +41,7 @@ public class RedisConfig {
     }
 
     @Bean
+    @Primary
     public RedisTemplate<String, ?> redisTemplate() {
         RedisTemplate<String, ?> template = new RedisTemplate<>();
 

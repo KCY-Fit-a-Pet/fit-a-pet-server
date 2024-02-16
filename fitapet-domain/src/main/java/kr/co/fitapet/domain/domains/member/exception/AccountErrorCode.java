@@ -12,6 +12,7 @@ import static kr.co.fitapet.common.execption.StatusCode.NOT_FOUND;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum AccountErrorCode implements BaseErrorCode {
+    /* 400 BAD REQUEST */
     DUPLICATE_USER_INFO_ERROR(BAD_REQUEST.getCode(), "중복된 유저정보(닉네임/이메일/전화번호)가 존재합니다."),
 
     DUPLICATE_PHONE_ERROR(BAD_REQUEST.getCode(), "중복된 전화번호가 존재합니다."),
@@ -26,7 +27,10 @@ public enum AccountErrorCode implements BaseErrorCode {
 
     MISSMATCH_PHONE_AND_UID_ERROR(BAD_REQUEST.getCode(), "등록된 전화번호와 일치하지 않는 유저입니다."),
 
-    /* 404 */
+    ALREADY_MANAGER_ERROR(BAD_REQUEST.getCode(), "이미 관리자로 등록된 회원입니다."),
+    ALREADY_INVITED_ERROR(BAD_REQUEST.getCode(), "이미 초대된 회원입니다."),
+
+    /* 404 NOT FOUND */
     NOT_FOUND_MEMBER_ERROR(NOT_FOUND.getCode(), "존재하지 않는 회원입니다."),
     NOT_FOUND_PHONE_ERROR(NOT_FOUND.getCode(), "존재하지 않는 전화번호입니다."),
     ;

@@ -2,11 +2,9 @@ package kr.co.fitapet.domain.domains.member.service;
 
 
 import kr.co.fitapet.common.annotation.DomainService;
-import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
-import kr.co.fitapet.domain.domains.manager.repository.ManagerRepository;
 import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +43,11 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public boolean isExistByUidOrPhone(String uid, String phone) {
         return memberRepository.existsByUidOrPhone(uid, phone);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistById(Long id) {
+        return memberRepository.existsById(id);
     }
 
     @Transactional(readOnly = true)
