@@ -6,7 +6,8 @@ import java.util.Objects;
 public record InvitationDto(
         Long petId,
         Long inviteId,
-        LocalDateTime ttl
+        LocalDateTime ttl,
+        Boolean expired
 ) {
     public InvitationDto {
         Objects.requireNonNull(petId, "petId must be provided");
@@ -15,6 +16,6 @@ public record InvitationDto(
     }
 
     public static InvitationDto of(Long petId, Long inviteId, LocalDateTime ttl) {
-        return new InvitationDto(petId, inviteId, ttl);
+        return new InvitationDto(petId, inviteId, ttl.minusDays(1), ttl.isBefore(LocalDateTime.now()));
     }
 }

@@ -50,6 +50,10 @@ public class ManagerInvitationServiceImpl implements ManagerInvitationService {
 
     @Override
     public boolean expired(Long invitedId, Long petId) {
+        if (!managerInvitationRepository.exists(petId.toString(), invitedId.toString())) {
+            log.warn("not found invitation. about User : {}", invitedId);
+            throw new RedisErrorException(RedisErrorCode.NOT_FOUND_KEY);
+        }
         LocalDateTime ttl = managerInvitationRepository.getTtl(invitedId.toString(), petId.toString());
         return ttl.isBefore(LocalDateTime.now());
     }

@@ -1,5 +1,6 @@
 package kr.co.fitapet.api.apis.manager.usecase;
 
+import kr.co.fitapet.api.apis.manager.dto.InviteMemberInfoRes;
 import kr.co.fitapet.api.apis.manager.mapper.ManagerInvitationMapper;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.domain.domains.manager.dto.ManagerInfoRes;
@@ -22,8 +23,13 @@ public class ManagerUseCase {
         return managerSearchService.findAllManagerByPetId(petId, memberId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public void invite(Long petId, Long invitedId) {
         managerInvitationMapper.invite(petId, invitedId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<InviteMemberInfoRes> findInvitedMembers(Long petId) {
+        return managerInvitationMapper.findInvitedMembers(petId);
     }
 }

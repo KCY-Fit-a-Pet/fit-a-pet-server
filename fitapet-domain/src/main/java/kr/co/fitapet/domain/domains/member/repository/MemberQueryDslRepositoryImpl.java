@@ -19,6 +19,13 @@ public class MemberQueryDslRepositoryImpl implements MemberQueryDslRepository {
     private final QPet pet = QPet.pet;
 
     @Override
+    public List<Member> findByIds(List<Long> ids) {
+        return queryFactory.selectFrom(member)
+                .where(member.id.in(ids))
+                .fetch();
+    }
+
+    @Override
     public List<Long> findMyPetIds(Long memberId) {
         return queryFactory.select(pet.id)
                 .from(member)

@@ -5,6 +5,6 @@ import kr.co.fitapet.domain.domains.member.domain.Member;
 import java.util.List;
 
 public interface MemberQueryDslRepository {
+    List<Member> findByIds(List<Long> ids);
     List<Long> findMyPetIds(Long memberId);
-
 }

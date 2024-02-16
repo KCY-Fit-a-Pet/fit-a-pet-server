@@ -22,6 +22,11 @@ public class MemberSearchService {
     }
 
     @Transactional(readOnly = true)
+    public List<Member> findByIds(List<Long> ids) {
+        return memberRepository.findByIds(ids);
+    }
+
+    @Transactional(readOnly = true)
     public Member findByUid(String uid) {
         return memberRepository.findByUid(uid).orElseThrow(
                 () -> new AccountErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)

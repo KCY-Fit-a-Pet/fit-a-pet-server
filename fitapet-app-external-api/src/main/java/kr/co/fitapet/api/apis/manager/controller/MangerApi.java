@@ -6,8 +6,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import kr.co.fitapet.api.apis.manager.dto.InviteMember;
+import kr.co.fitapet.api.apis.manager.dto.InviteMemberReq;
 import kr.co.fitapet.api.apis.manager.usecase.ManagerUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
@@ -39,15 +38,14 @@ public class MangerApi {
     @GetMapping("/invite")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getInvitedMembers(@PathVariable("pet_id") Long petId) {
-//        return ResponseEntity.ok(SuccessResponse.from("invitedMembers", managerUseCase.findInvitedMembers(petId)));
-        return null;
+        return ResponseEntity.ok(SuccessResponse.from("members", managerUseCase.findInvitedMembers(petId)));
     }
 
     @Operation(summary = "매니저 초대", description = "요청자와 유저 아이디가 동일한 경우 에러 응답을 반환합니다. 초대 요청에 대한 승인 유효 기간은 1일입니다.")
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
     @PostMapping("/invite")
     @PreAuthorize("isAuthenticated() and not #req.inviteId().equals(principal.userId) and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> inviteManager(@PathVariable("pet_id") Long petId, @RequestBody @Valid InviteMember req, @AuthenticationPrincipal CustomUserDetails principal)
+    public ResponseEntity<?> inviteManager(@PathVariable("pet_id") Long petId, @RequestBody @Valid InviteMemberReq req, @AuthenticationPrincipal CustomUserDetails principal)
     {
         managerUseCase.invite(petId, req.inviteId());
         return ResponseEntity.ok(SuccessResponse.noContent());
@@ -61,6 +59,7 @@ public class MangerApi {
             @PathVariable("pet_id") Long petId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+//        managerUseCase.agreeInvite(petId);
         return null;
     }
 

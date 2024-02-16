@@ -1,5 +1,6 @@
 package kr.co.fitapet.api.common.security.authorization;
 
+import kr.co.fitapet.domain.common.redis.manager.ManagerInvitationService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ManagerAuthorize {
     private final ManagerSearchService managerSearchService;
+    private final ManagerInvitationService managerInvitationService;
 
     @Cacheable(value = "manager", key = "#memberId + '@' + #petId", unless = "#result == false", cacheManager = "managerCacheManager")
     public boolean isManager(Long memberId, Long petId) {
@@ -25,6 +27,8 @@ public class ManagerAuthorize {
 
     public boolean isInvitedMember(Long memberId, Long petId) {
         // TODO : Redis 조회 후 있으면 true -> 캐시 삭제
+        log.info("expired : {}", managerInvitationService.expired(memberId, petId));
+
         return true;
     }
 }

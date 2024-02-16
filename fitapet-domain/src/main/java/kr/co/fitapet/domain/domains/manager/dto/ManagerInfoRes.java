@@ -21,15 +21,10 @@ public record ManagerInfoRes(
         Boolean isMaster
 ) {
     public ManagerInfoRes(Long id, String uid, String name, String profileImageUrl, Boolean isMaster) {
-//        this.id = Objects.requireNonNull(id);
-//        this.uid = Objects.requireNonNull(uid);
-//        this.name = Objects.requireNonNull(name);
-//        this.profileImageUrl = Objects.toString(profileImageUrl, "");
-//        this.isMaster = Objects.requireNonNull(isMaster);
-        this.id = id;
-        this.uid = uid;
-        this.name = name;
+        this.id = Objects.requireNonNull(id);
+        this.uid = Objects.requireNonNull(uid);
+        this.name = Objects.requireNonNull(name);
         this.profileImageUrl = Objects.toString(profileImageUrl, "");
-        this.isMaster = isMaster;
+        this.isMaster = Objects.requireNonNull(isMaster);
     }
 }
