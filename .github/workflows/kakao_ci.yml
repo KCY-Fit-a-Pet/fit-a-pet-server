@@ -77,7 +77,7 @@ jobs:
 
             - name: run kakao-chat at Windows
               if: runner.os == 'Windows'
-              uses: psychology50/kakao-chat-ci@v1.6
+              uses: psychology50/kakao-chat-ci@v1.8
               env:
                 KAKAO_CLIENT: ${{ secrets.KAKAO_CLIENT }}
                 KAKAO_EMAIL: ${{ secrets.KAKAO_EMAIL }}
