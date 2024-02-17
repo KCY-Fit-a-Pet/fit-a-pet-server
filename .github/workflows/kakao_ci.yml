@@ -90,7 +90,7 @@ jobs:
 
             - name: run kakao-chat at macOS
               if: runner.os == 'macOS'
-              uses: psychology50/kakao-chat-ci@v1.6
+              uses: psychology50/kakao-chat-ci@v1.8
               env:
                 KAKAO_CLIENT: ${{ secrets.KAKAO_CLIENT }}
                 KAKAO_EMAIL: ${{ secrets.KAKAO_EMAIL }}
