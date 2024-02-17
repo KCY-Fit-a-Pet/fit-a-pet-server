@@ -12,14 +12,6 @@ public interface ManagerInvitationService {
     void save(Long invitedId, Long petId);
 
     /**
-     * 초대 정보 조회
-     * @param invitedId : 초대 받는 사람 아이디
-     * @param petId : 초대할 반려동물 고유번호
-     * @return 초대 정보
-     */
-    public InvitationDto findInvitationInfo(Long invitedId, Long petId);
-
-    /**
      * 반려동물 관리자로 초대한 정보 전체 조회
      * @param petId : 초대할 반려동물 고유번호
      * @return List<InvitationDto> : 초대 정보 리스트

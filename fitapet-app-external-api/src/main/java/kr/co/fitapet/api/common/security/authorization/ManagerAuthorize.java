@@ -26,9 +26,6 @@ public class ManagerAuthorize {
     }
 
     public boolean isInvitedMember(Long memberId, Long petId) {
-        // TODO : Redis 조회 후 있으면 true -> 캐시 삭제
-        log.info("expired : {}", managerInvitationService.expired(memberId, petId));
-
-        return true;
+        return !managerInvitationService.expired(memberId, petId);
     }
 }

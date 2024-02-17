@@ -4,11 +4,14 @@ import kr.co.fitapet.api.apis.manager.dto.InviteMemberInfoRes;
 import kr.co.fitapet.common.annotation.Mapper;
 import kr.co.fitapet.domain.common.redis.manager.InvitationDto;
 import kr.co.fitapet.domain.common.redis.manager.ManagerInvitationService;
+import kr.co.fitapet.domain.domains.manager.service.ManagerSaveService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
+import kr.co.fitapet.domain.domains.manager.type.ManageType;
 import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,7 @@ import java.util.List;
 public class ManagerInvitationMapper {
     private final MemberSearchService memberSearchService;
     private final ManagerSearchService managerSearchService;
+    private final ManagerSaveService managerSaveService;
     private final ManagerInvitationService managerInvitationService;
 
     @Transactional(readOnly = true)
@@ -40,5 +44,16 @@ public class ManagerInvitationMapper {
             InvitationDto invitationDto = invitationDtos.stream().filter(dto -> dto.inviteId().equals(member.getId())).findFirst().orElseThrow();
             return InviteMemberInfoRes.valueOf(member, invitationDto.ttl(), invitationDto.expired());
         }).toList();
+    }
+
+    @Transactional
+    public void addManager(Long memberId, Pet pet) {
+        Member member = memberSearchService.findById(memberId);
+        managerSaveService.mappingMemberAndPet(member, pet, ManageType.MANAGER);
+        managerInvitationService.delete(memberId, pet.getId());
+    }
+
+    public void cancel(Long petId, Long memberId) {
+        managerInvitationService.delete(memberId, petId);
     }
 }

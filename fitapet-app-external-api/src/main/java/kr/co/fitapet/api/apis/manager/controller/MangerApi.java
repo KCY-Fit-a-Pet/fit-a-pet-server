@@ -41,6 +41,7 @@ public class MangerApi {
         return ResponseEntity.ok(SuccessResponse.from("members", managerUseCase.findInvitedMembers(petId)));
     }
 
+    // TODO: 2024-02-17 초대 요청 시 해당 유저에게 PUSH 알림을 전송해야 함
     @Operation(summary = "매니저 초대", description = "요청자와 유저 아이디가 동일한 경우 에러 응답을 반환합니다. 초대 요청에 대한 승인 유효 기간은 1일입니다.")
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
     @PostMapping("/invite")
@@ -55,12 +56,9 @@ public class MangerApi {
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
     @PutMapping("/invite")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isInvitedMember(principal.userId, #petId)")
-    public ResponseEntity<?> agreeInvite(
-            @PathVariable("pet_id") Long petId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-//        managerUseCase.agreeInvite(petId);
-        return null;
+    public ResponseEntity<?> agreeInvite(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        managerUseCase.agreeInvite(petId, userDetails.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
     @Operation(summary = "매니저 초대 취소/거절", description = "매니저 초대 요청에 대한 취소 또는 거절을 진행합니다.")
@@ -69,13 +67,10 @@ public class MangerApi {
             @Parameter(name = "id", description = "초대를 취소/거부할 유저 ID", in = ParameterIn.QUERY, required = true)
     })
     @DeleteMapping("/invite")
-    @PreAuthorize("isAuthenticated() and (@managerAuthorize.isManager(principal.userId, @petId) or @managerAuthorize.isInvitedMember(principal.userId, #petId))")
-    public ResponseEntity<?> cancelInvite(
-            @PathVariable("pet_id") Long petId,
-            @RequestParam("id") Long inviteId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        return null;
+    @PreAuthorize("isAuthenticated() and (@managerAuthorize.isManager(principal.userId, #petId) or @managerAuthorize.isInvitedMember(principal.userId, #petId))")
+    public ResponseEntity<?> cancelInvite(@PathVariable("pet_id") Long petId, @RequestParam("id") Long invitedId) {
+        managerUseCase.cancelInvite(petId, invitedId);
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
     @Operation(summary = "마스터 위임", description = "마스터 권한을 다른 매니저에게 위임합니다.")

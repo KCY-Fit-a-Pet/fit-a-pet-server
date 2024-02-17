@@ -5,6 +5,8 @@ import kr.co.fitapet.api.apis.manager.mapper.ManagerInvitationMapper;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.domain.domains.manager.dto.ManagerInfoRes;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
+import kr.co.fitapet.domain.domains.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.pet.service.PetSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ManagerUseCase {
     private final ManagerSearchService managerSearchService;
+    private final PetSearchService petSearchService;
     private final ManagerInvitationMapper managerInvitationMapper;
 
     @Transactional(readOnly = true)
@@ -31,5 +34,15 @@ public class ManagerUseCase {
     @Transactional(readOnly = true)
     public List<InviteMemberInfoRes> findInvitedMembers(Long petId) {
         return managerInvitationMapper.findInvitedMembers(petId);
+    }
+
+    @Transactional
+    public void agreeInvite(Long petId, Long memberId) {
+        Pet pet = petSearchService.findPetById(petId);
+        managerInvitationMapper.addManager(memberId, pet);
+    }
+
+    public void cancelInvite(Long petId, Long memberId) {
+        managerInvitationMapper.cancel(petId, memberId);
     }
 }

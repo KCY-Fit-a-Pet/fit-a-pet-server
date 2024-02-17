@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Repository
 public class ManagerInvitationRepositoryImpl implements ManagerInvitationRepository {
-    private final HashOperations<String, Object, Object> ops;
+    private final HashOperations<String, Long, LocalDateTime> ops;
     private static final String KEY = "managerInvitation";
 
     public ManagerInvitationRepositoryImpl(RedisTemplate<String, Object> redisTemplate) {
@@ -19,27 +19,27 @@ public class ManagerInvitationRepositoryImpl implements ManagerInvitationReposit
     }
 
     @Override
-    public void save(String petId, String invitedId, LocalDateTime ttl) {
-        ops.put(KEY + ":" + petId, invitedId, ttl.toString());
+    public void save(String petId, Long invitedId, LocalDateTime ttl) {
+        ops.put(KEY + ":" + petId, invitedId, ttl);
     }
 
     @Override
-    public Boolean exists(String petId, String invitedId) {
+    public Boolean exists(String petId, Long invitedId) {
         return ops.hasKey(KEY + ":" + petId, invitedId);
     }
 
     @Override
-    public LocalDateTime getTtl(String petId, String invitedId) {
-        return (LocalDateTime) ops.get(KEY + ":" + petId, invitedId);
+    public LocalDateTime getTtl(String petId, Long invitedId) {
+        return ops.get(KEY + ":" + petId, invitedId);
     }
 
     @Override
-    public Map<Object, Object> findAll(String petId) {
+    public Map<Long, LocalDateTime> findAll(String petId) {
         return ops.entries(KEY + ":" + petId);
     }
 
     @Override
-    public void delete(String petId, String invitedId) {
+    public void delete(String petId, Long invitedId) {
         ops.delete(KEY + ":" + petId, invitedId);
     }
 }
