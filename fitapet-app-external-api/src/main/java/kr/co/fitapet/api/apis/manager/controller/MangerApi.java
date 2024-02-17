@@ -90,22 +90,25 @@ public class MangerApi {
     }
 
     @Operation(summary = "매니저 탈퇴/추방", description = """
-            매니저가 반려동물을 탈퇴하거나 추방하는 기능을 제공합니다.
+            매니저가 반려동물을 탈퇴하거나 마스터가 추방하는 기능을 제공합니다.
             매니저가 반려동물을 탈퇴하면 해당 반려동물의 매니저 목록에서 제거됩니다.
             요청자와 매니저가 동일하지 않은 경우, 마스터 권한이 있는 경우에만 요청이 성공합니다.
-            요청자와 매니저가 동일하지만 요청자가 마스터인 경우 요청이 실패합니다. (마스터가 탈퇴하려면 반드시 반려동물 삭제 API를 사용해야 합니다.)
+            요청자와 매니저가 동일하지만 요청자가 마스터인 경우 요청이 실패합니다. (마스터가 탈퇴하려면 반드시 다른 관리자에게 위임하거나, 반려동물 삭제 API를 사용해야 합니다.)
             """)
     @Parameters({
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "manager_id", description = "매니저 ID", in = ParameterIn.PATH, required = true)
     })
     @DeleteMapping("/{manager_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(#managerId, #petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(#managerId, #petId) " +
+            "and ((@managerAuthorize.isMaster(principal.userId, #petId) and not #managerId.equals(principal.userId)) " +
+            "or (not @managerAuthorize.isMaster(principal.userId, #petId) and @managerAuthorize.isManager(principal.userId, #petId) and #managerId.equals(principal.userId)))")
     public ResponseEntity<?> deleteManager(
             @PathVariable("pet_id") Long petId,
             @PathVariable("manager_id") Long managerId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return null;
+        managerUseCase.expelManager(managerId, petId);
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }

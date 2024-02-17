@@ -5,6 +5,7 @@ import kr.co.fitapet.api.apis.manager.mapper.ManagerInvitationMapper;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.manager.dto.ManagerInfoRes;
+import kr.co.fitapet.domain.domains.manager.service.ManagerDeleteService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSaveService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
@@ -22,6 +23,8 @@ import java.util.List;
 public class ManagerUseCase {
     private final ManagerSearchService managerSearchService;
     private final ManagerSaveService managerSaveService;
+    private final ManagerDeleteService managerDeleteService;
+
     private final PetSearchService petSearchService;
 
     private final ManagerInvitationMapper managerInvitationMapper;
@@ -58,5 +61,11 @@ public class ManagerUseCase {
         Manager manager = managerSearchService.findByMemberIdAndPetId(managerId, petId);
 
         master.delegateMaster(manager);
+    }
+
+    @Transactional
+    public void expelManager(Long targetId, Long petId) {
+        Manager manager = managerSearchService.findByMemberIdAndPetId(targetId, petId);
+        managerDeleteService.deleteManager(manager);
     }
 }
