@@ -8,12 +8,15 @@ import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.domain.MemberNickname;
 import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
 import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
 import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
 import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
+import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
+import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
 import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
@@ -38,6 +41,7 @@ import java.util.List;
 @Slf4j
 public class MemberAccountUseCase {
     private final MemberSearchService memberSearchService;
+
     private final ManagerSearchService managerSearchService;
 
     private final ScheduleSearchService scheduleSearchService;
@@ -102,6 +106,22 @@ public class MemberAccountUseCase {
     public void updateNotification(Long requestId, Long userId, NotificationType type) {
         Member member = memberSearchService.findById(userId);
         member.updateNotificationFromType(type);
+    }
+
+    @Transactional
+    public void updateSomeoneNickname(Long from, Long to, String nickname) {
+        Member fromMember = memberSearchService.findById(from);
+        Member toMember = memberSearchService.findById(to);
+
+        MemberNickname memberNickname;
+        if (memberSearchService.isExistNicknameByFromAndTo(from, to)) {
+            log.info("기존 별명 업데이트 from : {}, to : {}, nickname : {}", from, to, nickname);
+            memberNickname = memberSearchService.findNicknameByFromAndTo(from, to);
+            memberNickname.updateNickname(nickname);
+        } else {
+            log.info("신규 별명 생성 from : {}, to : {}, nickname : {}", from, to, nickname);
+            memberNickname = MemberNickname.of(fromMember, toMember, nickname);
+        }
     }
 
     @Transactional(readOnly = true)

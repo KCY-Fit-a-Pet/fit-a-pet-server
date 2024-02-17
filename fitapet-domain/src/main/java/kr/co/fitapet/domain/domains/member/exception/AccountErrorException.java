@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.member.exception;
 
+import kr.co.fitapet.common.execption.BaseErrorCode;
 import kr.co.fitapet.common.execption.CausedBy;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 
@@ -13,5 +14,9 @@ public class AccountErrorException extends GlobalErrorException {
 
     public CausedBy causedBy() {
         return errorCode.causedBy();
+    }
+
+    public BaseErrorCode getErrorCode() {
+        return errorCode;
     }
 }

@@ -3,9 +3,11 @@ package kr.co.fitapet.domain.domains.member.service;
 
 import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.domain.MemberNickname;
 import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
+import kr.co.fitapet.domain.domains.member.repository.MemberNicknameRepository;
 import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberSearchService {
     private final MemberRepository memberRepository;
+    private final MemberNicknameRepository memberNicknameRepository;
 
     @Transactional(readOnly = true)
     public Member findById(Long id) {
@@ -77,4 +80,17 @@ public class MemberSearchService {
     public boolean isExistByPhoneAndUid(String phone, String uid) {
         return memberRepository.existsByPhoneAndUid(phone, uid);
     }
+
+    @Transactional(readOnly = true)
+    public boolean isExistNicknameByFromAndTo(Long from, Long to) {
+        return memberNicknameRepository.existsByFrom_IdAndTo_Id(from, to);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberNickname findNicknameByFromAndTo(Long from, Long to) {
+        return memberNicknameRepository.findByFrom_IdAndTo_Id(from, to).orElseThrow(
+                () -> new AccountErrorException(AccountErrorCode.NOT_FOUND_NICKNAME_ERROR)
+        );
+    }
+
 }

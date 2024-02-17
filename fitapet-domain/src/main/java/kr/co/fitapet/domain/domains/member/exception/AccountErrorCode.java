@@ -24,6 +24,7 @@ public enum AccountErrorCode implements BaseErrorCode {
     NOT_CHANGE_NAME_ERROR(BAD_REQUEST.getCode(), "잘못된 닉네임 변경 요청입니다."),
 
     INVALID_NOTIFICATION_TYPE_ERROR(BAD_REQUEST.getCode(), "유효하지 않은 알림 타입입니다."),
+    INVALID_NICKNAME_ERROR(BAD_REQUEST.getCode(), "유효하지 않은 닉네임입니다."),
 
     MISSMATCH_PHONE_AND_UID_ERROR(BAD_REQUEST.getCode(), "등록된 전화번호와 일치하지 않는 유저입니다."),
 
@@ -33,6 +34,7 @@ public enum AccountErrorCode implements BaseErrorCode {
     /* 404 NOT FOUND */
     NOT_FOUND_MEMBER_ERROR(NOT_FOUND.getCode(), "존재하지 않는 회원입니다."),
     NOT_FOUND_PHONE_ERROR(NOT_FOUND.getCode(), "존재하지 않는 전화번호입니다."),
+    NOT_FOUND_NICKNAME_ERROR(NOT_FOUND.getCode(), "존재하지 않는 닉네임입니다."),
     ;
 
     private final int code;

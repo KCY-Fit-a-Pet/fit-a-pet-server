@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import kr.co.fitapet.api.apis.profile.usecase.MemberAccountUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
@@ -14,6 +15,7 @@ import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
 import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
 import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
+import kr.co.fitapet.domain.domains.member.dto.MemberNicknamePutReq;
 import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
 import kr.co.fitapet.domain.domains.notification.type.NotificationType;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -111,21 +114,20 @@ public class AccountApi {
     public ResponseEntity<?> putNotify(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam("type") @NotBlank NotificationType type) {
+            @RequestParam("type") @NotBlank NotificationType type
+    ) {
         memberAccountUseCase.updateNotification(id, user.getUserId(), type);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
-    @Operation(summary = "다른 유저 별명 설정", description = "자기 자신의 별명을 설정하려는 경우 에러 응답을 반환합니다. 별명을 제거하는 경우 null을 입력합니다.")
+    @Operation(summary = "다른 유저 별명 설정", description = "자기 자신의 별명을 설정하려는 경우 에러 응답을 반환합니다. 별명을 제거하는 경우 null을 입력합니다. 별명은 공백을 허용하지 않습니다.")
+    @Parameter(name = "member_id", description = "별명을 설정할 유저 ID", in = ParameterIn.PATH, required = true)
     @PutMapping("/{member_id}/nickname")
     @PreAuthorize("isAuthenticated() and #memberId != principal.userId")
-    public ResponseEntity<?> putNickname(
-            @PathVariable("member_id") Long memberId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        return null;
+    public ResponseEntity<?> putNickname(@PathVariable("member_id") Long memberId, @RequestBody @Validated MemberNicknamePutReq req, @AuthenticationPrincipal CustomUserDetails user) {
+        memberAccountUseCase.updateSomeoneNickname(user.getUserId(), memberId, req.nickname());
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
-
 
     @Operation(summary = "관리 중인 반려동물 날짜별 스케줄 전체 조회")
     @GetMapping("/{user_id}/schedules")

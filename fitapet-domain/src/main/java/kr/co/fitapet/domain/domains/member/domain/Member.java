@@ -32,11 +32,11 @@ public class Member extends DateAuditable {
     private String password;
     private String phone;
     private String email;
-    @Column(name = "profile_img") @ColumnDefault("NULL") @Getter
+    @Column(name = "profile_img") @ColumnDefault("NULL")
     private String profileImg;
     @Column(name = "account_locked") @ColumnDefault("false")
     private Boolean accountLocked;
-    @Column(name = "is_oauth") @ColumnDefault("false") @Getter
+    @Column(name = "is_oauth") @ColumnDefault("false")
     private Boolean isOauth;
     @Convert(converter = RoleTypeConverter.class)
     private RoleType role;
@@ -51,9 +51,9 @@ public class Member extends DateAuditable {
     private Set<MemberNickname> toMemberNickname = new HashSet<>();
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) @Getter
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Manager> underCares = new ArrayList<>();
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) @Getter
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OauthAccount> oauthAccounts = new ArrayList<>();
 
     @Builder
