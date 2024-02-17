@@ -2,8 +2,10 @@ package kr.co.fitapet.domain.common.repository;
 
 
 import jakarta.persistence.EntityManager;
+import org.springframework.data.jpa.repository.support.CrudMethodMetadata;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryComposition;
@@ -42,15 +44,17 @@ public class ExtendedRepositoryFactory<T extends Repository<E, ID>, E, ID> exten
                         this.getEntityInformation(metadata.getDomainType()),
                         this.em
                 );
+                fragments = fragments.append(RepositoryComposition.RepositoryFragments.just(implExtendedJpa));
+            }
 
+            if (DefaultSearchQueryDslRepository.class.isAssignableFrom(metadata.getRepositoryInterface())) {
                 var implQueryDsl = super.instantiateClass(
                         DefaultSearchQueryDslRepositoryImpl.class,
                         this.getEntityInformation(metadata.getDomainType()),
                         this.em
                 );
 
-                fragments = fragments.append(RepositoryComposition.RepositoryFragments.just(implExtendedJpa))
-                        .append(RepositoryComposition.RepositoryFragments.just(implQueryDsl));
+                fragments = fragments.append(RepositoryComposition.RepositoryFragments.just(implQueryDsl));
             }
 
             return fragments;

@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.common.repository;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import kr.co.fitapet.domain.common.exception.DomainErrorCode;
 import kr.co.fitapet.domain.common.exception.DomainErrorException;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,16 @@ public class ExtendedJpaRepositoryImpl<T, ID extends Serializable>
             throw new DomainErrorException(DomainErrorCode.valueOf("NOT_FOUND_" + getClassName()));
         }
         return result;
+    }
+
+    @Override
+    public boolean existsById(ID id) {
+        Assert.notNull(id, ID_MUST_NOT_BE_NULL);
+        Class<T> domainType = getDomainClass();
+        TypedQuery<Long> query = em.createQuery("select e.id from " + domainType.getSimpleName() + " e where e.id = :id", Long.class);
+        query.setParameter("id", id);
+        query.setMaxResults(1);
+        return query.getResultList().size() > 0;
     }
 
     // TODO: 2021-11-30. 이름에 의존적인 메서드 제거하고, 상태 패턴을 적용하여 의존도 낮추기

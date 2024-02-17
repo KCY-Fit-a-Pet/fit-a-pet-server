@@ -34,7 +34,7 @@ public interface DefaultSearchQueryDslRepository<T> {
      *          QueryHandler queryHandler = query -> query.leftJoin(entityChild).on(entity.id.eq(entityChild.entity.id));
      *          Sort sort = Sort.by(Sort.Direction.DESC, entity.id);
      *
-     *          return searchRepository.findList(predicate, queryHandler, );
+     *          return searchRepository.findList(predicate, queryHandler, sort);
      *      }
      * }
      * }

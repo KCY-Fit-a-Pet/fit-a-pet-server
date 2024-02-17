@@ -21,13 +21,18 @@ public class QueryDslUtil {
         case NULLS_LAST -> OrderSpecifier.NullHandling.NullsLast;
     };
 
+    public static BooleanExpression matchAgainstOneElemNaturalMode(final StringPath c1, final String target) {
+        if (!StringUtils.hasText(target)) { return null; }
+        return Expressions.booleanTemplate( "function('one_column_natural', {0}, {1})", c1, target);
+    }
+
     /**
      * match_against 함수를 사용하여 memo 테이블의 title, content 컬럼과 target을 비교한다.
      * @param c1 : memo.title
      * @param c2 : memo.content
      * @param target : 검색어
      */
-    public static BooleanExpression matchAgainst(final StringPath c1, final StringPath c2, final String target) {
+    public static BooleanExpression matchAgainstTwoElemBooleanMode(final StringPath c1, final StringPath c2, final String target) {
         if (!StringUtils.hasText(target)) { return null; }
         String template = "'" + target + "*'";
         return Expressions.booleanTemplate( "function('match_against', {0}, {1}, {2})", c1, c2, template);

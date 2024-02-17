@@ -1,9 +1,10 @@
-package kr.co.fitapet.domain.domains.member.domain;
+package kr.co.fitapet.domain.domains.manager.domain;
 
-import kr.co.fitapet.domain.common.model.DateAuditable;
 import jakarta.persistence.*;
-import kr.co.fitapet.domain.domains.member.type.ManageType;
 import kr.co.fitapet.domain.common.converter.ManageTypeConverter;
+import kr.co.fitapet.domain.common.model.DateAuditable;
+import kr.co.fitapet.domain.domains.manager.type.ManageType;
+import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -74,5 +75,17 @@ public class Manager extends DateAuditable {
         if (pet != null) {
             pet.getManagers().add(this);
         }
+    }
+
+    public void delegateMaster(Manager manager) {
+        assert this.getManageType().equals(ManageType.MASTER);
+        assert manager.getManageType().equals(ManageType.MANAGER);
+
+        this.updateManageType(ManageType.MANAGER);
+        manager.updateManageType(ManageType.MASTER);
+    }
+
+    private void updateManageType(ManageType manageType) {
+        this.manageType = manageType;
     }
 }

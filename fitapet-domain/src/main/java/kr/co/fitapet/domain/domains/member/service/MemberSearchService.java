@@ -2,14 +2,14 @@ package kr.co.fitapet.domain.domains.member.service;
 
 
 import kr.co.fitapet.common.annotation.DomainService;
-import kr.co.fitapet.domain.domains.member.domain.Manager;
 import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.domain.MemberNickname;
+import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
-import kr.co.fitapet.domain.domains.member.repository.ManagerRepository;
+import kr.co.fitapet.domain.domains.member.repository.MemberNicknameRepository;
 import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,11 +18,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberSearchService {
     private final MemberRepository memberRepository;
-    private final ManagerRepository managerRepository;
+    private final MemberNicknameRepository memberNicknameRepository;
 
     @Transactional(readOnly = true)
     public Member findById(Long id) {
         return memberRepository.findByIdOrElseThrow(id);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberInfo findMemberInfo(Long requesterId, String target) {
+        return memberRepository.findMemberInfo(requesterId, target).orElseThrow(
+                () -> new AccountErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberInfo> findMemberInfos(List<Long> ids, Long requesterId) {
+        return memberRepository.findMemberInfos(ids, requesterId);
     }
 
     @Transactional(readOnly = true)
@@ -40,11 +52,6 @@ public class MemberSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<Manager> findAllManagerByMemberId(Long memberId) {
-        return managerRepository.findAllByMember_Id(memberId);
-    }
-
-    @Transactional(readOnly = true)
     public List<Long> findMyPetIds(Long memberId) {
         return memberRepository.findMyPetIds(memberId);
     }
@@ -52,6 +59,11 @@ public class MemberSearchService {
     @Transactional(readOnly = true)
     public boolean isExistByUidOrPhone(String uid, String phone) {
         return memberRepository.existsByUidOrPhone(uid, phone);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistById(Long id) {
+        return memberRepository.existsById(id);
     }
 
     @Transactional(readOnly = true)
@@ -70,21 +82,15 @@ public class MemberSearchService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isManager(Long memberId, Long petId) {
-        return managerRepository.existsByMember_IdAndPet_Id(memberId, petId);
+    public boolean isExistNicknameByFromAndTo(Long from, Long to) {
+        return memberNicknameRepository.existsByFrom_IdAndTo_Id(from, to);
     }
 
     @Transactional(readOnly = true)
-    public boolean isManagerAll(Long memberId, List<Long> petIds) {
-        if (petIds.isEmpty()) {
-            return true;
-        }
-
-        for (Long petId : petIds) {
-            if (!isManager(memberId, petId)) {
-                return false;
-            }
-        }
-        return true;
+    public MemberNickname findNicknameByFromAndTo(Long from, Long to) {
+        return memberNicknameRepository.findByFrom_IdAndTo_Id(from, to).orElseThrow(
+                () -> new AccountErrorException(AccountErrorCode.NOT_FOUND_NICKNAME_ERROR)
+        );
     }
+
 }

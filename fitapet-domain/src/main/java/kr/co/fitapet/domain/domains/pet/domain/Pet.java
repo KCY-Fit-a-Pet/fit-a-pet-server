@@ -3,7 +3,7 @@ package kr.co.fitapet.domain.domains.pet.domain;
 import jakarta.persistence.*;
 import kr.co.fitapet.domain.common.model.DateAuditable;
 import kr.co.fitapet.domain.domains.care.domain.CareCategory;
-import kr.co.fitapet.domain.domains.member.domain.Manager;
+import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
 import kr.co.fitapet.domain.domains.pet.type.GenderType;
 import kr.co.fitapet.domain.common.converter.GenderTypeConverter;

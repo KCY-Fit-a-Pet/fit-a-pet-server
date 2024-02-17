@@ -2,10 +2,9 @@ package kr.co.fitapet.domain.domains.schedule.service;
 
 import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.schedule.dto.ScheduleInfoDto;
-import kr.co.fitapet.domain.domains.schedule.repository.ScheduleJpaRepository;
+import kr.co.fitapet.domain.domains.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class ScheduleSearchService {
-    private final ScheduleJpaRepository scheduleRepository;
+    private final ScheduleRepository scheduleRepository;
 
     /**
      * pet_id로 반려동물이 등록된 해당 날짜의 schedule_id 리스트 조회

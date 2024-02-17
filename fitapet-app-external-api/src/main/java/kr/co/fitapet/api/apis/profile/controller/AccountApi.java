@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import kr.co.fitapet.api.apis.profile.usecase.MemberAccountUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
@@ -14,6 +15,7 @@ import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
 import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
 import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
+import kr.co.fitapet.domain.domains.member.dto.MemberNicknamePutReq;
 import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
 import kr.co.fitapet.domain.domains.notification.type.NotificationType;
@@ -22,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -43,6 +46,14 @@ public class AccountApi {
     public ResponseEntity<?> getProfile(@PathVariable("id") Long id) {
         AccountProfileRes member = memberAccountUseCase.getProfile(id);
         return ResponseEntity.ok(SuccessResponse.from(member));
+    }
+
+    @Operation(summary = "프로필 검색")
+    @Parameter(name = "search", description = "검색할 닉네임", in = ParameterIn.QUERY, required = true)
+    @GetMapping("")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getSearchProfile(@RequestParam("search") @NotBlank String search, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(SuccessResponse.from(memberAccountUseCase.searchProfile(userDetails.getUserId(), search)));
     }
 
     @Operation(summary = "닉네임 존재 확인")
@@ -103,8 +114,18 @@ public class AccountApi {
     public ResponseEntity<?> putNotify(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam("type") @NotBlank NotificationType type) {
+            @RequestParam("type") @NotBlank NotificationType type
+    ) {
         memberAccountUseCase.updateNotification(id, user.getUserId(), type);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "다른 유저 별명 설정", description = "자기 자신의 별명을 설정하려는 경우 에러 응답을 반환합니다. 별명을 제거하는 경우 null을 입력합니다. 별명은 공백을 허용하지 않습니다.")
+    @Parameter(name = "member_id", description = "별명을 설정할 유저 ID", in = ParameterIn.PATH, required = true)
+    @PutMapping("/{member_id}/nickname")
+    @PreAuthorize("isAuthenticated() and #memberId != principal.userId")
+    public ResponseEntity<?> putNickname(@PathVariable("member_id") Long memberId, @RequestBody @Validated MemberNicknamePutReq req, @AuthenticationPrincipal CustomUserDetails user) {
+        memberAccountUseCase.updateSomeoneNickname(user.getUserId(), memberId, req.nickname());
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 

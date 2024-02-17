@@ -6,7 +6,7 @@ import kr.co.fitapet.api.common.security.jwt.JwtProvider;
 import kr.co.fitapet.api.common.security.jwt.dto.JwtSubInfo;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
-import kr.co.fitapet.domain.domains.member.domain.AccessToken;
+import kr.co.fitapet.domain.common.redis.AccessToken;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

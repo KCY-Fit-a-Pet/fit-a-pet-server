@@ -5,13 +5,18 @@ import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.BaseErrorCode;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
-import kr.co.fitapet.domain.domains.member.domain.Manager;
+import kr.co.fitapet.domain.domains.manager.domain.Manager;
+import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.domain.MemberNickname;
 import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
 import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
 import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
+import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
+import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
+import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
 import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
@@ -37,6 +42,8 @@ import java.util.List;
 public class MemberAccountUseCase {
     private final MemberSearchService memberSearchService;
 
+    private final ManagerSearchService managerSearchService;
+
     private final ScheduleSearchService scheduleSearchService;
     private final MemoSearchService memoSearchService;
 
@@ -48,6 +55,11 @@ public class MemberAccountUseCase {
     public AccountProfileRes getProfile(Long userId) {
         Member member = memberSearchService.findById(userId);
         return AccountProfileRes.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberInfo searchProfile(Long requesterId, String search) {
+        return memberSearchService.findMemberInfo(requesterId, search);
     }
 
     @Transactional(readOnly = true)
@@ -70,9 +82,7 @@ public class MemberAccountUseCase {
 
     @Transactional(readOnly = true)
     public UidRes getUidWhenSmsAuthenticated(String phone, String code, SmsPrefix prefix) {
-        log.info("phone: {}, code: {}, prefix: {}", phone, code, prefix);
         validatePhone(phone, code, prefix);
-        log.info("isValid");
         Member member = memberSearchService.findByPhone(phone);
         smsRedisMapper.removeCode(phone, prefix);
         return UidRes.of(member.getUid(), member.getCreatedAt());
@@ -98,9 +108,25 @@ public class MemberAccountUseCase {
         member.updateNotificationFromType(type);
     }
 
+    @Transactional
+    public void updateSomeoneNickname(Long from, Long to, String nickname) {
+        Member fromMember = memberSearchService.findById(from);
+        Member toMember = memberSearchService.findById(to);
+
+        MemberNickname memberNickname;
+        if (memberSearchService.isExistNicknameByFromAndTo(from, to)) {
+            log.info("기존 별명 업데이트 from : {}, to : {}, nickname : {}", from, to, nickname);
+            memberNickname = memberSearchService.findNicknameByFromAndTo(from, to);
+            memberNickname.updateNickname(nickname);
+        } else {
+            log.info("신규 별명 생성 from : {}, to : {}, nickname : {}", from, to, nickname);
+            memberNickname = MemberNickname.of(fromMember, toMember, nickname);
+        }
+    }
+
     @Transactional(readOnly = true)
     public ScheduleInfoDto findPetSchedules(Long userId, LocalDateTime date) {
-        List<Pet> pets = memberSearchService.findAllManagerByMemberId(userId)
+        List<Pet> pets = managerSearchService.findAllByMemberId(userId)
                 .stream().map(Manager::getPet).toList();
         List<Long> petIds = pets.stream().map(Pet::getId).toList();
 

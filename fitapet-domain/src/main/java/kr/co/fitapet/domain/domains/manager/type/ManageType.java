@@ -1,4 +1,4 @@
-package kr.co.fitapet.domain.domains.member.type;
+package kr.co.fitapet.domain.domains.manager.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import kr.co.fitapet.domain.common.util.converter.LegacyCommonType;
