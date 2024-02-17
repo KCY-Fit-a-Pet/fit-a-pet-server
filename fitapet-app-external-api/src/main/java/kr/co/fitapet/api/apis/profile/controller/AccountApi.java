@@ -49,9 +49,8 @@ public class AccountApi {
     @Parameter(name = "search", description = "검색할 닉네임", in = ParameterIn.QUERY, required = true)
     @GetMapping("")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getSearchProfile(@RequestParam("search") @NotBlank String search) {
-//        memberAccountUseCase.searchProfile(search);
-        return null;
+    public ResponseEntity<?> getSearchProfile(@RequestParam("search") @NotBlank String search, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(SuccessResponse.from(memberAccountUseCase.searchProfile(userDetails.getUserId(), search)));
     }
 
     @Operation(summary = "닉네임 존재 확인")

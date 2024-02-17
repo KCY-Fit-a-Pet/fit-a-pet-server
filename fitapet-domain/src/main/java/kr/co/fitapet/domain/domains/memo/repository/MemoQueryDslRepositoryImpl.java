@@ -96,7 +96,7 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                                 .from(memoCategory)
                                 .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
                                 .where(memoCategory.id.eq(memoCategoryId)
-                                        .and(QueryDslUtil.matchAgainst(memo.title, memo.content, target))
+                                        .and(QueryDslUtil.matchAgainstTwoElemBooleanMode(memo.title, memo.content, target))
                                 )
                                 .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
                                 .offset(pageable.getOffset())

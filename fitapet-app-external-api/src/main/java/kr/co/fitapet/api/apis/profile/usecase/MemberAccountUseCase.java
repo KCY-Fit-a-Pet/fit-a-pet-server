@@ -11,6 +11,7 @@ import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
 import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
 import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
+import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
@@ -50,6 +51,11 @@ public class MemberAccountUseCase {
     public AccountProfileRes getProfile(Long userId) {
         Member member = memberSearchService.findById(userId);
         return AccountProfileRes.from(member);
+    }
+
+    @Transactional(readOnly = true)
+    public MemberInfo searchProfile(Long requesterId, String search) {
+        return memberSearchService.findMemberInfo(requesterId, search);
     }
 
     @Transactional(readOnly = true)

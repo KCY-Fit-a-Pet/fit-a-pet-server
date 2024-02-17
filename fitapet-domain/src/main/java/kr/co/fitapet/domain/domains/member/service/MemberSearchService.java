@@ -23,7 +23,14 @@ public class MemberSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberInfo> findByIds(List<Long> ids, Long requesterId) {
+    public MemberInfo findMemberInfo(Long requesterId, String target) {
+        return memberRepository.findMemberInfo(requesterId, target).orElseThrow(
+                () -> new AccountErrorException(AccountErrorCode.NOT_FOUND_MEMBER_ERROR)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberInfo> findMemberInfos(List<Long> ids, Long requesterId) {
         return memberRepository.findMemberInfos(ids, requesterId);
     }
 

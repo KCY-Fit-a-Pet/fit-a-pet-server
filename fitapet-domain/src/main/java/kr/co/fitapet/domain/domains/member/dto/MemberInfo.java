@@ -1,10 +1,12 @@
 package kr.co.fitapet.domain.domains.member.dto;
 
+import kr.co.fitapet.common.annotation.Dto;
 import lombok.Builder;
 
 import java.util.Objects;
 
 @Builder
+@Dto(name = "member")
 public record MemberInfo(
         Long id,
         String uid,

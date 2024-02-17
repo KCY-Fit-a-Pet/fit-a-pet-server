@@ -29,6 +29,7 @@ import org.hibernate.type.spi.TypeConfiguration;
  */
 public class MySqlFunctionContributor implements FunctionContributor {
     private static final String FUNCTION_NAME = "match_against";
+    private static final String ONE_COLUMN_NATURAL_PATTERN = "match(?1) against(?2 in natural language mode)";
     private static final String TWO_COLUMN_BOOLEAN_PATTERN = "match(?1, ?2) against(?3 in boolean mode)";
 
     @Override
@@ -37,6 +38,7 @@ public class MySqlFunctionContributor implements FunctionContributor {
         TypeConfiguration typeConfiguration = functionContributions.getTypeConfiguration();
 
         registry.registerPattern( FUNCTION_NAME, TWO_COLUMN_BOOLEAN_PATTERN, typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.BOOLEAN) );
+        registry.registerPattern("one_column_natural", ONE_COLUMN_NATURAL_PATTERN, typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.BOOLEAN));
         registry.registerPattern( "left", "left(?1, ?2)", typeConfiguration.getBasicTypeRegistry().resolve(StandardBasicTypes.STRING) );
     }
 }

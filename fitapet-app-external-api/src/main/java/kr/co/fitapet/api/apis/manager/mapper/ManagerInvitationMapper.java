@@ -40,9 +40,7 @@ public class ManagerInvitationMapper {
     @Transactional(readOnly = true)
     public List<InviteMemberInfoRes> findInvitedMembers(Long petId, Long requesterId) {
         List<InvitationDto> invitationDtos = managerInvitationService.findAll(petId);
-        log.info("invitationDtos: {}", invitationDtos);
-        List<MemberInfo> members = memberSearchService.findByIds(invitationDtos.stream().map(InvitationDto::inviteId).toList(), requesterId);
-        log.info("members: {}", members);
+        List<MemberInfo> members = memberSearchService.findMemberInfos(invitationDtos.stream().map(InvitationDto::inviteId).toList(), requesterId);
         return members.stream().map(member -> {
             InvitationDto invitationDto = invitationDtos.stream().filter(dto -> dto.inviteId().equals(member.id())).findFirst().orElseThrow();
             return InviteMemberInfoRes.valueOf(member, invitationDto.ttl(), invitationDto.expired());
