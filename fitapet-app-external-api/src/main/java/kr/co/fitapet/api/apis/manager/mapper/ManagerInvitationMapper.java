@@ -8,6 +8,7 @@ import kr.co.fitapet.domain.domains.manager.service.ManagerSaveService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.manager.type.ManageType;
 import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
@@ -37,11 +38,13 @@ public class ManagerInvitationMapper {
     }
 
     @Transactional(readOnly = true)
-    public List<InviteMemberInfoRes> findInvitedMembers(Long petId) {
+    public List<InviteMemberInfoRes> findInvitedMembers(Long petId, Long requesterId) {
         List<InvitationDto> invitationDtos = managerInvitationService.findAll(petId);
-        List<Member> members = memberSearchService.findByIds(invitationDtos.stream().map(InvitationDto::inviteId).toList());
+        log.info("invitationDtos: {}", invitationDtos);
+        List<MemberInfo> members = memberSearchService.findByIds(invitationDtos.stream().map(InvitationDto::inviteId).toList(), requesterId);
+        log.info("members: {}", members);
         return members.stream().map(member -> {
-            InvitationDto invitationDto = invitationDtos.stream().filter(dto -> dto.inviteId().equals(member.getId())).findFirst().orElseThrow();
+            InvitationDto invitationDto = invitationDtos.stream().filter(dto -> dto.inviteId().equals(member.id())).findFirst().orElseThrow();
             return InviteMemberInfoRes.valueOf(member, invitationDto.ttl(), invitationDto.expired());
         }).toList();
     }

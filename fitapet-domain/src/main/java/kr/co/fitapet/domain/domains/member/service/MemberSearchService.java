@@ -3,6 +3,7 @@ package kr.co.fitapet.domain.domains.member.service;
 
 import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
 import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
@@ -22,8 +23,8 @@ public class MemberSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<Member> findByIds(List<Long> ids) {
-        return memberRepository.findByIds(ids);
+    public List<MemberInfo> findByIds(List<Long> ids, Long requesterId) {
+        return memberRepository.findMemberInfos(ids, requesterId);
     }
 
     @Transactional(readOnly = true)

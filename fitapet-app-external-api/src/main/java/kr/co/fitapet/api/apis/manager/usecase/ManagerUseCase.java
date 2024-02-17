@@ -39,8 +39,8 @@ public class ManagerUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<InviteMemberInfoRes> findInvitedMembers(Long petId) {
-        return managerInvitationMapper.findInvitedMembers(petId);
+    public List<InviteMemberInfoRes> findInvitedMembers(Long petId, Long requesterId) {
+        return managerInvitationMapper.findInvitedMembers(petId, requesterId);
     }
 
     @Transactional

@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.co.fitapet.domain.domains.member.domain.Member;
+import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Builder
 @Schema(description = "매니저 초대 정보 응답")
@@ -28,12 +27,12 @@ public record InviteMemberInfoRes(
         @Schema(description = "초대 만료 여부", example = "false")
         Boolean expired
 ) {
-    public static InviteMemberInfoRes valueOf(Member member, LocalDateTime invitedAt, Boolean expired) {
+    public static InviteMemberInfoRes valueOf(MemberInfo member, LocalDateTime invitedAt, Boolean expired) {
         return InviteMemberInfoRes.builder()
-                .id(member.getId())
-                .uid(member.getUid())
-                .name(member.getName())
-                .profileImageUrl(Objects.toString(member.getProfileImg(), ""))
+                .id(member.id())
+                .uid(member.uid())
+                .name(member.name())
+                .profileImageUrl(member.profileImageUrl())
                 .invitedAt(invitedAt)
                 .expired(expired)
                 .build();

@@ -46,7 +46,7 @@ public class ManagerQueryDslRepositoryImpl implements ManagerQueryDslRepository 
                 )
                 .from(manager)
                 .leftJoin(member).on(manager.member.id.eq(member.id))
-                .leftJoin(nickname).on(member.id.eq(nickname.to.id))
+                .leftJoin(nickname).on(member.id.eq(nickname.to.id).and(nickname.from.id.eq(memberId)))
                 .where(manager.pet.id.eq(petId))
                 .fetch();
     }

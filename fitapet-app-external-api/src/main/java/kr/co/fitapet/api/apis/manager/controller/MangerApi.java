@@ -37,8 +37,8 @@ public class MangerApi {
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/invite")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> getInvitedMembers(@PathVariable("pet_id") Long petId) {
-        return ResponseEntity.ok(SuccessResponse.from("members", managerUseCase.findInvitedMembers(petId)));
+    public ResponseEntity<?> getInvitedMembers(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(SuccessResponse.from("members", managerUseCase.findInvitedMembers(petId, userDetails.getUserId())));
     }
 
     // TODO: 2024-02-17 초대 요청 시 해당 유저에게 PUSH 알림을 전송해야 함

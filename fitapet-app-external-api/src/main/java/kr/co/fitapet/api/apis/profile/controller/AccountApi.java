@@ -50,7 +50,7 @@ public class AccountApi {
     @GetMapping("")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getSearchProfile(@RequestParam("search") @NotBlank String search) {
-
+//        memberAccountUseCase.searchProfile(search);
         return null;
     }
 
