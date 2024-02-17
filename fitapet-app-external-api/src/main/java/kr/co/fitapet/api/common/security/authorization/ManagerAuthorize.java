@@ -2,7 +2,6 @@ package kr.co.fitapet.api.common.security.authorization;
 
 import kr.co.fitapet.domain.common.redis.manager.ManagerInvitationService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
-import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;

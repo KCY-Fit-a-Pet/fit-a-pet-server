@@ -22,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ManagerUseCase {
     private final ManagerSearchService managerSearchService;
-    private final ManagerSaveService managerSaveService;
     private final ManagerDeleteService managerDeleteService;
 
     private final PetSearchService petSearchService;
