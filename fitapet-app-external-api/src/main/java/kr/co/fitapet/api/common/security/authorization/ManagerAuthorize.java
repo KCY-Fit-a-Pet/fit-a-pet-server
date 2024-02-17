@@ -22,7 +22,9 @@ public class ManagerAuthorize {
 
     @Cacheable(value = "master", key = "#memberId + '@' + #petId", unless = "#result == false", cacheManager = "managerCacheManager")
     public boolean isMaster(Long memberId, Long petId) {
-        return memberId.equals(managerSearchService.findMasterIdByPetId(petId));
+        Long masterId = managerSearchService.findMasterIdByPetId(petId);
+        log.info("masterId: {}", masterId);
+        return memberId.equals(masterId);
     }
 
     public boolean isInvitedMember(Long memberId, Long petId) {

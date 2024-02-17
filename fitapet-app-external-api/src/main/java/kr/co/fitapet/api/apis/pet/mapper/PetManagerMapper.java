@@ -28,7 +28,7 @@ public class PetManagerMapper {
 
     @Transactional(readOnly = true)
     public List<Pet> findAllPetByMemberId(Long memberId) {
-        return managerSearchService.findAllManagerByMemberId(memberId).stream().map(Manager::getPet).toList();
+        return managerSearchService.findAllByMemberId(memberId).stream().map(Manager::getPet).toList();
     }
 
     @Transactional(readOnly = true)
@@ -38,7 +38,7 @@ public class PetManagerMapper {
 
     @Transactional(readOnly = true)
     public List<Pet> findAllManagerByMemberId(Long memberId) {
-        return managerSearchService.findAllManagerByMemberId(memberId)
+        return managerSearchService.findAllByMemberId(memberId)
                 .stream().map(Manager::getPet).toList();
     }
 }

@@ -4,7 +4,6 @@ import kr.co.fitapet.common.annotation.DomainService;
 import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.manager.dto.ManagerInfoRes;
 import kr.co.fitapet.domain.domains.manager.repository.ManagerRepository;
-import kr.co.fitapet.domain.domains.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,7 @@ public class ManagerSearchService {
     private final ManagerRepository managerRepository;
 
     @Transactional(readOnly = true)
-    public List<Manager> findAllManagerByMemberId(Long memberId) {
+    public List<Manager> findAllByMemberId(Long memberId) {
         return managerRepository.findAllByMember_Id(memberId);
     }
 
@@ -47,7 +46,12 @@ public class ManagerSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<ManagerInfoRes> findAllManagerByPetId(Long petId, Long memberId) {
+    public List<ManagerInfoRes> findAllByPetId(Long petId, Long memberId) {
         return managerRepository.findAllManager(petId, memberId);
+    }
+
+    @Transactional(readOnly = true)
+    public Manager findByMemberIdAndPetId(Long memberId, Long petId) {
+        return managerRepository.findByMember_IdAndPet_Id(memberId, petId);
     }
 }

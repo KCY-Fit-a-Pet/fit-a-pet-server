@@ -100,7 +100,7 @@ public class MemberAccountUseCase {
 
     @Transactional(readOnly = true)
     public ScheduleInfoDto findPetSchedules(Long userId, LocalDateTime date) {
-        List<Pet> pets = managerSearchService.findAllManagerByMemberId(userId)
+        List<Pet> pets = managerSearchService.findAllByMemberId(userId)
                 .stream().map(Manager::getPet).toList();
         List<Long> petIds = pets.stream().map(Pet::getId).toList();
 

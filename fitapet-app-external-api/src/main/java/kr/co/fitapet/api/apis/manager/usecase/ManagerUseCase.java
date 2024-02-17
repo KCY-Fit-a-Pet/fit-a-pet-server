@@ -3,12 +3,15 @@ package kr.co.fitapet.api.apis.manager.usecase;
 import kr.co.fitapet.api.apis.manager.dto.InviteMemberInfoRes;
 import kr.co.fitapet.api.apis.manager.mapper.ManagerInvitationMapper;
 import kr.co.fitapet.common.annotation.UseCase;
+import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.manager.dto.ManagerInfoRes;
+import kr.co.fitapet.domain.domains.manager.service.ManagerSaveService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 import kr.co.fitapet.domain.domains.pet.service.PetSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,12 +21,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ManagerUseCase {
     private final ManagerSearchService managerSearchService;
+    private final ManagerSaveService managerSaveService;
     private final PetSearchService petSearchService;
+
     private final ManagerInvitationMapper managerInvitationMapper;
 
     @Transactional(readOnly = true)
     public List<ManagerInfoRes> findManagers(Long petId, Long memberId) {
-        return managerSearchService.findAllManagerByPetId(petId, memberId);
+        return managerSearchService.findAllByPetId(petId, memberId);
     }
 
     @Transactional(readOnly = true)
@@ -44,5 +49,14 @@ public class ManagerUseCase {
 
     public void cancelInvite(Long petId, Long memberId) {
         managerInvitationMapper.cancel(petId, memberId);
+    }
+
+    @Transactional
+    @CacheEvict(value = "master", key = "#masterId + '@' + #petId", cacheManager = "managerCacheManager")
+    public void delegateMaster(Long masterId, Long managerId, Long petId) {
+        Manager master = managerSearchService.findByMemberIdAndPetId(masterId, petId);
+        Manager manager = managerSearchService.findByMemberIdAndPetId(managerId, petId);
+
+        master.delegateMaster(manager);
     }
 }

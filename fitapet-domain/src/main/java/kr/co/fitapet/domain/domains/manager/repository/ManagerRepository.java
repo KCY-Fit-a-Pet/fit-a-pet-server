@@ -11,4 +11,5 @@ import java.util.List;
 public interface ManagerRepository extends ExtendedRepository<Manager, Long>, ManagerQueryDslRepository {
     boolean existsByMember_IdAndPet_Id(Long memberId, Long petId);
     List<Manager> findAllByMember_Id(Long memberId);
+    Manager findByMember_IdAndPet_Id(Long memberId, Long petId);
 }
