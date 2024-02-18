@@ -37,7 +37,7 @@ public class MemoCategoryQueryDslRepositoryImpl implements MemoCategoryQueryDslR
                         memoCategory.id,
                         memoCategory.categoryName,
                         memoCategory.parent.id,
-                        memoCategory.id.count()
+                        memo.id.count()
                 ))
                 .from(memoCategory)
                 .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
@@ -55,7 +55,7 @@ public class MemoCategoryQueryDslRepositoryImpl implements MemoCategoryQueryDslR
                         memoCategory.id,
                         memoCategory.categoryName,
                         memoCategory.parent.id,
-                        memoCategory.id.count()
+                        memo.id.count()
                 ))
                 .from(memoCategory)
                 .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
