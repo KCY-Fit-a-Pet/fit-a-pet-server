@@ -91,11 +91,6 @@ public class MemberAccountUseCase {
         validatePhone(req.phone(), code, prefix);
         Member member = memberSearchService.findByPhone(req.phone());
 
-        if (!StringUtils.hasText(req.newPassword())) {
-            BaseErrorCode errorCode = AccountErrorCode.INVALID_PASSWORD_REQUEST;
-            log.warn("비밀번호 변경 실패: {}", errorCode.getExplainError());
-            throw new GlobalErrorException(errorCode);
-        }
         member.updateEncodedPassword(req.getNewEncodedPassword(bCryptPasswordEncoder));
         smsRedisMapper.removeCode(req.phone(), prefix);
     }

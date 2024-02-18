@@ -16,9 +16,4 @@ public record AccountSearchReq(
         public String getNewEncodedPassword(PasswordEncoder passwordEncoder) {
                 return passwordEncoder.encode(newPassword);
         }
-
-        @Override
-        public String newPassword() {
-                throw new UnsupportedOperationException();
-        }
 }
