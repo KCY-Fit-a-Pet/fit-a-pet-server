@@ -1,16 +1,12 @@
 package kr.co.fitapet.api.apis.memo.usecase;
 
-import kr.co.fitapet.api.apis.memo.dto.MemoPatchReq;
+import kr.co.fitapet.api.apis.memo.dto.*;
 import kr.co.fitapet.common.annotation.UseCase;
-import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.domains.memo.domain.Memo;
 import kr.co.fitapet.domain.domains.memo.domain.MemoCategory;
 import kr.co.fitapet.domain.domains.memo.domain.MemoImage;
 import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
 import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
-import kr.co.fitapet.domain.domains.memo.dto.MemoSaveReq;
-import kr.co.fitapet.api.apis.memo.dto.SubMemoCategorySaveReq;
-import kr.co.fitapet.domain.domains.memo.exception.MemoErrorCode;
 import kr.co.fitapet.domain.domains.memo.service.MemoDeleteService;
 import kr.co.fitapet.domain.domains.memo.service.MemoSaveService;
 import kr.co.fitapet.domain.domains.memo.service.MemoSearchService;
@@ -36,21 +32,23 @@ public class MemoUseCase {
     private final NcpObjectStorageService ncpObjectStorageService;
 
     @Transactional
-    public void saveSubMemoCategory(Long petId, Long rootMemoCategoryId, SubMemoCategorySaveReq req) {
-        req.toEntity(memoSearchService.findMemoCategoryById(rootMemoCategoryId), petSearchService.findPetById(petId));
+    public MemoCategorySaveRes saveSubMemoCategory(Long petId, Long rootMemoCategoryId, SubMemoCategorySaveReq req) {
+        MemoCategory memoCategory = req.toEntity(memoSearchService.findMemoCategoryById(rootMemoCategoryId), petSearchService.findPetById(petId));
+        return MemoCategorySaveRes.valueOf(memoSaveService.saveMemoCategory(memoCategory).getId());
     }
 
     @Transactional
-    public void saveMemo(Long MemoCategoryId, MemoSaveReq req) {
+    public MemoSaveRes saveMemo(Long MemoCategoryId, MemoSaveReq req) {
         MemoCategory memoCategory = memoSearchService.findMemoCategoryById(MemoCategoryId);
 
         Memo memo = req.toEntity();
         memo.updateMemoCategory(memoCategory);
+        memoSaveService.saveMemo(memo);
 
-        if (req.memoImageUrls() != null) {
-            memoSaveService.saveMemo(memo);
+        if (req.memoImageUrls() != null)
             req.memoImageUrls().forEach(url -> MemoImage.of(url, memo));
-        }
+
+        return MemoSaveRes.valueOf(memo.getId());
     }
 
     @Transactional(readOnly = true)
@@ -83,31 +81,24 @@ public class MemoUseCase {
     }
 
     @Transactional
-    public void patchMemo(Long memoId, MemoPatchReq req) {
+    public void updateMemo(Long memoId, MemoUpdateReq req) {
         Memo memo = memoSearchService.findMemoById(memoId);
+        memo.updateMemo(req.toEntity());
 
-        if (req.title() != null) {
-            if (req.title().isBlank()) throw new GlobalErrorException(MemoErrorCode.MEMO_TITLE_NOT_EMPTY);
-            memo.updateTitle(req.title());
+        if (!memo.getMemoCategory().getId().equals(req.memoCategoryId())) {
+            MemoCategory memoCategory = memoSearchService.findMemoCategoryById(req.memoCategoryId());
+            memo.updateMemoCategory(memoCategory);
+            log.info("카테고리 이동 {} -> {}", memo.getMemoCategory().getId(), req.memoCategoryId());
         }
 
-        if (req.content() != null) {
-            if (req.content().isBlank()) throw new GlobalErrorException(MemoErrorCode.MEMO_CONTENT_NOT_EMPTY);
-            memo.updateContent(req.content());
-        }
+        List<MemoImage> originalMemoImages = memoSearchService.findMemoImagesByMemoId(memoId);
+        List<MemoImage> addedMemoImages = req.memoImageUrls().stream().filter(url -> originalMemoImages.stream().noneMatch(memoImage -> memoImage.getImgUrl().equals(url))).map(url -> MemoImage.of(url, memo)).toList();
+        List<MemoImage> removedMemoImages = originalMemoImages.stream().filter(memoImage -> !req.memoImageUrls().contains(memoImage.getImgUrl())).toList();
+        log.info("addedMemoImages: {}, removedMemoImages: {}", addedMemoImages, removedMemoImages);
 
-        if (req.removedMemoImageIds() != null) {
-            List<MemoImage> memoImages = memoSearchService.findMemoImagesByMemoId(memoId);
-            List<MemoImage> removedMemoImages = memoImages.stream().filter(memoImage -> req.removedMemoImageIds().contains(memoImage.getId())).toList();
-            log.info("removedMemoImages: {}", removedMemoImages);
-
+        if (!removedMemoImages.isEmpty()) {
             memoDeleteService.deleteMemoImages(removedMemoImages);
             ncpObjectStorageService.deleteObjects(removedMemoImages.stream().map(MemoImage::getImgUrl).toList());
-        }
-
-        if (req.addedMemoImageUrls() != null) {
-            log.info("addedMemoImageUrls: {}", req.addedMemoImageUrls());
-            req.addedMemoImageUrls().forEach(url -> MemoImage.of(url, memo));
         }
     }
 }

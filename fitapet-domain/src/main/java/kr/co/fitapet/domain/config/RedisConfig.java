@@ -2,6 +2,7 @@ package kr.co.fitapet.domain.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import kr.co.fitapet.domain.common.annotation.JavaTimeRedisTemplate;
 import kr.co.fitapet.domain.common.annotation.RedisCacheConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,18 @@ public class RedisConfig {
     @Bean
     @Primary
     public RedisTemplate<String, ?> redisTemplate() {
+        RedisTemplate<String, ?> template = new RedisTemplate<>();
+
+        template.setConnectionFactory(redisConnectionFactory());
+
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return template;
+    }
+
+    @Bean
+    @JavaTimeRedisTemplate
+    public RedisTemplate<String, ?> javaTimeRedisTemplate() {
         RedisTemplate<String, ?> template = new RedisTemplate<>();
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());

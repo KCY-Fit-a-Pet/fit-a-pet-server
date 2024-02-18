@@ -6,11 +6,12 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.fitapet.api.apis.memo.dto.MemoPatchReq;
+import kr.co.fitapet.api.apis.memo.dto.MemoCategorySaveRes;
+import kr.co.fitapet.api.apis.memo.dto.MemoUpdateReq;
 import kr.co.fitapet.api.apis.memo.usecase.MemoUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
-import kr.co.fitapet.domain.domains.memo.dto.MemoSaveReq;
+import kr.co.fitapet.api.apis.memo.dto.MemoSaveReq;
 import kr.co.fitapet.api.apis.memo.dto.SubMemoCategorySaveReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -43,10 +43,11 @@ public class MemoApi {
             @PathVariable("root_memo_category_id") Long rootMemoCategoryId,
             @RequestBody @Valid SubMemoCategorySaveReq req
     ) {
-        memoUseCase.saveSubMemoCategory(petId, rootMemoCategoryId, req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.noContent());
+        MemoCategorySaveRes res = memoUseCase.saveSubMemoCategory(petId, rootMemoCategoryId, req);
+        return ResponseEntity.ok(SuccessResponse.from(res));
     }
 
+    @Deprecated(since = "2024-02-18")
     @Operation(summary = "메모 카테고리 리스트 조회", description = "메모 카테고리 타입이 root인 경우, 서브 메모 카테고리 리스트도 함께 조회합니다.")
     @Parameters({
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
@@ -155,8 +156,7 @@ public class MemoApi {
             @PathVariable("memo_category_id") Long memoCategoryId,
             @RequestBody @Valid MemoSaveReq req
     ) {
-        memoUseCase.saveMemo(memoCategoryId, req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(SuccessResponse.noContent());
+        return ResponseEntity.ok(SuccessResponse.from(memoUseCase.saveMemo(memoCategoryId, req)));
     }
 
     @Operation(summary = "메모 삭제")
@@ -182,15 +182,16 @@ public class MemoApi {
             @Parameter(name = "memo_category_id", description = "메모 카테고리 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "memo_id", description = "메모 ID", in = ParameterIn.PATH, required = true)
     })
-    @PatchMapping("/memo-categories/{memo_category_id}/memos/{memo_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategoryAndMemo(#memoCategoryId, #memoId, #petId)")
-    public ResponseEntity<?> patchMemo(
+    @PutMapping("/memo-categories/{memo_category_id}/memos/{memo_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @memoAuthorize.isValidMemoCategoryAndMemo(#memoCategoryId, #memoId, #petId)" +
+            "and @memoAuthorize.isValidMemoCategory(#req.memoCategoryId(), #petId)")
+    public ResponseEntity<?> putMemo(
             @PathVariable("pet_id") Long petId,
             @PathVariable("memo_category_id") Long memoCategoryId,
             @PathVariable("memo_id") Long memoId,
-            @RequestBody @Valid MemoPatchReq req
+            @RequestBody @Valid MemoUpdateReq req
     ) {
-        memoUseCase.patchMemo(memoId, req);
+        memoUseCase.updateMemo(memoId, req);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }

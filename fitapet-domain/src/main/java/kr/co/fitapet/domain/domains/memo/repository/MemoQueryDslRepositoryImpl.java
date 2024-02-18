@@ -49,7 +49,7 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                                         memo.title,
                                         memo.content,
                                         memo.createdAt,
-                                        list(
+                                        GroupBy.list(
                                                 Projections.constructor(
                                                         MemoInfoDto.MemoImageInfo.class,
                                                         memoImage.id,

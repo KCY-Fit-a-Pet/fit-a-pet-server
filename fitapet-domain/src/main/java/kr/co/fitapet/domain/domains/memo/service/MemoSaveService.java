@@ -18,11 +18,11 @@ public class MemoSaveService {
     private final MemoCategoryRepository memoCategoryRepository;
     private final MemoImageRepository memoImageRepository;
 
-    public void saveMemoCategory(MemoCategory memoCategory) {
-        memoCategoryRepository.save(memoCategory);
+    public MemoCategory saveMemoCategory(MemoCategory memoCategory) {
+        return memoCategoryRepository.save(memoCategory);
     }
 
-    public void saveMemo(Memo memo) {
-        memoRepository.save(memo);
+    public Memo saveMemo(Memo memo) {
+        return memoRepository.save(memo);
     }
 }

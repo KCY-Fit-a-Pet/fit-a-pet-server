@@ -20,7 +20,7 @@ public class MemoCategoryQueryDslRepositoryImpl implements MemoCategoryQueryDslR
     private final QPet pet = QPet.pet;
 
     @Override
-    public List<Long> findRootMemoCategoryIdByPetId(List<Long> petIds) {
+    public List<Long> findRootMemoCategoryIdsByPetId(List<Long> petIds) {
         return queryFactory.select(memoCategory.id)
                 .from(memoCategory)
                 .leftJoin(pet).on(pet.id.eq(memoCategory.pet.id))
@@ -33,10 +33,11 @@ public class MemoCategoryQueryDslRepositoryImpl implements MemoCategoryQueryDslR
         return queryFactory.select(
                 Projections.constructor(
                         MemoCategoryInfoDto.MemoCategoryQueryDslRes.class,
+                        memoCategory.pet.id,
                         memoCategory.id,
                         memoCategory.categoryName,
                         memoCategory.parent.id,
-                        memoCategory.id.count()
+                        memo.id.count()
                 ))
                 .from(memoCategory)
                 .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
@@ -50,10 +51,11 @@ public class MemoCategoryQueryDslRepositoryImpl implements MemoCategoryQueryDslR
         return queryFactory.select(
                 Projections.constructor(
                         MemoCategoryInfoDto.MemoCategoryQueryDslRes.class,
+                        memoCategory.pet.id,
                         memoCategory.id,
                         memoCategory.categoryName,
                         memoCategory.parent.id,
-                        memoCategory.id.count()
+                        memo.id.count()
                 ))
                 .from(memoCategory)
                 .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
