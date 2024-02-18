@@ -1,5 +1,6 @@
 package kr.co.fitapet.domain.domains.memo.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.fitapet.common.annotation.Dto;
@@ -27,6 +28,8 @@ public class MemoCategoryInfoDto {
     @Builder
     @Dto(name = "memoCategory")
     public record MemoCategoryInfo(
+        @Schema(description = "카테고리가 등록된 반려동물 ID")
+        Long petId,
         @Schema(description = "메모 카테고리 ID")
         Long memoCategoryId,
         @Schema(description = "메모 카테고리 이름")
@@ -45,6 +48,7 @@ public class MemoCategoryInfoDto {
          */
         public static MemoCategoryInfo from(MemoCategoryQueryDslRes res) {
             return MemoCategoryInfo.builder()
+                    .petId(res.petId())
                     .memoCategoryId(res.memoCategoryId())
                     .memoCategoryName(res.memoCategoryName())
                     .type(res.parentId() == null ? MemoCategoryType.ROOT : MemoCategoryType.SUB)
@@ -58,6 +62,7 @@ public class MemoCategoryInfoDto {
          */
         public static MemoCategoryInfo ofRootInstance(MemoCategoryQueryDslRes rootMemoCategory, List<MemoCategoryQueryDslRes> subMemoCategories) {
             return MemoCategoryInfo.builder()
+                    .petId(rootMemoCategory.petId())
                     .memoCategoryId(rootMemoCategory.memoCategoryId())
                     .memoCategoryName(rootMemoCategory.memoCategoryName())
                     .type(MemoCategoryType.ROOT)
@@ -68,12 +73,14 @@ public class MemoCategoryInfoDto {
     }
 
     public record MemoCategoryQueryDslRes(
+            Long petId,
             Long memoCategoryId,
             String memoCategoryName,
             Long parentId,
             Long totalMemoCount
     ) {
-        public MemoCategoryQueryDslRes(Long memoCategoryId, String memoCategoryName, Long parentId, Long totalMemoCount) {
+        public MemoCategoryQueryDslRes(Long petId, Long memoCategoryId, String memoCategoryName, Long parentId, Long totalMemoCount) {
+            this.petId = petId;
             this.memoCategoryId = memoCategoryId;
             this.memoCategoryName = memoCategoryName;
             this.parentId = parentId;

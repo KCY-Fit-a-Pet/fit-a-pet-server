@@ -15,8 +15,6 @@ import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
 import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
-import kr.co.fitapet.domain.domains.member.exception.AccountErrorException;
-import kr.co.fitapet.domain.domains.member.service.MemberSaveService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
 import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
@@ -139,7 +137,7 @@ public class MemberAccountUseCase {
         List<Long> petIds = memberSearchService.findMyPetIds(userId);
         log.info("userId: {}, petIds: {}", userId, petIds);
 
-        List<Long> rootMemoCategoryIds = memoSearchService.findRootMemoCategoriesIdByPetIds(petIds);
+        List<Long> rootMemoCategoryIds = memoSearchService.findRootMemoCategoryIdsByPetIds(petIds);
         List<MemoCategoryInfoDto.MemoCategoryInfo> rootMemoCategories = new ArrayList<>();
 
         for (Long rootMemoCategoryId : rootMemoCategoryIds) {

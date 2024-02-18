@@ -47,6 +47,7 @@ public class MemoApi {
         return ResponseEntity.ok(SuccessResponse.from(res));
     }
 
+    @Deprecated(since = "2024-02-18")
     @Operation(summary = "메모 카테고리 리스트 조회", description = "메모 카테고리 타입이 root인 경우, 서브 메모 카테고리 리스트도 함께 조회합니다.")
     @Parameters({
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),

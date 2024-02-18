@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -34,14 +33,13 @@ public class MemoSearchService {
     }
 
     @Transactional(readOnly = true)
-    public List<Long> findRootMemoCategoriesIdByPetIds(List<Long> petIds) {
-        return memoCategoryRepository.findRootMemoCategoryIdByPetId(petIds);
+    public List<Long> findRootMemoCategoryIdsByPetIds(List<Long> petIds) {
+        return memoCategoryRepository.findRootMemoCategoryIdsByPetId(petIds);
     }
 
     @Transactional(readOnly = true)
     public MemoCategoryInfoDto.MemoCategoryInfo findMemoCategoryWithMemoCount(Long memoCategoryId) {
         MemoCategoryInfoDto.MemoCategoryQueryDslRes dto = memoCategoryRepository.findMemoCategoryById(memoCategoryId);
-        log.info("dto: {}", dto);
 
         if (dto == null) throw new GlobalErrorException(MemoErrorCode.MEMO_CATEGORY_NOT_FOUND);
         if (dto.parentId() == null) {
