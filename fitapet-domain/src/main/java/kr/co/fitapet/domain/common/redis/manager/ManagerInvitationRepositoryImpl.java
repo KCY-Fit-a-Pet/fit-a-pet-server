@@ -1,6 +1,7 @@
 package kr.co.fitapet.domain.common.redis.manager;
 
 import jakarta.annotation.Resource;
+import kr.co.fitapet.domain.common.annotation.JavaTimeRedisTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -14,7 +15,7 @@ public class ManagerInvitationRepositoryImpl implements ManagerInvitationReposit
     private final HashOperations<String, Long, LocalDateTime> ops;
     private static final String KEY = "managerInvitation";
 
-    public ManagerInvitationRepositoryImpl(RedisTemplate<String, Object> redisTemplate) {
+    public ManagerInvitationRepositoryImpl(@JavaTimeRedisTemplate RedisTemplate<String, Object> redisTemplate) {
         this.ops = redisTemplate.opsForHash();
     }
 
