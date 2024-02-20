@@ -18,6 +18,7 @@ import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
 import kr.co.fitapet.domain.domains.memo.dto.MemoCategoryInfoDto;
+import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
 import kr.co.fitapet.domain.domains.memo.service.MemoSearchService;
 import kr.co.fitapet.domain.domains.notification.type.NotificationType;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
@@ -26,6 +27,7 @@ import kr.co.fitapet.domain.domains.schedule.service.ScheduleSearchService;
 import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -128,7 +130,7 @@ public class MemberAccountUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<MemoCategoryInfoDto.MemoCategoryInfo> getMemoCategories(Long userId) {
+    public List<MemoCategoryInfoDto.MemoCategoryInfo> findMemoCategories(Long userId) {
         List<Long> petIds = memberSearchService.findMyPetIds(userId);
         log.info("userId: {}, petIds: {}", userId, petIds);
 
@@ -140,6 +142,14 @@ public class MemberAccountUseCase {
         }
 
         return rootMemoCategories;
+    }
+
+    @Transactional(readOnly = true)
+    public MemoInfoDto.PageResponse findMemos(Long userId, Pageable pageable) {
+        List<Long> petIds = memberSearchService.findMyPetIds(userId);
+        log.info("userId: {}, petIds: {}", userId, petIds);
+
+        return memoSearchService.findMemosByPetIds(petIds, pageable);
     }
 
     /**
