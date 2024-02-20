@@ -11,5 +11,5 @@ public interface MemoQueryDslRepository {
     Optional<MemoInfoDto.MemoInfo> findMemoAndMemoImageUrlsById(Long memoId);
     Slice<MemoInfoDto.MemoSummaryInfo> findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target);
     Slice<MemoInfoDto.MemoSummaryInfo> findMemosByPetId(Long petId, Pageable pageable);
-    Slice<MemoInfoDto.MemoSummaryInfo> findMemosByPetIds(List<Long> petIds, Pageable pageable);
+    Slice<MemoInfoDto.MemoSummaryInfo> findMemosByPetIds(List<Long> petIds, Pageable pageable, String target);
 }

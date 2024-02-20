@@ -145,11 +145,11 @@ public class MemberAccountUseCase {
     }
 
     @Transactional(readOnly = true)
-    public MemoInfoDto.PageResponse findMemos(Long userId, Pageable pageable) {
+    public MemoInfoDto.PageResponse findMemos(Long userId, Pageable pageable, String target) {
         List<Long> petIds = memberSearchService.findMyPetIds(userId);
         log.info("userId: {}, petIds: {}", userId, petIds);
 
-        return memoSearchService.findMemosByPetIds(petIds, pageable);
+        return memoSearchService.findMemosByPetIds(petIds, pageable, target);
     }
 
     /**

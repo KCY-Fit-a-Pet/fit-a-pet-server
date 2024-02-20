@@ -155,16 +155,24 @@ public class AccountApi {
     }
 
     @Operation(summary = "관리 중인 반려동물의 모든 메모 조회")
-    @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
+    @Parameters({
+            @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "search", description = "검색어", in = ParameterIn.QUERY),
+            @Parameter(name = "size", description = "페이지 사이즈", example = "5", in = ParameterIn.QUERY),
+            @Parameter(name = "page", description = "페이지 번호", example = "1", in = ParameterIn.QUERY),
+            @Parameter(name = "sort", description = "정렬 기준", example = "createdAt", in = ParameterIn.QUERY),
+            @Parameter(name = "direction", description = "정렬 방식", example = "DESC" , in = ParameterIn.QUERY)
+    })
     @GetMapping("/{id}/memos")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId")
     public ResponseEntity<?> getMemos(
             @PathVariable("id") Long userId,
+            @RequestParam(value = "search", defaultValue = "", required = false) String search,
             @PageableDefault(size = 5, page = 0) @SortDefault.SortDefaults({
                     @SortDefault(sort = "memo.createdAt", direction = Sort.Direction.DESC),
                     @SortDefault(sort = "memoImage.id", direction = Sort.Direction.ASC)}
             ) Pageable pageable
     ) {
-        return ResponseEntity.ok(SuccessResponse.from(memberAccountUseCase.findMemos(userId, pageable)));
+        return ResponseEntity.ok(SuccessResponse.from(memberAccountUseCase.findMemos(userId, pageable, search)));
     }
 }
