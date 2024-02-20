@@ -126,6 +126,31 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
                 ))
                 .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
                 .transform(createMemoInfoDtoResultTransformer());
+        log.info("results: {}", results);
+
+        return SliceUtil.toSlice(results, pageable);
+    }
+
+    @Override
+    public Slice<MemoInfoDto.MemoSummaryInfo> findMemosByPetIds(List<Long> petIds, Pageable pageable, String target) {
+        List<MemoInfoDto.MemoSummaryInfo> results = queryFactory
+                .from(memoCategory)
+                .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
+                .leftJoin(memoImage).on(memoImage.memo.id.eq(memo.id))
+                .where(memo.id.in(
+                        queryFactory
+                                .select(memo.id)
+                                .from(memoCategory)
+                                .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
+                                .where(memoCategory.pet.id.in(petIds)
+                                        .and(QueryDslUtil.matchAgainstTwoElemBooleanMode(memo.title, memo.content, target))
+                                )
+                                .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                                .offset(pageable.getOffset())
+                                .limit(pageable.getPageSize() + 1)
+                ))
+                .orderBy(QueryDslUtil.getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
+                .transform(createMemoInfoDtoResultTransformer());
 
         return SliceUtil.toSlice(results, pageable);
     }

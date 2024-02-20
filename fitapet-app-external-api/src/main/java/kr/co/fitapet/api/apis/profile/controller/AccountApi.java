@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import kr.co.fitapet.api.apis.profile.usecase.MemberAccountUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
@@ -21,6 +20,10 @@ import kr.co.fitapet.domain.domains.member.type.MemberAttrType;
 import kr.co.fitapet.domain.domains.notification.type.NotificationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -148,6 +151,28 @@ public class AccountApi {
     @GetMapping("/{id}/memo-categories")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")
     public ResponseEntity<?> getMemoCategories(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(SuccessResponse.from("rootMemoCategories", memberAccountUseCase.getMemoCategories(id)));
+        return ResponseEntity.ok(SuccessResponse.from("rootMemoCategories", memberAccountUseCase.findMemoCategories(id)));
+    }
+
+    @Operation(summary = "관리 중인 반려동물의 모든 메모 조회")
+    @Parameters({
+            @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "search", description = "검색어", in = ParameterIn.QUERY),
+            @Parameter(name = "size", description = "페이지 사이즈", example = "5", in = ParameterIn.QUERY),
+            @Parameter(name = "page", description = "페이지 번호", example = "1", in = ParameterIn.QUERY),
+            @Parameter(name = "sort", description = "정렬 기준", example = "createdAt", in = ParameterIn.QUERY),
+            @Parameter(name = "direction", description = "정렬 방식", example = "DESC" , in = ParameterIn.QUERY)
+    })
+    @GetMapping("/{id}/memos")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
+    public ResponseEntity<?> getMemos(
+            @PathVariable("id") Long userId,
+            @RequestParam(value = "search", defaultValue = "", required = false) String search,
+            @PageableDefault(size = 5, page = 0) @SortDefault.SortDefaults({
+                    @SortDefault(sort = "memo.createdAt", direction = Sort.Direction.DESC),
+                    @SortDefault(sort = "memoImage.id", direction = Sort.Direction.ASC)}
+            ) Pageable pageable
+    ) {
+        return ResponseEntity.ok(SuccessResponse.from(memberAccountUseCase.findMemos(userId, pageable, search)));
     }
 }

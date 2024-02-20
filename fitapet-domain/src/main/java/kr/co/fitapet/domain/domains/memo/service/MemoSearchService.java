@@ -78,6 +78,13 @@ public class MemoSearchService {
     }
 
     @Transactional(readOnly = true)
+    public MemoInfoDto.PageResponse findMemosByPetIds(List<Long> petIds, Pageable pageable, String target) {
+        Slice<MemoInfoDto.MemoSummaryInfo> page = memoRepository.findMemosByPetIds(petIds, pageable, target);
+
+        return MemoInfoDto.PageResponse.from(page);
+    }
+
+    @Transactional(readOnly = true)
     public List<MemoImage> findMemoImagesByMemoId(Long memoId) {
         return memoImageRepository.findByMemo_Id(memoId);
     }
