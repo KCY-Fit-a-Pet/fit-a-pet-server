@@ -11,12 +11,13 @@ import kr.co.fitapet.domain.domains.care.dto.CareInfoRes;
 import kr.co.fitapet.domain.domains.care.dto.CareSaveReq;
 import kr.co.fitapet.domain.domains.care.exception.CareErrorCode;
 import kr.co.fitapet.domain.domains.care.service.CareSearchService;
-import kr.co.fitapet.domain.domains.care.service.CareUpdateService;
+import kr.co.fitapet.domain.domains.care.service.CareSaveService;
 import kr.co.fitapet.domain.domains.care.type.WeekType;
 import kr.co.fitapet.domain.domains.care_log.domain.CareLog;
 import kr.co.fitapet.domain.domains.care_log.dto.CareLogInfo;
+import kr.co.fitapet.domain.domains.care_log.exception.CareLogErrorCode;
 import kr.co.fitapet.domain.domains.care_log.service.CareLogSearchService;
-import kr.co.fitapet.domain.domains.care_log.service.CareLogUpdateService;
+import kr.co.fitapet.domain.domains.care_log.service.CareLogSaveService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.service.MemberSearchService;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
@@ -34,71 +35,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CareUseCase {
-    private final CareUpdateService careUpdateService;
+    private final CareSaveService careSaveService;
 
     private final MemberSearchService memberSearchService;
     private final ManagerSearchService managerSearchService;
     private final PetSearchService petSearchService;
     private final CareSearchService careSearchService;
     private final CareLogSearchService careLogSearchService;
-    private final CareLogUpdateService careLogUpdateService;
-
-    @Transactional
-    public List<?> findCareCategoryNamesByPetId(Long petId) {
-         List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
-         return CareCategoryInfo.from(careCategories).getCareCategorySummaries();
-    }
-
-    @Transactional(readOnly = true)
-    public CareInfoRes findCaresByPetId(Long petId) {
-        List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
-
-        List<CareInfoRes.CareCategoryDto> careCategoryDtos = new ArrayList<>();
-        for (CareCategory careCategory : careCategories) {
-            log.info("careCategory: {}", careCategory);
-            List<Care> cares = careCategory.getCares();
-
-            List<CareInfoRes.CareDto> careDtos = new ArrayList<>();
-            for (Care care : cares) {
-                WeekType todayWeek = WeekType.fromLegacyType(LocalDateTime.now().getDayOfWeek().toString());
-                List<CareDate> careDates = careSearchService.findCareDatesFromCareIdAndWeek(care.getId(), todayWeek);
-
-                for (CareDate careDate : careDates) {
-                    LocalDateTime today = LocalDateTime.now();
-
-                    boolean isClear = careLogSearchService.existsByCareDateIdOnLogDate(careDate.getId(), today);
-                    log.info("isClear: {}", isClear);
-
-                    careDtos.add(CareInfoRes.CareDto.of(care.getId(), careDate.getId(), care.getCareName(), careDate.getCareTime(), isClear));
-                }
-            }
-            if (careDtos.isEmpty()) continue;
-
-            careCategoryDtos.add(CareInfoRes.CareCategoryDto.of(careCategory.getId(), careCategory.getCategoryName(), careDtos));
-        }
-        return CareInfoRes.from(careCategoryDtos);
-    }
-
-    @Transactional
-    public CareLogInfo doCare(Long careDateId, Long userId) {
-        CareDate careDate = careSearchService.findCareDateById(careDateId);
-
-        if (!careDate.getWeek().checkToday()) {
-            log.warn("오늘 날짜에 대한 요청이 아닙니다. {} <- 요청 : {}", careDate.getWeek(), LocalDateTime.now().getDayOfWeek());
-            throw new GlobalErrorException(CareErrorCode.NOT_TODAY_CARE);
-        }
-
-        // TODO: 케어 등록 시간 10분 전부터 수행할 수 있도록 조건 추가?
-        LocalDateTime today = LocalDateTime.now();
-        if (careLogSearchService.existsByCareDateIdOnLogDate(careDateId, today)) {
-            log.warn("이미 케어를 수행한 기록이 존재합니다.");
-            throw new GlobalErrorException(CareErrorCode.ALREADY_CARED);
-        }
-
-        CareLog careLog = careLogUpdateService.save(CareLog.of(careDate));
-        log.info("careLog: {}", careLog);
-        return CareLogInfo.of(careLog.getLogDate(), memberSearchService.findById(userId).getUid());
-    }
+    private final CareLogSaveService careLogSaveService;
 
     @Transactional
     public void saveCare(Long userId, Long petId, CareSaveReq.Request request) {
@@ -118,19 +62,85 @@ public class CareUseCase {
         persistAboutCare(categoryDto, careInfoDto, additionalPetDtos);
     }
 
+    @Transactional
+    public List<?> findCareCategoryNamesByPetId(Long petId) {
+         List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
+         return CareCategoryInfo.from(careCategories).getCareCategorySummaries();
+    }
+
+    @Transactional(readOnly = true)
+    public CareInfoRes findCaresByPetId(Long petId) {
+        List<CareCategory> careCategories = careSearchService.findAllCareCategoriesByPetId(petId);
+        List<CareInfoRes.CareCategoryDto> careCategoryDtos = new ArrayList<>();
+
+        for (CareCategory careCategory : careCategories) {
+            List<Care> cares = careCategory.getCares();
+            List<CareInfoRes.CareDto> careDtos = new ArrayList<>();
+
+            WeekType todayWeek = WeekType.fromLegacyType(LocalDateTime.now().getDayOfWeek().toString());
+            LocalDateTime today = LocalDateTime.now();
+
+            for (Care care : cares) {
+                List<CareDate> careDates = careSearchService.findCareDatesFromCareIdAndWeek(care.getId(), todayWeek);
+
+                for (CareDate careDate : careDates) {
+                    boolean isClear = careLogSearchService.existsByCareDateIdOnLogDate(careDate.getId(), today);
+                    careDtos.add(CareInfoRes.CareDto.of(care.getId(), careDate.getId(), care.getCareName(), careDate.getCareTime(), isClear));
+                }
+            }
+            if (!careDtos.isEmpty())
+                careCategoryDtos.add(CareInfoRes.CareCategoryDto.of(careCategory.getId(), careCategory.getCategoryName(), careDtos));
+        }
+        return CareInfoRes.from(careCategoryDtos);
+    }
+
+    @Transactional
+    public CareLogInfo doCare(Long careDateId, Long userId) {
+        CareDate careDate = careSearchService.findCareDateById(careDateId);
+
+        if (!careDate.getWeek().checkToday()) {
+            log.warn("오늘 날짜에 대한 요청이 아닙니다. {} <- 요청 : {}", careDate.getWeek(), LocalDateTime.now().getDayOfWeek());
+            throw new GlobalErrorException(CareErrorCode.NOT_TODAY_CARE);
+        }
+
+        LocalDateTime today = LocalDateTime.now();
+        if (careLogSearchService.existsByCareDateIdOnLogDate(careDateId, today)) {
+            log.warn("이미 케어를 수행한 기록이 존재합니다.");
+            throw new GlobalErrorException(CareErrorCode.ALREADY_CARED);
+        }
+
+        CareLog careLog = careLogSaveService.save(CareLog.of(careDate));
+        log.info("careLog: {}", careLog);
+        return CareLogInfo.of(careLog.getLogDate(), memberSearchService.findById(userId).getUid());
+    }
+
+    @Transactional
+    public void cancelCare(Long careDateId) {
+        CareDate careDate = careSearchService.findCareDateById(careDateId);
+        LocalDateTime today = LocalDateTime.now();
+
+        if (!careDate.getWeek().checkToday()) {
+            log.warn("오늘 날짜에 대한 요청이 아닙니다. {} <- 요청 : {}", careDate.getWeek(), LocalDateTime.now().getDayOfWeek());
+            throw new GlobalErrorException(CareErrorCode.NOT_TODAY_CARE);
+        }
+
+        CareLog careLog = careLogSearchService.findByCareDateIdOnLogDate(careDateId, today);
+        careLogSaveService.delete(careLog);
+    }
+
     private void persistAboutCare(
             CareSaveReq.CategoryDto categoryDto,
             CareSaveReq.CareInfoDto careInfoDto,
             List<CareSaveReq.AdditionalPetDto> additionalPetDtos
     ) {
         List<CareCategory> categories = findOrCreateCategories(categoryDto, additionalPetDtos);
-        careUpdateService.saveCareCategories(categories);
+        careSaveService.saveCareCategories(categories);
 
         List<Care> cares = createCares(categoryDto, careInfoDto, categories);
-        careUpdateService.saveCares(cares);
+        careSaveService.saveCares(cares);
 
         List<CareDate> dates = createCareDates(careInfoDto, cares);
-        careUpdateService.saveCareDates(dates);
+        careSaveService.saveCareDates(dates);
     }
 
     private List<CareCategory> findOrCreateCategories(

@@ -10,14 +10,13 @@ import kr.co.fitapet.domain.domains.care.repository.CareDateRepository;
 import kr.co.fitapet.domain.domains.care.repository.CareRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @DomainService
 @RequiredArgsConstructor
 @Slf4j
-public class CareUpdateService {
+public class CareSaveService {
     private final CareRepository careRepository;
     private final CareDateRepository careDateRepository;
     private final CareCategoryRepository careCategoryRepository;

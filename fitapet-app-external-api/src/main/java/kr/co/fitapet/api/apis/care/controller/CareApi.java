@@ -2,6 +2,7 @@ package kr.co.fitapet.api.apis.care.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -51,6 +52,7 @@ public class CareApi {
     }
 
     @Operation(summary = "작성한 케어 카테고리 목록 조회")
+    @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/categories")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getCareCategoryNames(@PathVariable("pet_id") Long petId) {
@@ -58,7 +60,29 @@ public class CareApi {
         return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
 
+    @Operation(summary = "케어 수정")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true)
+    })
+    @PutMapping("/{care_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
+    public ResponseEntity<?> updateCare(
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("care_id") Long careId,
+            @RequestBody @Valid CareSaveReq.Request request,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+//        careUseCase.updateCare(careId, user.getUserId(), petId, request);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
     @Operation(summary = "케어 수행")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_date_id", description = "케어 날짜 ID", in = ParameterIn.PATH, required = true)
+    })
     @GetMapping("/{care_id}/care-dates/{care_date_id}")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCareAndCareDate(#petId, #careId, #careDateId)")
     public ResponseEntity<?> doCare(
@@ -69,5 +93,38 @@ public class CareApi {
     ) {
         CareLogInfo careLog = careUseCase.doCare(careDateId, user.getUserId());
         return ResponseEntity.ok(SuccessResponse.from(careLog));
+    }
+
+    @Operation(summary = "케어 수행 취소")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_date_id", description = "케어 날짜 ID", in = ParameterIn.PATH, required = true)
+    })
+    @DeleteMapping("/{care_id}/care-dates/{care_date_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCareAndCareDate(#petId, #careId, #careDateId)")
+    public ResponseEntity<?> cancleCare(
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("care_id") Long careId,
+            @PathVariable("care_date_id") Long careDateId
+    ) {
+        careUseCase.cancelCare(careDateId);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "케어 삭제")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true)
+    })
+    @DeleteMapping("/{care_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
+    public ResponseEntity<?> deleteCare(
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("care_id") Long careId,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+//        careUseCase.deleteCare(careId, user.getUserId());
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }

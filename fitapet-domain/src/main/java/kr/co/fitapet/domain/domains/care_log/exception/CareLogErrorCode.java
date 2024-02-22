@@ -1,22 +1,17 @@
-package kr.co.fitapet.domain.domains.care.exception;
+package kr.co.fitapet.domain.domains.care_log.exception;
 
 import kr.co.fitapet.common.execption.BaseErrorCode;
 import kr.co.fitapet.common.execption.CausedBy;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import static kr.co.fitapet.common.execption.StatusCode.BAD_REQUEST;
 import static kr.co.fitapet.common.execption.StatusCode.NOT_FOUND;
 
 @Getter
 @RequiredArgsConstructor
-public enum CareErrorCode implements BaseErrorCode {
-    /* 400 BAD_REQUEST */
-    CATEGORY_STATUS_INVALID(BAD_REQUEST.getCode(), "카테고리를 생성할 수 없는 상태입니다."),
-    ALREADY_CARED(BAD_REQUEST.getCode(), "이미 케어한 날짜에 대한 요청"),
-    NOT_TODAY_CARE(BAD_REQUEST.getCode(), "오늘 날짜에 대한 요청이 아님"),
-
-    ;
+public enum CareLogErrorCode implements BaseErrorCode {
+    /* 404 NOT_FOUND */
+    NOT_FOUND_CARE_LOG(NOT_FOUND.getCode(), "케어 로그를 찾을 수 없음");
 
     private final int code;
     private final String message;
