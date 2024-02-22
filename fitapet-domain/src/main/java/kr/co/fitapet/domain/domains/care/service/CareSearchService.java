@@ -67,4 +67,9 @@ public class CareSearchService {
 
         return dto.getCareCategoryExists();
     }
+
+    @Transactional(readOnly = true)
+    public boolean existsCareUnderCategory(Long categoryId) {
+        return careRepository.existsByCareCategory_Id(categoryId);
+    }
 }

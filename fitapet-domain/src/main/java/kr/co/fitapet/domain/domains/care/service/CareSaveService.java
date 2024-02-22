@@ -55,4 +55,14 @@ public class CareSaveService {
     public CareCategory saveCareCategory(CareCategory careCategory) {
         return careCategoryRepository.save(careCategory);
     }
+
+    @Transactional
+    public void deleteCare(Care care) {
+        careRepository.delete(care);
+    }
+
+    @Transactional
+    public void deleteCareCategory(CareCategory careCategory) {
+        careCategoryRepository.delete(careCategory);
+    }
 }

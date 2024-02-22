@@ -66,14 +66,14 @@ public class CareApi {
             @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true)
     })
     @PutMapping("/{care_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCare(#petId, #careId)")
     public ResponseEntity<?> updateCare(
             @PathVariable("pet_id") Long petId,
             @PathVariable("care_id") Long careId,
-            @RequestBody @Valid CareSaveReq.Request request,
+//            @RequestBody @Valid CarePutReq request,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-//        careUseCase.updateCare(careId, user.getUserId(), petId, request);
+//        careUseCase.updateCare(user.getUserId(), petId, careId, request);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
@@ -91,7 +91,7 @@ public class CareApi {
             @PathVariable("care_date_id") Long careDateId,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        CareLogInfo careLog = careUseCase.doCare(careDateId, user.getUserId());
+        CareLogInfo careLog = careUseCase.doCare(user.getUserId(), careDateId);
         return ResponseEntity.ok(SuccessResponse.from(careLog));
     }
 
@@ -118,13 +118,9 @@ public class CareApi {
             @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true)
     })
     @DeleteMapping("/{care_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> deleteCare(
-            @PathVariable("pet_id") Long petId,
-            @PathVariable("care_id") Long careId,
-            @AuthenticationPrincipal CustomUserDetails user
-    ) {
-//        careUseCase.deleteCare(careId, user.getUserId());
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCare(#petId, #careId)")
+    public ResponseEntity<?> deleteCare(@PathVariable("pet_id") Long petId, @PathVariable("care_id") Long careId) {
+        careUseCase.deleteCare(careId);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }

@@ -95,7 +95,7 @@ public class CareUseCase {
     }
 
     @Transactional
-    public CareLogInfo doCare(Long careDateId, Long userId) {
+    public CareLogInfo doCare(Long userId, Long careDateId) {
         CareDate careDate = careSearchService.findCareDateById(careDateId);
 
         if (!careDate.getWeek().checkToday()) {
@@ -126,6 +126,18 @@ public class CareUseCase {
 
         CareLog careLog = careLogSearchService.findByCareDateIdOnLogDate(careDateId, today);
         careLogSaveService.delete(careLog);
+    }
+
+    @Transactional
+    public void deleteCare(Long careId) {
+        Care care = careSearchService.findCareById(careId);
+        CareCategory careCategory = care.getCareCategory();
+
+        careSaveService.deleteCare(care);
+
+        if (!careSearchService.existsCareUnderCategory(careCategory.getId())) {
+            careSaveService.deleteCareCategory(careCategory);
+        }
     }
 
     private void persistAboutCare(
