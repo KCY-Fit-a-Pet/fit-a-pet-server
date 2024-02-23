@@ -127,7 +127,7 @@ public class CareMapper {
         deleteCareCategoryIfEmptyCare(category);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void updateCareDates(Care care, List<CareSaveReq.CareDateDto> requestCareDates) {
         Map<WeekType, Map<LocalTime, CareDate>> currentCareDatesMap = new HashMap<>();
         List<CareDate> currentCareDates = careSearchService.findCareDatesFromCareId(care.getId());
