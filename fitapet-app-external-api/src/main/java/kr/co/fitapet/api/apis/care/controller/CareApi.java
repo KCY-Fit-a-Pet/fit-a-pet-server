@@ -51,6 +51,13 @@ public class CareApi {
         return ResponseEntity.ok(SuccessResponse.from("careCategories", res.getInfo()));
     }
 
+    @Operation(summary = "케어 날짜 리스트 조회 - 수정 페이지용")
+    @GetMapping("/{care_id}/care-dates")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCare(#petId, #careId)")
+    public ResponseEntity<?> getCare(@PathVariable("pet_id") Long petId, @PathVariable("care_id") Long careId) {
+        return ResponseEntity.ok(SuccessResponse.from("careDates", careUseCase.findCareDates(careId)));
+    }
+
     @Operation(summary = "작성한 케어 카테고리 목록 조회")
     @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/categories")

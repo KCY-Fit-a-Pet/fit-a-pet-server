@@ -67,6 +67,13 @@ public class CareUseCase {
                 .toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<?> findCareDates(Long careId) {
+        return careSearchService.findCareDatesFromCareId(careId).stream()
+                .map(CareInfoRes.CareDateDto::fromEntity)
+                .toList();
+    }
+
     @Transactional
     public void updateCare(Long careId, CareSaveReq.UpdateRequest request) {
         Care care = careSearchService.findCareById(careId);
