@@ -69,9 +69,6 @@ public class CareMapper {
                 continue;
             }
 
-            if (categoryDto.categoryName().isBlank())
-                throw new GlobalErrorException(CareErrorCode.CATEGORY_NAME_IS_BLANK);
-
             Pet pet = petSearchService.findPetById(additionalPetDto.petId());
             CareCategory category = categoryDto.toCareCategory();
             category.updatePet(pet);
