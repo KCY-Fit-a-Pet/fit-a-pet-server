@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface CareDateRepository extends ExtendedRepository<CareDate, Long> {
     List<CareDate> findAllByCare_IdAndWeek(Long careId, WeekType week);
+    List<CareDate> findAllByCare_Id(Long careId);
     boolean existsByIdAndCare_Id(Long careDateId, Long careId);
 }

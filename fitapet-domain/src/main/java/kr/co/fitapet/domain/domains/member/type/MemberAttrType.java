@@ -9,5 +9,4 @@ public enum MemberAttrType {
     NAME("name"), PASSWORD("password");
 
     private final String attr;
-
 }

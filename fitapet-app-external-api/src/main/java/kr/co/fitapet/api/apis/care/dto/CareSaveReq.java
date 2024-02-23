@@ -1,9 +1,11 @@
-package kr.co.fitapet.domain.domains.care.dto;
+package kr.co.fitapet.api.apis.care.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.vdurmont.emoji.EmojiParser;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import kr.co.fitapet.domain.domains.care.domain.Care;
@@ -19,12 +21,21 @@ import static java.util.stream.Collectors.toMap;
 public class CareSaveReq {
     @Schema(description = "케어 등록 요청")
     public record Request(
-            @NotNull
+            @NotNull @Valid
             CategoryDto category,
-            @NotNull
+            @NotNull @Valid
             CareInfoDto care,
-            @NotNull
+            @NotNull @Valid
             List<AdditionalPetDto> pets
+    ) {
+    }
+
+    @Schema(description = "케어 수정 요청")
+    public record UpdateRequest(
+            @NotNull @Valid
+            CategoryDto category,
+            @NotNull @Valid
+            CareInfoDto care
     ) {
     }
 
@@ -34,11 +45,11 @@ public class CareSaveReq {
         @NotNull
         Long categoryId,
         @Schema(description = "카테고리 이름", example = "식사")
-        @NotNull
+        @NotBlank
         String categoryName
     ) {
         public CareCategory toCareCategory() {
-            return CareCategory.of(categoryName);
+            return CareCategory.of(EmojiParser.parseToAliases(categoryName));
         }
     }
 
@@ -47,28 +58,24 @@ public class CareSaveReq {
             @Schema(description = "케어 이름", example = "1")
             @NotBlank
             String careName,
-            @NotNull
+            @NotNull @Valid
             List<CareDateDto> careDates,
             @Schema(description = "제한 시간(분 단위) - 제한 시간 없는 경우 0", example = "30")
             @NotNull
             Integer limitTime
     ) {
         public Care toCare(CareCategory category) {
-            return Care.of(careName, limitTime, category);
+            return Care.of(EmojiParser.parseToAliases(careName), limitTime, category);
         }
 
-        public List<CareDate> toCareDateEntity() {
-            return careDates.stream()
-                    .map(careDateDto -> CareDate.of(careDateDto.week(), careDateDto.time()))
-                    .collect(toMap(CareDate::getWeek, careDate -> careDate, (o1, o2) -> o1))
-                    .values()
-                    .stream()
-                    .toList();
+        @Override
+        public String careName() {
+            return EmojiParser.parseToAliases(careName);
         }
     }
 
     @Schema(description = "케어 등록 - 케어 날짜")
-    private record CareDateDto(
+    public record CareDateDto(
         @Schema(description = "요일", example = "mon")
         @NotNull
         WeekType week,
@@ -78,6 +85,9 @@ public class CareSaveReq {
         @NotNull
         LocalTime time
     ) {
+        public CareDate toEntity(Care care) {
+            return CareDate.of(week, time, care);
+        }
     }
 
     @Schema(description = "케어 동물 추가 - 기존 카테고리에 묶을 거면 categoryId, 새로 만들 거면 0")

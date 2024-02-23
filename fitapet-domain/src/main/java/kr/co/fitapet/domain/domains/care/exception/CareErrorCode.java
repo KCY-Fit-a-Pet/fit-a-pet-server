@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import static kr.co.fitapet.common.execption.StatusCode.BAD_REQUEST;
+import static kr.co.fitapet.common.execption.StatusCode.NOT_FOUND;
 
 @Getter
 @RequiredArgsConstructor
@@ -13,7 +14,9 @@ public enum CareErrorCode implements BaseErrorCode {
     /* 400 BAD_REQUEST */
     CATEGORY_STATUS_INVALID(BAD_REQUEST.getCode(), "카테고리를 생성할 수 없는 상태입니다."),
     ALREADY_CARED(BAD_REQUEST.getCode(), "이미 케어한 날짜에 대한 요청"),
-    NOT_TODAY_CARE(BAD_REQUEST.getCode(), "오늘 날짜에 대한 요청이 아님")
+    NOT_TODAY_CARE(BAD_REQUEST.getCode(), "오늘 날짜에 대한 요청이 아님"),
+    CATEGORY_NAME_IS_BLANK(BAD_REQUEST.getCode(), "카테고리 이름은 공백을 제외한 문자열이어야 합니다.")
+
     ;
 
     private final int code;

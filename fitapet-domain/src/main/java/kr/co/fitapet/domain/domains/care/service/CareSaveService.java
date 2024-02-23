@@ -10,14 +10,13 @@ import kr.co.fitapet.domain.domains.care.repository.CareDateRepository;
 import kr.co.fitapet.domain.domains.care.repository.CareRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @DomainService
 @RequiredArgsConstructor
 @Slf4j
-public class CareUpdateService {
+public class CareSaveService {
     private final CareRepository careRepository;
     private final CareDateRepository careDateRepository;
     private final CareCategoryRepository careCategoryRepository;
@@ -48,12 +47,22 @@ public class CareUpdateService {
     }
 
     @Transactional
-    public void saveCareDateList(List<CareDate> careDateList) {
-        careDateRepository.saveAll(careDateList);
+    public CareCategory saveCareCategory(CareCategory careCategory) {
+        return careCategoryRepository.save(careCategory);
     }
 
     @Transactional
-    public CareCategory saveCareCategory(CareCategory careCategory) {
-        return careCategoryRepository.save(careCategory);
+    public void deleteCare(Care care) {
+        careRepository.delete(care);
+    }
+
+    @Transactional
+    public void deleteCareCategory(CareCategory careCategory) {
+        careCategoryRepository.delete(careCategory);
+    }
+
+    @Transactional
+    public void deleteCareDates(List<CareDate> careDates) {
+        careDateRepository.deleteAll(careDates);
     }
 }

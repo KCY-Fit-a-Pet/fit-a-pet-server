@@ -2,14 +2,15 @@ package kr.co.fitapet.api.apis.care.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.fitapet.api.apis.care.usecase.CareUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
-import kr.co.fitapet.domain.domains.care.dto.CareInfoRes;
-import kr.co.fitapet.domain.domains.care.dto.CareSaveReq;
+import kr.co.fitapet.api.apis.care.dto.CareInfoRes;
+import kr.co.fitapet.api.apis.care.dto.CareSaveReq;
 import kr.co.fitapet.domain.domains.care_log.dto.CareLogInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +51,15 @@ public class CareApi {
         return ResponseEntity.ok(SuccessResponse.from("careCategories", res.getInfo()));
     }
 
+    @Operation(summary = "케어 날짜 리스트 조회 - 수정 페이지용")
+    @GetMapping("/{care_id}/care-dates")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCare(#petId, #careId)")
+    public ResponseEntity<?> getCare(@PathVariable("pet_id") Long petId, @PathVariable("care_id") Long careId) {
+        return ResponseEntity.ok(SuccessResponse.from("careDates", careUseCase.findCareDates(careId)));
+    }
+
     @Operation(summary = "작성한 케어 카테고리 목록 조회")
+    @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("/categories")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getCareCategoryNames(@PathVariable("pet_id") Long petId) {
@@ -58,7 +67,28 @@ public class CareApi {
         return ResponseEntity.ok(SuccessResponse.from("careCategories", careCategories));
     }
 
+    @Operation(summary = "케어 수정")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true)
+    })
+    @PutMapping("/{care_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCare(#petId, #careId)")
+    public ResponseEntity<?> updateCare(
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("care_id") Long careId,
+            @RequestBody @Valid CareSaveReq.UpdateRequest request
+    ) {
+        careUseCase.updateCare(careId, request);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
     @Operation(summary = "케어 수행")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_date_id", description = "케어 날짜 ID", in = ParameterIn.PATH, required = true)
+    })
     @GetMapping("/{care_id}/care-dates/{care_date_id}")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCareAndCareDate(#petId, #careId, #careDateId)")
     public ResponseEntity<?> doCare(
@@ -67,7 +97,36 @@ public class CareApi {
             @PathVariable("care_date_id") Long careDateId,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        CareLogInfo careLog = careUseCase.doCare(careDateId, user.getUserId());
+        CareLogInfo careLog = careUseCase.doCare(user.getUserId(), careDateId);
         return ResponseEntity.ok(SuccessResponse.from(careLog));
+    }
+
+    @Operation(summary = "케어 수행 취소")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_date_id", description = "케어 날짜 ID", in = ParameterIn.PATH, required = true)
+    })
+    @DeleteMapping("/{care_id}/care-dates/{care_date_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCareAndCareDate(#petId, #careId, #careDateId)")
+    public ResponseEntity<?> cancleCare(
+            @PathVariable("pet_id") Long petId,
+            @PathVariable("care_id") Long careId,
+            @PathVariable("care_date_id") Long careDateId
+    ) {
+        careUseCase.cancelCare(careDateId);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
+    @Operation(summary = "케어 삭제")
+    @Parameters({
+            @Parameter(name = "pet_id", description = "등록할 반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "care_id", description = "케어 ID", in = ParameterIn.PATH, required = true)
+    })
+    @DeleteMapping("/{care_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId) and @careAuthorize.isValidCare(#petId, #careId)")
+    public ResponseEntity<?> deleteCare(@PathVariable("pet_id") Long petId, @PathVariable("care_id") Long careId) {
+        careUseCase.deleteCare(careId);
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 }
