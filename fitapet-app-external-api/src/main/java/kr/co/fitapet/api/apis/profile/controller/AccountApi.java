@@ -80,7 +80,7 @@ public class AccountApi {
             @RequestParam("type") MemberAttrType type,
             @RequestBody @Valid ProfilePatchReq req
     ) {
-        log.info("type: {}", type);
+        log.info("id: {}, type: {}", id, type);
         memberAccountUseCase.updateProfile(id, req, type);
 
         return ResponseEntity.ok(SuccessResponse.noContent());
