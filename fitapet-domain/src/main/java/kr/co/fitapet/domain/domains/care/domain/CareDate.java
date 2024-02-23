@@ -54,6 +54,10 @@ public class CareDate extends DateAuditable {
         return week.checkToday();
     }
 
+    public void updateCareTime(LocalTime careTime) {
+        this.careTime = careTime;
+    }
+
     @Override public String toString() {
         return "CareDetail{" +
                 "id=" + id +

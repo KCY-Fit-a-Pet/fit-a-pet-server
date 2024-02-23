@@ -31,7 +31,7 @@ public class Care extends AuthorAuditable {
     private Care(String careName, Integer limitTime, CareCategory careCategory) {
         this.careName = careName;
         this.limitTime = limitTime;
-        this.careCategory = careCategory;
+        updateCareCategory(careCategory);
     }
 
     public static Care of(String careName, Integer limitTime, CareCategory careCategory) {
@@ -40,6 +40,11 @@ public class Care extends AuthorAuditable {
                 .limitTime(limitTime)
                 .careCategory(careCategory)
                 .build();
+    }
+
+    public void updateCare(String careName, Integer limitTime) {
+        this.careName = careName;
+        this.limitTime = limitTime;
     }
 
     public void updateCareCategory(CareCategory careCategory) {

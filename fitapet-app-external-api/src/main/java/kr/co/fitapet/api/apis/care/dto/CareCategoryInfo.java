@@ -1,4 +1,4 @@
-package kr.co.fitapet.domain.domains.care.dto;
+package kr.co.fitapet.api.apis.care.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;

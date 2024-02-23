@@ -30,6 +30,9 @@ dependencies {
     /* jackson */
     implementation group: 'org.openapitools', name: 'jackson-databind-nullable', version: '0.2.6'
 
+    /* java emoji */
+    implementation group: 'com.vdurmont', name: 'emoji-java', version: '5.1.1'
+
     implementation project(':fitapet-common')
     implementation project(':fitapet-domain')
     implementation project(':fitapet-infra')

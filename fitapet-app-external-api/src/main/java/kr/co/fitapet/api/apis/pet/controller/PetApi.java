@@ -14,7 +14,7 @@ import kr.co.fitapet.api.common.response.ErrorResponse;
 import kr.co.fitapet.api.common.response.FailureResponse;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
-import kr.co.fitapet.domain.domains.care.dto.CareCategoryInfo;
+import kr.co.fitapet.api.apis.care.dto.CareCategoryInfo;
 import kr.co.fitapet.domain.domains.pet.dto.PetInfoRes;
 import kr.co.fitapet.domain.domains.pet.dto.PetSaveReq;
 import lombok.RequiredArgsConstructor;

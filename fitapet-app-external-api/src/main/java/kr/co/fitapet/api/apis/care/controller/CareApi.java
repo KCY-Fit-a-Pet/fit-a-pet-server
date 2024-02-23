@@ -9,8 +9,8 @@ import jakarta.validation.Valid;
 import kr.co.fitapet.api.apis.care.usecase.CareUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
-import kr.co.fitapet.domain.domains.care.dto.CareInfoRes;
-import kr.co.fitapet.domain.domains.care.dto.CareSaveReq;
+import kr.co.fitapet.api.apis.care.dto.CareInfoRes;
+import kr.co.fitapet.api.apis.care.dto.CareSaveReq;
 import kr.co.fitapet.domain.domains.care_log.dto.CareLogInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,10 +70,10 @@ public class CareApi {
     public ResponseEntity<?> updateCare(
             @PathVariable("pet_id") Long petId,
             @PathVariable("care_id") Long careId,
-//            @RequestBody @Valid CarePutReq request,
+            @RequestBody @Valid CareSaveReq.UpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-//        careUseCase.updateCare(user.getUserId(), petId, careId, request);
+        careUseCase.updateCare(careId, request);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 

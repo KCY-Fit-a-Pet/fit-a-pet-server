@@ -1,10 +1,13 @@
-package kr.co.fitapet.domain.domains.care.dto;
+package kr.co.fitapet.api.apis.care.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.vdurmont.emoji.EmojiLoader;
+import com.vdurmont.emoji.EmojiParser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import kr.co.fitapet.domain.domains.care.domain.Care;
 import kr.co.fitapet.domain.domains.care.domain.CareCategory;
@@ -28,6 +31,15 @@ public class CareSaveReq {
     ) {
     }
 
+    @Schema(description = "케어 수정 요청")
+    public record UpdateRequest(
+            @NotNull
+            CategoryDto category,
+            @NotNull
+            CareInfoDto care
+    ) {
+    }
+
     @Schema(description = "케어 등록 - 카테고리")
     public record CategoryDto(
         @Schema(description = "카테고리 ID", example = "1")
@@ -37,6 +49,11 @@ public class CareSaveReq {
         @NotNull
         String categoryName
     ) {
+        public CategoryDto(Long categoryId, String categoryName) {
+            this.categoryId = categoryId;
+            this.categoryName = EmojiParser.parseToAliases(categoryName);
+        }
+
         public CareCategory toCareCategory() {
             return CareCategory.of(categoryName);
         }
@@ -53,6 +70,12 @@ public class CareSaveReq {
             @NotNull
             Integer limitTime
     ) {
+        public CareInfoDto(String careName, List<CareDateDto> careDates, Integer limitTime) {
+            this.careName = EmojiParser.parseToAliases(careName);
+            this.careDates = careDates;
+            this.limitTime = limitTime;
+        }
+
         public Care toCare(CareCategory category) {
             return Care.of(careName, limitTime, category);
         }
@@ -60,9 +83,6 @@ public class CareSaveReq {
         public List<CareDate> toCareDateEntity() {
             return careDates.stream()
                     .map(careDateDto -> CareDate.of(careDateDto.week(), careDateDto.time()))
-                    .collect(toMap(CareDate::getWeek, careDate -> careDate, (o1, o2) -> o1))
-                    .values()
-                    .stream()
                     .toList();
         }
     }

@@ -1,5 +1,6 @@
 package kr.co.fitapet.api.apis.pet.usecase;
 
+import kr.co.fitapet.api.apis.pet.helper.PetCareHelper;
 import kr.co.fitapet.api.apis.pet.mapper.PetManagerMapper;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorCode;
 import kr.co.fitapet.api.common.security.jwt.exception.AuthErrorException;
@@ -19,7 +20,7 @@ import java.util.List;
 public class PetUseCase {
     private final PetManagerMapper petManagerMapper;
     private final PetSaveService petSaveService;
-    private final CareSearchService careSearchService;
+    private final PetCareHelper petCareHelper;
 
     @Transactional
     public void savePet(Pet pet, Long memberId) {
@@ -40,7 +41,7 @@ public class PetUseCase {
         if (!petManagerMapper.isManagerAll(userId, petIds))
             throw new AuthErrorException(AuthErrorCode.FORBIDDEN_ACCESS_TOKEN, "관리자 권한이 없습니다.");
 
-        return careSearchService.checkCategoryExist(categoryName, petIds);
+        return petCareHelper.checkCategoryExist(categoryName, petIds);
     }
 
     @Transactional(readOnly = true)

@@ -47,11 +47,6 @@ public class CareSaveService {
     }
 
     @Transactional
-    public void saveCareDateList(List<CareDate> careDateList) {
-        careDateRepository.saveAll(careDateList);
-    }
-
-    @Transactional
     public CareCategory saveCareCategory(CareCategory careCategory) {
         return careCategoryRepository.save(careCategory);
     }
@@ -64,5 +59,10 @@ public class CareSaveService {
     @Transactional
     public void deleteCareCategory(CareCategory careCategory) {
         careCategoryRepository.delete(careCategory);
+    }
+
+    @Transactional
+    public void deleteCareDates(List<CareDate> careDates) {
+        careDateRepository.deleteAll(careDates);
     }
 }
