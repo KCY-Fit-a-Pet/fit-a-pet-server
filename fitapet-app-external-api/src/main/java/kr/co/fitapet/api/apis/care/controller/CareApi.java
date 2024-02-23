@@ -70,8 +70,7 @@ public class CareApi {
     public ResponseEntity<?> updateCare(
             @PathVariable("pet_id") Long petId,
             @PathVariable("care_id") Long careId,
-            @RequestBody @Valid CareSaveReq.UpdateRequest request,
-            @AuthenticationPrincipal CustomUserDetails user
+            @RequestBody @Valid CareSaveReq.UpdateRequest request
     ) {
         careUseCase.updateCare(careId, request);
         return ResponseEntity.ok(SuccessResponse.noContent());

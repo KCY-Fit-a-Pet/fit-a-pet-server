@@ -72,9 +72,8 @@ public class CareUseCase {
         Care care = careSearchService.findCareById(careId);
         care.updateCare(request.care().careName(), request.care().limitTime());
 
-        CareCategory category = care.getCareCategory();
-        careMapper.updateCareCategory(care, category, request.category());
-        careMapper.updateCareDates(careId, request.care());
+        careMapper.updateCareCategory(care, request.category());
+        careMapper.updateCareDates(care, request.care().careDates());
     }
 
     @Transactional

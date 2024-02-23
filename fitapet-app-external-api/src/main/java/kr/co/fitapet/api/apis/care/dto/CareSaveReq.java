@@ -3,12 +3,10 @@ package kr.co.fitapet.api.apis.care.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
-import com.vdurmont.emoji.EmojiLoader;
 import com.vdurmont.emoji.EmojiParser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import kr.co.fitapet.domain.domains.care.domain.Care;
 import kr.co.fitapet.domain.domains.care.domain.CareCategory;
@@ -60,7 +58,7 @@ public class CareSaveReq {
             @Schema(description = "케어 이름", example = "1")
             @NotBlank
             String careName,
-            @NotNull
+            @NotNull @Valid
             List<CareDateDto> careDates,
             @Schema(description = "제한 시간(분 단위) - 제한 시간 없는 경우 0", example = "30")
             @NotNull
@@ -70,15 +68,14 @@ public class CareSaveReq {
             return Care.of(EmojiParser.parseToAliases(careName), limitTime, category);
         }
 
-        public List<CareDate> toCareDateEntity() {
-            return careDates.stream()
-                    .map(careDateDto -> CareDate.of(careDateDto.week(), careDateDto.time()))
-                    .toList();
+        @Override
+        public String careName() {
+            return EmojiParser.parseToAliases(careName);
         }
     }
 
     @Schema(description = "케어 등록 - 케어 날짜")
-    private record CareDateDto(
+    public record CareDateDto(
         @Schema(description = "요일", example = "mon")
         @NotNull
         WeekType week,
@@ -88,6 +85,9 @@ public class CareSaveReq {
         @NotNull
         LocalTime time
     ) {
+        public CareDate toEntity(Care care) {
+            return CareDate.of(week, time, care);
+        }
     }
 
     @Schema(description = "케어 동물 추가 - 기존 카테고리에 묶을 거면 categoryId, 새로 만들 거면 0")

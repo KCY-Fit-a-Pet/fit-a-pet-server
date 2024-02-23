@@ -30,15 +30,17 @@ public class CareDate extends DateAuditable {
     private List<CareLog> careLogs = new ArrayList<>();
 
     @Builder
-    private CareDate(WeekType week, LocalTime careTime) {
+    private CareDate(WeekType week, LocalTime careTime, Care care) {
         this.week = week;
         this.careTime = careTime;
+        updateCare(care);
     }
 
-    public static CareDate of(WeekType week, LocalTime careTime) {
+    public static CareDate of(WeekType week, LocalTime careTime, Care care) {
         return CareDate.builder()
                 .week(week)
                 .careTime(careTime)
+                .care(care)
                 .build();
     }
 

@@ -52,7 +52,7 @@ public class CareMapper {
         List<Care> cares = createCares(careInfoDto, categories);
         careSaveService.saveCares(cares);
 
-        List<CareDate> dates = createCareDates(careInfoDto, cares);
+        List<CareDate> dates = createCareDates(careInfoDto.careDates(), cares);
         careSaveService.saveCareDates(dates);
     }
 
@@ -85,11 +85,11 @@ public class CareMapper {
                 .toList();
     }
 
-    private List<CareDate> createCareDates(CareSaveReq.CareInfoDto careInfoDto, List<Care> cares) {
+    private List<CareDate> createCareDates(List<CareSaveReq.CareDateDto> dates, List<Care> cares) {
         return cares.stream()
-                .flatMap(care -> careInfoDto.toCareDateEntity().stream()
-                        .peek(date -> date.updateCare(care)))
-                .toList();
+                .flatMap(care -> dates.stream()
+                        .map(date -> date.toEntity(care))
+                ).toList();
     }
 
     @Transactional(readOnly = true)
@@ -113,11 +113,8 @@ public class CareMapper {
     }
 
     @Transactional
-    public void updateCareCategory(Care care, CareCategory category, CareSaveReq.CategoryDto requestCategory) {
-        // careCategory 갱신 여부
-        // request.category().categoryId() == category.getId() -> 카테고리 변경 없음
-        // request.category().categoryId() == 0L -> 카테고리 신규 생성 후 변경
-        // request.category().categoryId() != category.getId() -> 다른 카테고리 이동 후, 기존 카테고리에 케어가 없을 경우 삭제
+    public void updateCareCategory(Care care, CareSaveReq.CategoryDto requestCategory) {
+        CareCategory category = care.getCareCategory();
         if (requestCategory.categoryId() == 0L) {
             CareCategory newCategory = CareCategory.of(requestCategory.categoryName());
             newCategory.updatePet(category.getPet());
@@ -126,47 +123,41 @@ public class CareMapper {
         } else if (!requestCategory.categoryId().equals(category.getId())) {
             CareCategory newCategory = careSearchService.findCareCategoryById(requestCategory.categoryId());
             care.updateCareCategory(newCategory);
-
-            deleteCareCategoryIfEmptyCare(category);
         }
+        deleteCareCategoryIfEmptyCare(category);
     }
 
     @Transactional(readOnly = true)
-    public void updateCareDates(Long careId, CareSaveReq.CareInfoDto requestCare) {
-        // careDates 갱신 여부
-        // request.care().careDates() -> 기존 careDates와 비교하여 추가, 삭제, 수정
-        // week, time이 같은 careDate가 존재하면 유지
-        // 같은 week, time이 다르면 수정 후 오늘 자 로그 있으면 삭제
-        // 기존 week가 없으면 추가
+    public void updateCareDates(Care care, List<CareSaveReq.CareDateDto> requestCareDates) {
         Map<WeekType, Map<LocalTime, CareDate>> currentCareDatesMap = new HashMap<>();
-        List<CareDate> currentCareDates = careSearchService.findCareDatesFromCareId(careId);
+        List<CareDate> currentCareDates = careSearchService.findCareDatesFromCareId(care.getId());
         for (CareDate currentCareDate : currentCareDates) {
             currentCareDatesMap.computeIfAbsent(currentCareDate.getWeek(), k -> new HashMap<>()).put(currentCareDate.getCareTime(), currentCareDate);
         }
 
-        List<CareDate> requestCareDates = requestCare.toCareDateEntity();
         List<CareDate> newCareDates = new ArrayList<>();
-        for (CareDate requestCareDate : requestCareDates) {
-            Map<LocalTime, CareDate> weekTypeMap = currentCareDatesMap.getOrDefault(requestCareDate.getWeek(), new HashMap<>());
-            CareDate currentCareDate = weekTypeMap.get(requestCareDate.getCareTime());
+        for (CareSaveReq.CareDateDto requestCareDate : requestCareDates) {
+            Map<LocalTime, CareDate> weekTypeMap = currentCareDatesMap.getOrDefault(requestCareDate.week(), new HashMap<>());
+            CareDate currentCareDate = weekTypeMap.get(requestCareDate.time());
 
             if (currentCareDate == null) {
-                newCareDates.add(requestCareDate);
-            } else if (!currentCareDate.getCareTime().equals(requestCareDate.getCareTime())) {
-                currentCareDate.updateCareTime(requestCareDate.getCareTime());
+                newCareDates.add(requestCareDate.toEntity(care));
+            } else if (!currentCareDate.getCareTime().equals(requestCareDate.time())) {
+                currentCareDate.updateCareTime(requestCareDate.time());
                 if (careLogSearchService.existsByCareDateIdOnLogDate(currentCareDate.getId(), LocalDateTime.now())) {
                     CareLog careLog = careLogSearchService.findByCareDateIdOnLogDate(currentCareDate.getId(), LocalDateTime.now());
                     careLogSaveService.delete(careLog);
                 }
             }
 
-            weekTypeMap.remove(requestCareDate.getCareTime());
+            weekTypeMap.remove(requestCareDate.time());
         }
         careSaveService.saveCareDates(newCareDates);
 
         List<CareDate> deleteCareDates = currentCareDatesMap.values().stream()
                 .flatMap(map -> map.values().stream())
                 .toList();
+
         careSaveService.deleteCareDates(deleteCareDates);
     }
 
