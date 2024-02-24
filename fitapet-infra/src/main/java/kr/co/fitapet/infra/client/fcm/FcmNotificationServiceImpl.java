@@ -1,11 +1,12 @@
 package kr.co.fitapet.infra.client.fcm;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
+import com.google.api.core.ApiFuture;
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -14,12 +15,50 @@ public class FcmNotificationServiceImpl implements NotificationService {
     private final FirebaseMessaging firebaseMessaging;
 
     @Override
-    public void sendNotification(NotificationRequest request) throws FirebaseMessagingException {
-        Message message = Message.builder()
-                .setToken(request.token())
-                .setNotification(request.toNotification())
-                .build();
+    public void sendMessage(NotificationRequest request) throws FirebaseMessagingException {
+        Message message = request.buildSendMessageToToken().setApnsConfig(getApnsConfigToTopic(request)).build();
 
-        firebaseMessaging.send(message);
+        ApiFuture<String> response = firebaseMessaging.sendAsync(message);
+        log.info("Successfully sent message: " + response);
+    }
+
+    @Override
+    public void sendMessages(NotificationRequest request) throws FirebaseMessagingException {
+        MulticastMessage messages = request.buildSendMessagesToTokens().setApnsConfig(getApnsConfigToTopic(request)).build();
+
+        ApiFuture<BatchResponse> response = firebaseMessaging.sendEachForMulticastAsync(messages);
+        log.info("Successfully sent message: " + response);
+    }
+
+    @Override
+    public void sendMessagesToTopic(NotificationRequest request) throws FirebaseMessagingException {
+        Message message = request.buildSendMessageToTopic().setApnsConfig(getApnsConfigToTopic(request)).build();
+
+        ApiFuture<String> response = firebaseMessaging.sendAsync(message);
+        log.info("Successfully sent message: " + response);
+    }
+
+    @Override
+    public void subScribe(String topic, List<String> memberTokens) throws FirebaseMessagingException {
+        firebaseMessaging.subscribeToTopicAsync(memberTokens, topic);
+    }
+
+    @Override
+    public void unSubScribe(String topic, List<String> memberTokens) throws FirebaseMessagingException {
+        firebaseMessaging.unsubscribeFromTopicAsync(memberTokens, topic);
+    }
+
+    private ApnsConfig getApnsConfigToTopic(NotificationRequest request) {
+        return ApnsConfig.builder()
+                .setAps(Aps.builder()
+                        .setAlert(
+                                ApsAlert.builder()
+                                    .setTitle(request.title())
+                                    .setBody(request.body())
+                                    .setLaunchImage(request.imageUrl())
+                                .build())
+                        .setSound("default")
+                        .build())
+                .build();
     }
 }
