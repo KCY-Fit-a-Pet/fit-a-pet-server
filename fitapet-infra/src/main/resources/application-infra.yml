@@ -66,6 +66,11 @@ cloud:
     stack:
       auto: false
 
+app:
+  firebase:
+    config:
+      file: ${FIREBASE_CONFIG_FILE}
+
 ---
 spring:
   config:
@@ -128,3 +133,8 @@ cloud:
       auto: false
     stack:
       auto: false
+
+app:
+  firebase:
+    config:
+      file: ${FIREBASE_CONFIG_FILE}
