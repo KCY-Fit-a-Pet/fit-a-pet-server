@@ -8,9 +8,9 @@ import kr.co.fitapet.infra.client.fcm.request.NotificationTopicRequest;
 import java.util.List;
 
 public interface NotificationService {
-    void sendMessage(NotificationSingleRequest request) throws FirebaseMessagingException;
-    void sendMessages(NotificationMulticastRequest request) throws FirebaseMessagingException;
-    void sendMessagesToTopic(NotificationTopicRequest request) throws FirebaseMessagingException;
-    void subScribe(String topic, List<String> memberTokens) throws FirebaseMessagingException;
-    void unSubScribe(String topic, List<String> memberTokens) throws FirebaseMessagingException;
+    void sendMessage(NotificationSingleRequest request);
+    void sendMessages(NotificationMulticastRequest request);
+    void sendMessagesToTopic(NotificationTopicRequest request);
+    void subScribe(String topic, List<String> memberTokens);
+    void unSubScribe(String topic, List<String> memberTokens);
 }

@@ -31,13 +31,7 @@ public class FcmNotificationEventHandler {
         log.info("handleTokensEvent: {}", event);
         NotificationSingleRequest request = NotificationSingleRequest.fromEvent(event);
 
-        try {
-            notificationService.sendMessage(request);
-        } catch (FirebaseException e) {
-            log.error("Failed to send FCM message", e);
-            e.printStackTrace();
-            return;
-        }
+        notificationService.sendMessage(request);
 
         log.info("Successfully sent FCM message");
     }
@@ -57,13 +51,7 @@ public class FcmNotificationEventHandler {
         log.info("handleTokensEvent: {}", event);
         NotificationMulticastRequest request = NotificationMulticastRequest.fromEvent(event);
 
-        try {
-            notificationService.sendMessages(request);
-        } catch (FirebaseException e) {
-            log.error("Failed to send FCM message", e);
-            e.printStackTrace();
-            return;
-        }
+        notificationService.sendMessages(request);
 
         log.info("Successfully sent FCM message");
     }
@@ -83,13 +71,7 @@ public class FcmNotificationEventHandler {
         log.info("handleTopicEvent: {}", event);
         NotificationTopicRequest request = NotificationTopicRequest.fromEvent(event);
 
-        try {
-            notificationService.sendMessagesToTopic(request);
-        } catch (FirebaseException e) {
-            log.error("Failed to send FCM message", e);
-            e.printStackTrace();
-            return;
-        }
+        notificationService.sendMessagesToTopic(request);
 
         log.info("Successfully sent FCM message");
     }

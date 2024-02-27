@@ -19,7 +19,7 @@ public class FcmNotificationServiceImpl implements NotificationService {
     private final FirebaseMessaging firebaseMessaging;
 
     @Override
-    public void sendMessage(NotificationSingleRequest request) throws FirebaseMessagingException {
+    public void sendMessage(NotificationSingleRequest request) {
         Message message = request.buildSendMessage().setApnsConfig(getApnsConfigToTopic(request)).build();
 
         ApiFuture<String> response = firebaseMessaging.sendAsync(message);
@@ -27,7 +27,7 @@ public class FcmNotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendMessages(NotificationMulticastRequest request) throws FirebaseMessagingException {
+    public void sendMessages(NotificationMulticastRequest request) {
         MulticastMessage messages = request.buildSendMessage().setApnsConfig(getApnsConfigToTopic(request)).build();
 
         ApiFuture<BatchResponse> response = firebaseMessaging.sendEachForMulticastAsync(messages);
@@ -35,7 +35,7 @@ public class FcmNotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendMessagesToTopic(NotificationTopicRequest request) throws FirebaseMessagingException {
+    public void sendMessagesToTopic(NotificationTopicRequest request) {
         Message message = request.buildSendMessage().setApnsConfig(getApnsConfigToTopic(request)).build();
 
         ApiFuture<String> response = firebaseMessaging.sendAsync(message);
@@ -43,12 +43,12 @@ public class FcmNotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void subScribe(String topic, List<String> memberTokens) throws FirebaseMessagingException {
+    public void subScribe(String topic, List<String> memberTokens) {
         firebaseMessaging.subscribeToTopicAsync(memberTokens, topic);
     }
 
     @Override
-    public void unSubScribe(String topic, List<String> memberTokens) throws FirebaseMessagingException {
+    public void unSubScribe(String topic, List<String> memberTokens) {
         firebaseMessaging.unsubscribeFromTopicAsync(memberTokens, topic);
     }
 
