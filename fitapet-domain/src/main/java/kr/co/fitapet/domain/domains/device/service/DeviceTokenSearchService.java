@@ -24,7 +24,7 @@ public class DeviceTokenSearchService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isExistDeviceToken(String deviceToken) {
-        return deviceTokenRepository.existsByDeviceToken(deviceToken);
+    public boolean isExistByMemberIdAndDeviceToken(Long memberId, String deviceToken) {
+        return deviceTokenRepository.existsByMember_idAndDeviceToken(memberId, deviceToken);
     }
 }

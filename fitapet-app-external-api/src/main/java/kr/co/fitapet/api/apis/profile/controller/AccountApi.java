@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import kr.co.fitapet.api.apis.profile.dto.DeviceTokenReq;
 import kr.co.fitapet.api.apis.profile.usecase.MemberAccountUseCase;
 import kr.co.fitapet.api.common.response.SuccessResponse;
 import kr.co.fitapet.api.common.security.authentication.CustomUserDetails;
@@ -49,6 +50,14 @@ public class AccountApi {
     public ResponseEntity<?> getProfile(@PathVariable("id") Long id) {
         AccountProfileRes member = memberAccountUseCase.getProfile(id);
         return ResponseEntity.ok(SuccessResponse.from(member));
+    }
+
+    @Operation(summary = "디바이스 토큰 등록")
+    @PostMapping("/{id}/device-token")
+    @PreAuthorize("isAuthenticated() and #id == principal.userId")
+    public ResponseEntity<?> postDeviceToken(@PathVariable("id") Long id, @RequestBody @Valid DeviceTokenReq req) {
+        memberAccountUseCase.registerDeviceToken(id, req);
+        return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
     @Operation(summary = "프로필 검색")

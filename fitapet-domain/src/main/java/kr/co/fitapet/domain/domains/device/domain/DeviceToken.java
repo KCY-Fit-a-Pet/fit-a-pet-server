@@ -20,7 +20,7 @@ public class DeviceToken {
     private Long id;
     private String deviceToken;
     private String os;
-    private String deviceName;
+    private String deviceModel;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -29,10 +29,10 @@ public class DeviceToken {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    private DeviceToken(String deviceToken, String os, String deviceName, Member member) {
+    private DeviceToken(String deviceToken, String os, String deviceModel, Member member) {
         this.deviceToken = deviceToken;
         this.os = os;
-        this.deviceName = deviceName;
+        this.deviceModel = deviceModel;
         this.member = member;
     }
 

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> {
     List<DeviceToken> findAllByMember_Id(Long userId);
-    boolean existsByDeviceToken(String deviceToken);
+    boolean existsByMember_idAndDeviceToken(Long memberId, String deviceToken);
 }

@@ -10,10 +10,10 @@ import java.util.Map;
 
 /**
  * FCM 메시지 전송 요청
- * @param tokens : 메시지를 받을 디바이스 토큰 리스트
- * @param topic : 메시지를 받을 토픽 (tokens가 없을 때만 사용 가능)
+ * @param token : 메시지를 받을 디바이스 토큰 리스트
  * @param title : 메시지 제목
  * @param content : 메시지 내용
+ *
  */
 @Builder
 public record NotificationSingleRequest(
