@@ -1,17 +1,21 @@
 package kr.co.fitapet.api.apis.profile.usecase;
 
 import kr.co.fitapet.api.apis.auth.mapper.SmsRedisMapper;
+import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
+import kr.co.fitapet.api.apis.profile.dto.DeviceTokenReq;
+import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
 import kr.co.fitapet.common.annotation.UseCase;
 import kr.co.fitapet.common.execption.BaseErrorCode;
 import kr.co.fitapet.common.execption.GlobalErrorException;
 import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
+import kr.co.fitapet.domain.domains.device.domain.DeviceToken;
+import kr.co.fitapet.domain.domains.device.service.DeviceTokenSaveService;
+import kr.co.fitapet.domain.domains.device.service.DeviceTokenSearchService;
 import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.domain.Member;
 import kr.co.fitapet.domain.domains.member.domain.MemberNickname;
 import kr.co.fitapet.domain.domains.member.dto.AccountProfileRes;
-import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
-import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
 import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.member.dto.UidRes;
 import kr.co.fitapet.domain.domains.member.exception.AccountErrorCode;
@@ -41,8 +45,10 @@ import java.util.List;
 @Slf4j
 public class MemberAccountUseCase {
     private final MemberSearchService memberSearchService;
-
     private final ManagerSearchService managerSearchService;
+
+    private final DeviceTokenSearchService deviceTokenSearchService;
+    private final DeviceTokenSaveService deviceTokenSaveService;
 
     private final ScheduleSearchService scheduleSearchService;
     private final MemoSearchService memoSearchService;
@@ -55,6 +61,17 @@ public class MemberAccountUseCase {
     public AccountProfileRes getProfile(Long userId) {
         Member member = memberSearchService.findById(userId);
         return AccountProfileRes.from(member);
+    }
+
+    @Transactional
+    public void registerDeviceToken(Long memberId, DeviceTokenReq req) {
+        Member member = memberSearchService.findById(memberId);
+
+        if (!deviceTokenSearchService.isExistByMemberIdAndDeviceToken(memberId, req.deviceToken())) {
+            log.info("디바이스 토큰 등록: {}", req);
+            DeviceToken deviceToken = req.toEntity(member);
+            deviceTokenSaveService.save(deviceToken);
+        }
     }
 
     @Transactional(readOnly = true)

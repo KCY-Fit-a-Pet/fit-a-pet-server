@@ -40,3 +40,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+## firebase sdk key ###
+fitapet-ios-firebase-adminsdk-ethnn-6ec10fe329.json
