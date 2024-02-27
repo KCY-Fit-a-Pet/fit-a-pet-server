@@ -25,7 +25,11 @@ public enum NotificationDataKey {
         return field;
     }
 
-    public List<String> getNameFields() {
+    public static List<String> getIdFields() {
+        return List.of("fromId", "toId", "domainId", "subjectId");
+    }
+
+    public static List<String> getNameFields() {
         return List.of("fromName", "toName", "domainName", "subjectName");
     }
 }

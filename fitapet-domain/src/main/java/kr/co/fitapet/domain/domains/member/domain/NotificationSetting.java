@@ -40,7 +40,7 @@ public class NotificationSetting {
 
     public void updateNotificationFromType(NotificationType type) {
         switch (type) {
-            case NOTICE -> this.isNotice = !this.isNotice;
+            case ANNOUNCEMENT -> this.isNotice = !this.isNotice;
             case CARE -> this.isCare = !this.isCare;
             case MEMO -> this.isMemo = !this.isMemo;
             case SCHEDULE -> this.isSchedule = !this.isSchedule;

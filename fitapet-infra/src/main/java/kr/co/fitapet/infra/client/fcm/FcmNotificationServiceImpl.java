@@ -2,6 +2,10 @@ package kr.co.fitapet.infra.client.fcm;
 
 import com.google.api.core.ApiFuture;
 import com.google.firebase.messaging.*;
+import kr.co.fitapet.infra.client.fcm.request.NotificationMulticastRequest;
+import kr.co.fitapet.infra.client.fcm.request.NotificationRequest;
+import kr.co.fitapet.infra.client.fcm.request.NotificationSingleRequest;
+import kr.co.fitapet.infra.client.fcm.request.NotificationTopicRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,24 +19,24 @@ public class FcmNotificationServiceImpl implements NotificationService {
     private final FirebaseMessaging firebaseMessaging;
 
     @Override
-    public void sendMessage(NotificationRequest request) throws FirebaseMessagingException {
-        Message message = request.buildSendMessageToToken().setApnsConfig(getApnsConfigToTopic(request)).build();
+    public void sendMessage(NotificationSingleRequest request) throws FirebaseMessagingException {
+        Message message = request.buildSendMessage().setApnsConfig(getApnsConfigToTopic(request)).build();
 
         ApiFuture<String> response = firebaseMessaging.sendAsync(message);
         log.info("Successfully sent message: " + response);
     }
 
     @Override
-    public void sendMessages(NotificationRequest request) throws FirebaseMessagingException {
-        MulticastMessage messages = request.buildSendMessagesToTokens().setApnsConfig(getApnsConfigToTopic(request)).build();
+    public void sendMessages(NotificationMulticastRequest request) throws FirebaseMessagingException {
+        MulticastMessage messages = request.buildSendMessage().setApnsConfig(getApnsConfigToTopic(request)).build();
 
         ApiFuture<BatchResponse> response = firebaseMessaging.sendEachForMulticastAsync(messages);
         log.info("Successfully sent message: " + response);
     }
 
     @Override
-    public void sendMessagesToTopic(NotificationRequest request) throws FirebaseMessagingException {
-        Message message = request.buildSendMessageToTopic().setApnsConfig(getApnsConfigToTopic(request)).build();
+    public void sendMessagesToTopic(NotificationTopicRequest request) throws FirebaseMessagingException {
+        Message message = request.buildSendMessage().setApnsConfig(getApnsConfigToTopic(request)).build();
 
         ApiFuture<String> response = firebaseMessaging.sendAsync(message);
         log.info("Successfully sent message: " + response);
@@ -54,7 +58,7 @@ public class FcmNotificationServiceImpl implements NotificationService {
                         .setAlert(
                                 ApsAlert.builder()
                                     .setTitle(request.title())
-                                    .setBody(request.body())
+                                    .setBody(request.content())
                                     .setLaunchImage(request.imageUrl())
                                 .build())
                         .setSound("default")

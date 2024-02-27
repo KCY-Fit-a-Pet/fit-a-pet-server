@@ -1,0 +1,35 @@
+package kr.co.fitapet.infra.common.event;
+
+import kr.co.fitapet.infra.client.fcm.NotificationDataKey;
+import lombok.Builder;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * FCM Push Notification Event를 위한 Object
+ *
+ * <p>
+ *     여러 대의 디바이스에 푸시 알림을 보내기 위한 객체입니다.
+ *     푸시 알림에는 제목, 내용 및 이미지 URL이 포함될 수 있습니다.
+ * </p>
+ * @param deviceTokens List<String> : 푸시 알림을 받을 디바이스 토큰 리스트
+ * @param title String : 푸시 알림 제목
+ * @param content String : 푸시 알림 내용
+ * @param imageUrl String : 푸시 알림 이미지 URL
+ * @param data Map<NotificationDataKey, String> : 푸시 알림 데이터
+ */
+@Builder
+public record NotificationMulticastEvent(
+        List<String> deviceTokens,
+        String title,
+        String content,
+        String imageUrl,
+        Map<NotificationDataKey, String> data
+) {
+    public Map<String, String> getFormattedData() {
+        return data.entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey().getField(), Map.Entry::getValue));
+    }
+}
