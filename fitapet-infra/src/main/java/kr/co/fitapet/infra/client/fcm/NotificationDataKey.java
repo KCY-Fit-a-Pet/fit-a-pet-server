@@ -19,17 +19,19 @@ public enum NotificationDataKey {
     SUBJECT_NAME("subjectName"),
     ;
     private final String field;
+    private static final List<NotificationDataKey> idFields = List.of(FROM_ID, TO_ID, DOMAIN_ID, SUBJECT_ID);
+    private static final List<NotificationDataKey> nameFields = List.of(FROM_NAME, TO_NAME, DOMAIN_NAME, SUBJECT_NAME);
 
     @JsonValue
     public String getField() {
         return field;
     }
 
-    public static List<String> getIdFields() {
-        return List.of("fromId", "toId", "domainId", "subjectId");
+    public boolean isIdField() {
+        return idFields.contains(this);
     }
 
-    public static List<String> getNameFields() {
-        return List.of("fromName", "toName", "domainName", "subjectName");
+    public boolean isNameField() {
+        return nameFields.contains(this);
     }
 }
