@@ -70,6 +70,8 @@ app:
   firebase:
     config:
       file: ${FIREBASE_CONFIG_FILE}
+    project:
+      id: ${FIREBASE_PROJECT_ID}
 
 ---
 spring:
@@ -138,3 +140,5 @@ app:
   firebase:
     config:
       file: ${FIREBASE_CONFIG_FILE}
+    project:
+      id: ${FIREBASE_PROJECT_ID}

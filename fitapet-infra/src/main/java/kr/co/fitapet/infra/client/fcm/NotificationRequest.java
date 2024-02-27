@@ -6,6 +6,7 @@ import com.google.firebase.messaging.Notification;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * FCM 메시지 전송 요청
@@ -20,7 +21,8 @@ public record NotificationRequest(
         String topic,
         String title,
         String body,
-        String imageUrl
+        String imageUrl,
+        Map<String, String> data
 ) {
     public NotificationRequest {
         // tokens가 있으면 topic은 없어야 한다. 역도 성립
@@ -41,29 +43,38 @@ public record NotificationRequest(
         }
     }
 
-    public static NotificationRequest valueOf(List<String> tokens, String title, String body, String imageUrl) {
-        return new NotificationRequest(tokens, null, title, body, imageUrl);
+    public static NotificationRequest valueOf(List<String> tokens, String title, String body, String imageUrl, Map<String, String> data) {
+        return new NotificationRequest(tokens, null, title, body, imageUrl, data);
     }
 
-    public static NotificationRequest valueOf(String topic, String title, String body, String imageUrl) {
-        return new NotificationRequest(null, topic, title, body, imageUrl);
+    public static NotificationRequest valueOf(String topic, String title, String body, String imageUrl, Map<String, String> data) {
+        return new NotificationRequest(null, topic, title, body, imageUrl, data);
+    }
+
+    public static NotificationRequest fromEvent(NotificationEvent event) {
+        return (event.isTopic()) ?
+                valueOf(event.topic(), event.title(), event.content(), event.imageUrl(), event.data()) :
+                valueOf(event.deviceTokens(), event.title(), event.content(), event.imageUrl(), event.data());
     }
 
     public Message.Builder buildSendMessageToToken() {
         return Message.builder()
                 .setToken(tokens.get(0))
+                .putAllData(data)
                 .setNotification(toNotification());
     }
 
     public MulticastMessage.Builder buildSendMessagesToTokens() {
         return MulticastMessage.builder()
                 .setNotification(toNotification())
+                .putAllData(data)
                 .addAllTokens(tokens);
     }
 
     public Message.Builder buildSendMessageToTopic() {
         return Message.builder()
                 .setNotification(toNotification())
+                .putAllData(data)
                 .setTopic(topic);
     }
 

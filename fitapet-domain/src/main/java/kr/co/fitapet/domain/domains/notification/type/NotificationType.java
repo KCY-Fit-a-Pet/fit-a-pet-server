@@ -13,9 +13,12 @@ import static java.util.stream.Collectors.toMap;
 @RequiredArgsConstructor
 public enum NotificationType implements LegacyCommonType {
     NOTICE("1", "공지사항"),
-    CARE("2", "케어활동"),
-    MEMO("3", "일기"),
-    SCHEDULE("4", "스케줄");
+    MEMBER("2", "멤버"),
+    MANAGER("3", "매니저 활동"),
+    PET("4", "반려동물"),
+    CARE("5", "케어활동"),
+    MEMO("6", "일기"),
+    SCHEDULE("7", "스케줄");
 
     private final String code;
     private final String type;
