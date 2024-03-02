@@ -1,7 +1,7 @@
 package kr.co.fitapet.domain.domains.invitation.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import kr.co.fitapet.domain.domains.invitation.domain.QInvitation;
+import kr.co.fitapet.domain.domains.invitation.domain.QManagerInvitation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ManagerManagerInvitationQueryDslRepositoryDsl implements ManagerInvitationQueryDslRepository {
     private final JPAQueryFactory queryFactory;
-    private final QInvitation invitation = QInvitation.invitation;
+    private final QManagerInvitation qManagerInvitation = QManagerInvitation.managerInvitation;
 
 }
