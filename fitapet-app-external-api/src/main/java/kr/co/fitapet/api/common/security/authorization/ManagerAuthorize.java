@@ -1,5 +1,6 @@
 package kr.co.fitapet.api.common.security.authorization;
 
+//import kr.co.fitapet.domain.domains.invitation.service.ManagerInvitationService;
 import kr.co.fitapet.domain.common.redis.manager.ManagerInvitationService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import lombok.RequiredArgsConstructor;

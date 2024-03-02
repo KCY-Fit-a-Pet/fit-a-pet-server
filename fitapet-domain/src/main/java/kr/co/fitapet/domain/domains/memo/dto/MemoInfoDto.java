@@ -95,7 +95,7 @@ public class MemoInfoDto {
             @Schema(description = "다음 페이지 존재 여부")
             boolean hasNext
     ) {
-        public static PageResponse from(@NotNull Slice<?> page) {
+        public static PageResponse from(Slice<?> page) {
             return new PageResponse(page.getContent(), page.getPageable().getPageNumber(), page.getPageable().getPageSize(), page.getNumberOfElements(), page.hasNext());
         }
     }

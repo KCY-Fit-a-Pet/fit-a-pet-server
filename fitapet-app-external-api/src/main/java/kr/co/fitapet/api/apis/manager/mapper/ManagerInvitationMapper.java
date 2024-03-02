@@ -3,6 +3,7 @@ package kr.co.fitapet.api.apis.manager.mapper;
 import kr.co.fitapet.api.apis.manager.dto.InviteMemberInfoRes;
 import kr.co.fitapet.common.annotation.Mapper;
 import kr.co.fitapet.domain.common.redis.manager.InvitationDto;
+//import kr.co.fitapet.domain.domains.invitation.service.ManagerInvitationService;
 import kr.co.fitapet.domain.common.redis.manager.ManagerInvitationService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSaveService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
