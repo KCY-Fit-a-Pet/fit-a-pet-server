@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Dto(name = "pet")
@@ -36,7 +37,7 @@ public class PetInfoRes {
             return new PetSummaryInfo(
                     pet.getId(),
                     pet.getPetName(),
-                    pet.getPetProfileImg()
+                    Objects.toString(pet.getPetProfileImg(), "")
             );
         }
     }

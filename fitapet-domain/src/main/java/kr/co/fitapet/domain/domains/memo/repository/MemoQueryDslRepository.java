@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemoQueryDslRepository {
+    List<Long> findMemoIdsByPetId(Long petId);
     Optional<MemoInfoDto.MemoInfo> findMemoAndMemoImageUrlsById(Long memoId);
     Slice<MemoInfoDto.MemoSummaryInfo> findMemosInMemoCategory(Long memoCategoryId, Pageable pageable, String target);
     Slice<MemoInfoDto.MemoSummaryInfo> findMemosByPetId(Long petId, Pageable pageable);

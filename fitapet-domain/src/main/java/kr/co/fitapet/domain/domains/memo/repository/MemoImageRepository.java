@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface MemoImageRepository extends ExtendedRepository<MemoImage, Long> {
+public interface MemoImageRepository extends ExtendedRepository<MemoImage, Long>, MemoImageQueryDslRepository {
     List<MemoImage> findByMemo_Id(Long memoId);
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from MemoImage mi where mi in :memoImages")

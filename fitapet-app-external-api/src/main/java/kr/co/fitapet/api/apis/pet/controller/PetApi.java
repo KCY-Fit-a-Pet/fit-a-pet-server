@@ -28,7 +28,7 @@ import java.util.List;
 
 @Tag(name = "반려동물 관리 API")
 @RestController
-@RequestMapping("/api/v2/users/{user_id}/pets")
+@RequestMapping("/api/v2/pets")
 @RequiredArgsConstructor
 @Slf4j
 public class PetApi {
@@ -51,27 +51,36 @@ public class PetApi {
 
     @Operation(summary = "관리 중인 반려동물 리스트 조회")
     @GetMapping("")
-    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
-    public ResponseEntity<?> getPets(@PathVariable("user_id") Long userId) {
-        PetInfoRes pets = petUseCase.getPets(userId);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getPets(@AuthenticationPrincipal CustomUserDetails user) {
+        PetInfoRes pets = petUseCase.getPets(user.getUserId());
         return ResponseEntity.ok(SuccessResponse.from("pets", pets.getPets()));
     }
 
-    @Operation(summary = "관리 중인 반려동물 목록 조회")
-    @Parameter(name = "user_id", description = "조회할 유저 ID", required = true)
+    @Operation(summary = "관리 중인 반려동물 요약 목록 조회")
     @GetMapping("/summary")
-    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
-    public ResponseEntity<?> findPets(@PathVariable("user_id") Long userId) {
-        List<?> pets = petUseCase.findPetsSummaryByUserId(userId).getPets();
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> findPets(@AuthenticationPrincipal CustomUserDetails user) {
+        List<?> pets = petUseCase.findPetsSummaryByUserId(user.getUserId()).getPets();
         return ResponseEntity.ok(SuccessResponse.from("pets", pets));
     }
 
     @Operation(summary = "반려동물 케어 카테고리 유효성 검사")
     @Parameter(name = "user_id", description = "조회할 유저 ID", in = ParameterIn.PATH, required = true)
     @PostMapping("/categories-check")
-    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
-    public ResponseEntity<?> checkCategoryExist(@PathVariable("user_id") Long userId, @RequestBody @Valid CareCategoryInfo.CareCategoryExistRequest request) {
-        List<?> result = petUseCase.checkCategoryExist(userId, request.categoryName(), request.pets());
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> checkCategoryExist(@AuthenticationPrincipal CustomUserDetails user, @RequestBody @Valid CareCategoryInfo.CareCategoryExistRequest request) {
+        List<?> result = petUseCase.checkCategoryExist(user.getUserId(), request.categoryName(), request.pets());
         return ResponseEntity.ok(SuccessResponse.from("categories", result));
     }
+
+    @Operation(summary = "반려동물 삭제")
+    @Parameter(name = "pet_id", description = "삭제할 반려동물 ID", in = ParameterIn.PATH, required = true)
+    @DeleteMapping("/{pet_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isMaster(principal.userId, #petId)")
+    public ResponseEntity<?> deletePet(@PathVariable("pet_id") Long petId) {
+        petUseCase.deletePet(petId);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
 }

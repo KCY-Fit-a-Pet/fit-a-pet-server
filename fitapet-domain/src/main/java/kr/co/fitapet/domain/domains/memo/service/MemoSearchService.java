@@ -57,6 +57,11 @@ public class MemoSearchService {
     }
 
     @Transactional(readOnly = true)
+    public List<Long> findMemoIdsByPetId(Long petId) {
+        return memoRepository.findMemoIdsByPetId(petId);
+    }
+
+    @Transactional(readOnly = true)
     public MemoInfoDto.MemoInfo findMemoAndMemoImageUrlsById(Long memoId) {
         return memoRepository.findMemoAndMemoImageUrlsById(memoId).orElseThrow(
                 () -> new GlobalErrorException(MemoErrorCode.MEMO_NOT_FOUND)
@@ -87,5 +92,10 @@ public class MemoSearchService {
     @Transactional(readOnly = true)
     public List<MemoImage> findMemoImagesByMemoId(Long memoId) {
         return memoImageRepository.findByMemo_Id(memoId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> findMemoImageUrlsByMemoIds(List<Long> memoIds) {
+        return memoImageRepository.findMemoImageUrlsByMemoIds(memoIds);
     }
 }

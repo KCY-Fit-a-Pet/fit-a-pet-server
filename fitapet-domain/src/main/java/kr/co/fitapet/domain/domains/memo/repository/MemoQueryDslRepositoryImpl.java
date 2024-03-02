@@ -34,6 +34,17 @@ public class MemoQueryDslRepositoryImpl implements MemoQueryDslRepository {
     private final QMemoCategory memoCategory = QMemoCategory.memoCategory;
 
     @Override
+    public List<Long> findMemoIdsByPetId(Long petId) {
+        return queryFactory
+                .select(memo.id)
+                .from(memoCategory)
+                .leftJoin(memo).on(memo.memoCategory.id.eq(memoCategory.id))
+                .where(memoCategory.pet.id.eq(petId)
+                        .and(memo.id.isNotNull()))
+                .fetch();
+    }
+
+    @Override
     public Optional<MemoInfoDto.MemoInfo> findMemoAndMemoImageUrlsById(Long memoId) {
         List<MemoInfoDto.MemoInfo> result = queryFactory
                 .from(memo)
