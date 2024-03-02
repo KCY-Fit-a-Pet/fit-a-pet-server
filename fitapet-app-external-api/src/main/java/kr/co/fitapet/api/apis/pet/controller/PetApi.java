@@ -44,7 +44,7 @@ public class PetApi {
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> savePet(@RequestBody @Valid PetSaveReq req, @AuthenticationPrincipal CustomUserDetails user) {
-        petUseCase.savePet(req.toPetEntity(), user.getUserId());
+        petUseCase.savePet(req.toEntity(), user.getUserId());
 
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
@@ -53,7 +53,7 @@ public class PetApi {
     @GetMapping("")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getPets(@AuthenticationPrincipal CustomUserDetails user) {
-        PetInfoRes pets = petUseCase.getPets(user.getUserId());
+        PetInfoRes pets = petUseCase.findPets(user.getUserId());
         return ResponseEntity.ok(SuccessResponse.from("pets", pets.getPets()));
     }
 
@@ -65,6 +65,13 @@ public class PetApi {
         return ResponseEntity.ok(SuccessResponse.from("pets", pets));
     }
 
+    @Operation(summary = "반려동물 정보 조회")
+    @GetMapping("/{pet_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
+    public ResponseEntity<?> getPet(@PathVariable("pet_id") Long petId) {
+        return ResponseEntity.ok(SuccessResponse.from("pet", petUseCase.findPet(petId)));
+    }
+
     @Operation(summary = "반려동물 케어 카테고리 유효성 검사")
     @Parameter(name = "user_id", description = "조회할 유저 ID", in = ParameterIn.PATH, required = true)
     @PostMapping("/categories-check")
@@ -74,12 +81,21 @@ public class PetApi {
         return ResponseEntity.ok(SuccessResponse.from("categories", result));
     }
 
+    @Operation(summary = "반려동물 정보 수정")
+    @Parameter(name = "pet_id", description = "수정할 반려동물 ID", in = ParameterIn.PATH, required = true)
+    @PutMapping("/{pet_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isMaster(principal.userId, #petId)")
+    public ResponseEntity<?> updatePet(@PathVariable("pet_id") Long petId, @RequestBody @Valid PetSaveReq req) {
+        petUseCase.updatePet(petId, req);
+        return ResponseEntity.ok(SuccessResponse.noContent());
+    }
+
     @Operation(summary = "반려동물 삭제")
     @Parameter(name = "pet_id", description = "삭제할 반려동물 ID", in = ParameterIn.PATH, required = true)
     @DeleteMapping("/{pet_id}")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isMaster(principal.userId, #petId)")
-    public ResponseEntity<?> deletePet(@PathVariable("pet_id") Long petId) {
-        petUseCase.deletePet(petId);
+    public ResponseEntity<?> deletePet(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails user) {
+        petUseCase.deletePet(petId, user.getUserId());
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
