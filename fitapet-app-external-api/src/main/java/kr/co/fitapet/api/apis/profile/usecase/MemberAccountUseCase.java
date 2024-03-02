@@ -72,6 +72,7 @@ public class MemberAccountUseCase {
     public void registerDeviceToken(Long memberId, DeviceTokenReq req) {
         Member member = memberSearchService.findById(memberId);
 
+        // FIXME: 2021/10/20 다른 유저에게 같은 토큰이 등록된 경우 MySQL unique key exception 발생
         if (!deviceTokenSearchService.isExistByMemberIdAndDeviceToken(memberId, req.deviceToken())) {
             log.info("디바이스 토큰 등록: {}", req);
             DeviceToken deviceToken = req.toEntity(member);
