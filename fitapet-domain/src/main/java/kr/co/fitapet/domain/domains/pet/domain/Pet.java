@@ -70,4 +70,14 @@ public class Pet extends DateAuditable {
                 .species(species)
                 .feed(feed).build();
     }
+
+    public void updatePet(Pet pet) {
+        this.petName = pet.getPetName();
+        this.species = pet.getSpecies();
+        this.gender = pet.getGender();
+        this.neutered = pet.isNeutered();
+        this.birthdate = pet.getBirthdate();
+        this.petProfileImg = pet.getPetProfileImg();
+        this.feed = pet.getFeed();
+    }
 }

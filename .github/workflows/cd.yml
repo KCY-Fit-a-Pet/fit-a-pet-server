@@ -46,6 +46,7 @@ jobs:
       - name: docker image build & push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          cat ${{ secrets.IOS_FIREBASE_ADMINSDK }} > fitapet-app-external-api/src/main/resources/fitapet-ios-firebase-adminsdk-ethnn-6ec10fe329.json
           docker build -t ${{ secrets.DOCKER_NICKNAME }}/fitapet:latest .
           docker push ${{ secrets.DOCKER_NICKNAME }}/fitapet:latest  
 

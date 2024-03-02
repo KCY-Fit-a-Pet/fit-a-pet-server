@@ -52,6 +52,14 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.from(member));
     }
 
+    @Operation(summary = "사용자 설정 이름 조회")
+    @Parameter(name = "id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
+    @GetMapping("/{id}/name")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getUserName(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(SuccessResponse.from("name", memberAccountUseCase.findUserName(id)));
+    }
+
     @Operation(summary = "디바이스 토큰 등록")
     @PostMapping("/{id}/device-token")
     @PreAuthorize("isAuthenticated() and #id == principal.userId")

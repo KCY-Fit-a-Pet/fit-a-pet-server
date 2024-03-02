@@ -43,4 +43,5 @@ public class ManagerInvitationRepositoryImpl implements ManagerInvitationReposit
     public void delete(String petId, Long invitedId) {
         ops.delete(KEY + ":" + petId, invitedId);
     }
+
 }

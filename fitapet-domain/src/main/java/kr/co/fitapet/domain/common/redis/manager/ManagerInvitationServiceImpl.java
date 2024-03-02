@@ -33,7 +33,18 @@ public class ManagerInvitationServiceImpl implements ManagerInvitationService {
     @Override
     public List<InvitationDto> findAll(Long petId) {
         Map<Long, LocalDateTime> all = managerInvitationRepository.findAll(petId.toString());
+
+        all.forEach((k, v) -> {
+            boolean expired = v.isBefore(LocalDateTime.now());
+
+            if (expired) {
+                log.warn("manager invitation expired. about User : {}", k);
+                delete(k, petId);
+            }
+        });
+
         return all.entrySet().stream()
+                .filter(entry -> !entry.getValue().isBefore(LocalDateTime.now()))
                 .map(entry -> InvitationDto.of(petId, entry.getKey(), entry.getValue()))
                 .toList();
     }
@@ -44,7 +55,14 @@ public class ManagerInvitationServiceImpl implements ManagerInvitationService {
         LocalDateTime ttl = managerInvitationRepository.getTtl(petId.toString(), invitedId);
         log.info("manager invitation ttl : {}", ttl);
 
-        return ttl.isBefore(LocalDateTime.now());
+        boolean expired = ttl.isBefore(LocalDateTime.now());
+
+        if (expired) {
+            log.warn("manager invitation expired. about User : {}", invitedId);
+            delete(invitedId, petId);
+            return true;
+        }
+        return false;
     }
 
     @Override

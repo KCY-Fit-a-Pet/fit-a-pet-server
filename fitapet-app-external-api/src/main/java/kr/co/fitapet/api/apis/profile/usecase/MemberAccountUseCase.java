@@ -63,6 +63,11 @@ public class MemberAccountUseCase {
         return AccountProfileRes.from(member);
     }
 
+    @Transactional(readOnly = true)
+    public String findUserName(Long userId) {
+        return memberSearchService.findById(userId).getName();
+    }
+
     @Transactional
     public void registerDeviceToken(Long memberId, DeviceTokenReq req) {
         Member member = memberSearchService.findById(memberId);

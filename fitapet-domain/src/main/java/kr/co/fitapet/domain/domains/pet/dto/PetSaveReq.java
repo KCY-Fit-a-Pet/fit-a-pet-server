@@ -31,8 +31,10 @@ public class PetSaveReq {
     private LocalDate birthdate;
     @Schema(description = "반려동물 프로필 이미지", nullable = true)
     private String profileImg;
+    @Schema(description = "반려동물 사료 정보", nullable = true)
+    private String feed;
 
-    public Pet toPetEntity() {
+    public Pet toEntity() {
         return Pet.builder()
                 .petName(petName)
                 .species(species)
@@ -40,6 +42,7 @@ public class PetSaveReq {
                 .neutered(neutralization)
                 .birthdate(birthdate)
                 .petProfileImg(StringUtils.hasText(profileImg) ? profileImg : null)
+                .feed(StringUtils.hasText(feed) ? feed : null)
                 .build();
     }
 }

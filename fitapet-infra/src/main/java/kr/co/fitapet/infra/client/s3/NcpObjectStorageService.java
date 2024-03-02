@@ -24,6 +24,7 @@ public class NcpObjectStorageService {
         List<String> nonImmutablePaths = new ArrayList<>(paths);
 
         nonImmutablePaths.replaceAll(path -> path.replace("https://" + config.getS3().bucket() + ".kr.object.ncloudstorage.com/", ""));
+        log.info("nonImmutablePaths: {}", nonImmutablePaths);
         List<DeleteObjectsRequest.KeyVersion> keys = nonImmutablePaths.stream().map(DeleteObjectsRequest.KeyVersion::new).toList();
 
         try {
