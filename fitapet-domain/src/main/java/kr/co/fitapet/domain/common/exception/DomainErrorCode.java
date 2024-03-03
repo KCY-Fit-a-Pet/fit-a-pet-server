@@ -21,6 +21,8 @@ public enum DomainErrorCode implements BaseErrorCode {
     NOT_FOUND_CARE_LOG(NOT_FOUND.getCode(), "존재하지 않는 돌봄 로그입니다."),
     NOT_FOUND_NOTIFICATION(NOT_FOUND.getCode(), "존재하지 않는 알림입니다."),
     NOT_FOUND_OAUTH(NOT_FOUND.getCode(), "존재하지 않는 OAuth입니다."),
+    NOT_FOUND_DEVICE_TOKEN(NOT_FOUND.getCode(), "존재하지 않는 디바이스 토큰입니다."),
+    NOT_FOUND_MANAGER_INVITATION(NOT_FOUND.getCode(), "존재하지 않는 관리자 초대입니다."),
     ;
 
     private final int code;

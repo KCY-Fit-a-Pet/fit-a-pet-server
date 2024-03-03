@@ -29,28 +29,28 @@ public class ManagerUseCase {
     private final ManagerInvitationMapper managerInvitationMapper;
 
     @Transactional(readOnly = true)
-    public List<ManagerInfoRes> findManagers(Long petId, Long memberId) {
+    public List<ManagerInfoRes> findManagers(Long memberId, Long petId) {
         return managerSearchService.findAllByPetId(petId, memberId);
     }
 
     @Transactional(readOnly = true)
-    public void invite(Long petId, Long invitedId) {
-        managerInvitationMapper.invite(petId, invitedId);
+    public void invite(Long managerId, Long toId, Long petId) {
+        managerInvitationMapper.invite(managerId, toId, petId);
     }
 
     @Transactional(readOnly = true)
-    public List<InviteMemberInfoRes> findInvitedMembers(Long petId, Long requesterId) {
-        return managerInvitationMapper.findInvitedMembers(petId, requesterId);
+    public List<InviteMemberInfoRes.FromAspect> findInvitedMembers(Long requesterId, Long petId) {
+        return managerInvitationMapper.findInvitedMembers(requesterId, petId);
     }
 
     @Transactional
-    public void agreeInvite(Long petId, Long memberId) {
+    public void agreeInvite(Long memberId, Long petId, Long invitationId) {
         Pet pet = petSearchService.findPetById(petId);
-        managerInvitationMapper.addManager(memberId, pet);
+        managerInvitationMapper.addManager(memberId, pet, invitationId);
     }
 
-    public void cancelInvite(Long petId, Long memberId) {
-        managerInvitationMapper.cancel(petId, memberId);
+    public void cancelInvite(Long invitationId) {
+        managerInvitationMapper.cancel(invitationId);
     }
 
     @Transactional

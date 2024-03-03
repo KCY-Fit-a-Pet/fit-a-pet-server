@@ -29,35 +29,38 @@ public class MangerApi {
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
     @GetMapping("")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> getManagers(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(SuccessResponse.from("managers", managerUseCase.findManagers(petId, userDetails.getUserId())));
+    public ResponseEntity<?> getManagers(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails user) {
+        return ResponseEntity.ok(SuccessResponse.from("managers", managerUseCase.findManagers(user.getUserId(), petId)));
     }
 
     @Operation(summary = "반려동물 관리자 초대 리스트 조회")
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
-    @GetMapping("/invite")
+    @GetMapping("/invitations")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> getInvitedMembers(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(SuccessResponse.from("members", managerUseCase.findInvitedMembers(petId, userDetails.getUserId())));
+    public ResponseEntity<?> getInvitedMembers(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails user) {
+        return ResponseEntity.ok(SuccessResponse.from("invitations", managerUseCase.findInvitedMembers(user.getUserId(), petId)));
     }
 
     // TODO: 2024-02-17 초대 요청 시 해당 유저에게 PUSH 알림을 전송해야 함
     @Operation(summary = "매니저 초대", description = "요청자와 유저 아이디가 동일한 경우 에러 응답을 반환합니다. 초대 요청에 대한 승인 유효 기간은 1일입니다.")
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
-    @PostMapping("/invite")
+    @PostMapping("/invitations")
     @PreAuthorize("isAuthenticated() and not #req.inviteId().equals(principal.userId) and @managerAuthorize.isManager(principal.userId, #petId)")
-    public ResponseEntity<?> inviteManager(@PathVariable("pet_id") Long petId, @RequestBody @Valid InviteMemberReq req, @AuthenticationPrincipal CustomUserDetails principal)
+    public ResponseEntity<?> inviteManager(@PathVariable("pet_id") Long petId, @RequestBody @Valid InviteMemberReq req, @AuthenticationPrincipal CustomUserDetails user)
     {
-        managerUseCase.invite(petId, req.inviteId());
+        managerUseCase.invite(user.getUserId(), req.inviteId(), petId);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
     @Operation(summary = "매니저 초대 승인", description = "매니저 초대 요청에 대한 승인을 진행합니다. 1일 이내에 승인하지 않으면 초대 요청이 만료됩니다.")
-    @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
-    @PutMapping("/invite")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isInvitedMember(principal.userId, #petId)")
-    public ResponseEntity<?> agreeInvite(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        managerUseCase.agreeInvite(petId, userDetails.getUserId());
+    @Parameters({
+            @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
+            @Parameter(name = "invitation_id", description = "초대 ID", in = ParameterIn.PATH, required = true)
+    })
+    @PutMapping("/invitations/{invitation_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isInvitedMember(principal.userId, #petId, #invitationId)")
+    public ResponseEntity<?> agreeInvite(@PathVariable("pet_id") Long petId, @PathVariable("invitation_id") Long invitationId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        managerUseCase.agreeInvite(userDetails.getUserId(), petId, invitationId);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
@@ -66,10 +69,12 @@ public class MangerApi {
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "id", description = "초대를 취소/거부할 유저 ID", in = ParameterIn.QUERY, required = true)
     })
-    @DeleteMapping("/invite")
-    @PreAuthorize("isAuthenticated() and (@managerAuthorize.isManager(principal.userId, #petId) or @managerAuthorize.isInvitedMember(principal.userId, #petId))")
-    public ResponseEntity<?> cancelInvite(@PathVariable("pet_id") Long petId, @RequestParam("id") Long invitedId) {
-        managerUseCase.cancelInvite(petId, invitedId);
+    @DeleteMapping("/invitations/{invitation_id}")
+    @PreAuthorize("isAuthenticated() " +
+            "and ((@managerAuthorize.isManager(principal.userId, #petId) and @managerAuthorize.isInvitePet(#petId, #invitationId))" +
+            "or @managerAuthorize.isInvitedMember(principal.userId, #petId, #invitationId))")
+    public ResponseEntity<?> cancelInvite(@PathVariable("pet_id") Long petId, @PathVariable("invitation_id") Long invitationId) {
+        managerUseCase.cancelInvite(invitationId);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
@@ -103,11 +108,7 @@ public class MangerApi {
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(#managerId, #petId) " +
             "and ((@managerAuthorize.isMaster(principal.userId, #petId) and not #managerId.equals(principal.userId)) " +
             "or (not @managerAuthorize.isMaster(principal.userId, #petId) and @managerAuthorize.isManager(principal.userId, #petId) and #managerId.equals(principal.userId)))")
-    public ResponseEntity<?> deleteManager(
-            @PathVariable("pet_id") Long petId,
-            @PathVariable("manager_id") Long managerId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+    public ResponseEntity<?> deleteManager(@PathVariable("pet_id") Long petId, @PathVariable("manager_id") Long managerId) {
         managerUseCase.expelManager(managerId, petId);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
