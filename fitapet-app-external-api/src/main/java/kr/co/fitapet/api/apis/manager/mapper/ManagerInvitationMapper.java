@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -54,12 +55,14 @@ public class ManagerInvitationMapper {
     @Transactional(readOnly = true)
     public List<InviteMemberInfoRes.FromAspect> findInvitedMembers(Long requesterId, Long petId) {
         List<ManagerInvitation> invitations = managerInvitationService.findAllByPetIdNotExpiredAndNotAccepted(petId);
-        Map<Long, ManagerInvitation> invitationMap = invitations.stream().collect(Collectors.toMap(invitation -> invitation.getTo().getId(), Function.identity()));
 
         List<Member> to = invitations.stream().map(ManagerInvitation::getTo).toList();
         List<MemberInfo> memberInfos = memberSearchService.findMemberInfos(to.stream().map(Member::getId).toList(), requesterId);
+        Map<Long, MemberInfo> memberInfoMap = memberInfos.stream().collect(Collectors.toMap(MemberInfo::id, Function.identity()));
 
-        return memberInfos.stream().map(memberInfo -> InviteMemberInfoRes.FromAspect.valueOf(invitationMap.get(memberInfo.id()), memberInfo)).toList();
+        return invitations.stream()
+                    .map(invitation -> InviteMemberInfoRes.FromAspect.valueOf(invitation, memberInfoMap.get(invitation.getTo().getId())))
+                    .toList();
     }
 
     @Transactional

@@ -33,7 +33,7 @@ public class ManagerUseCase {
         return managerSearchService.findAllByPetId(petId, memberId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void invite(Long managerId, Long toId, Long petId) {
         managerInvitationMapper.invite(managerId, toId, petId);
     }
