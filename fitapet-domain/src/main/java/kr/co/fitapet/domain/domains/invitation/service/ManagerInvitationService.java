@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -21,15 +20,40 @@ public class ManagerInvitationService {
         managerInvitationRepository.save(managerInvitation);
     }
 
-//    @Transactional
-//    public List<ManagerInvitation> findAllByToIdWhenNotExpired(Long memberId) {
-//        return managerInvitationRepository.findAll(memberId, LocalDateTime.now());
-//    }
+    @Transactional(readOnly = true)
+    public ManagerInvitation findById(Long id) {
+        return managerInvitationRepository.findByIdOrElseThrow(id);
+    }
 
-//    @Transactional
-//    public boolean isExpired(Long memberId, Long petId) {
-//        managerInvitationRepository.isExpired(memberId, petId);
-//    }
+    @Transactional(readOnly = true)
+    public List<ManagerInvitation> findAllByPetIdNotExpiredAndNotAccepted(Long petId) {
+        return managerInvitationRepository.findAllByPetIdNotExpiredAndNotAccepted(petId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ManagerInvitation> findAllByToIdNotExpiredAndNotAccepted(Long memberId) {
+        return managerInvitationRepository.findAllByToIdNotExpiredAndNotAccepted(memberId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExists(Long toId, Long petId, Long invitationId) {
+        return managerInvitationRepository.existsByIdAndTo_IdAndPet_Id(invitationId, toId, petId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExists(Long petId, Long invitationId) {
+        return managerInvitationRepository.existsByIdAndPet_Id(invitationId, petId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExpired(Long invitationId) {
+        return managerInvitationRepository.isExpired(invitationId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistsAndNotExpired(Long petId, Long toId) {
+        return managerInvitationRepository.isExistsAndNotExpired(petId, toId);
+    }
 
     @Transactional
     public void delete(ManagerInvitation managerInvitation) {

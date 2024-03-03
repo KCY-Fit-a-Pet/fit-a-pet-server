@@ -1,7 +1,6 @@
 package kr.co.fitapet.api.common.security.authorization;
 
-//import kr.co.fitapet.domain.domains.invitation.service.ManagerInvitationService;
-import kr.co.fitapet.domain.common.redis.manager.ManagerInvitationService;
+import kr.co.fitapet.domain.domains.invitation.service.ManagerInvitationService;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,13 @@ public class ManagerAuthorize {
         return memberId.equals(masterId);
     }
 
-    public boolean isInvitedMember(Long memberId, Long petId) {
-        return !managerInvitationService.expired(memberId, petId);
+    public boolean isInvitePet(Long petId, Long invitationId) {
+        return managerInvitationService.isExists(petId, invitationId);
+    }
+
+    public boolean isInvitedMember(Long toId, Long petId, Long invitationId) {
+        if (!managerInvitationService.isExists(toId, petId, invitationId))
+            return false;
+        return !managerInvitationService.isExpired(invitationId);
     }
 }
