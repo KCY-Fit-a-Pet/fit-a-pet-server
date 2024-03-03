@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v2/pets/{pet_id}/managers")
+@RequestMapping("/api/v2/pets/{pet_id}")
 public class MangerApi {
     private final ManagerUseCase managerUseCase;
 
     @Operation(summary = "매니저 목록 조회")
     @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true)
-    @GetMapping("")
+    @GetMapping("/managers")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(principal.userId, #petId)")
     public ResponseEntity<?> getManagers(@PathVariable("pet_id") Long petId, @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(SuccessResponse.from("managers", managerUseCase.findManagers(user.getUserId(), petId)));
@@ -67,7 +67,7 @@ public class MangerApi {
     @Operation(summary = "매니저 초대 취소/거절", description = "매니저 초대 요청에 대한 취소 또는 거절을 진행합니다.")
     @Parameters({
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
-            @Parameter(name = "id", description = "초대를 취소/거부할 유저 ID", in = ParameterIn.QUERY, required = true)
+            @Parameter(name = "invitation_id", description = "초대 ID", in = ParameterIn.PATH, required = true)
     })
     @DeleteMapping("/invitations/{invitation_id}")
     @PreAuthorize("isAuthenticated() " +
@@ -83,14 +83,14 @@ public class MangerApi {
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "manager_id", description = "위임할 매니저 ID", in = ParameterIn.PATH, required = true)
     })
-    @PatchMapping("/{manager_id}")
-    @PreAuthorize("isAuthenticated() and @managerAuthorize.isMaster(principal.userId, #petId) and @managerAuthorize.isManager(#managerId, #petId)")
+    @PatchMapping("/managers/{manager_id}")
+    @PreAuthorize("isAuthenticated() and @managerAuthorize.isMaster(principal.userId, #petId)")
     public ResponseEntity<?> delegateMaster(
             @PathVariable("pet_id") Long petId,
             @PathVariable("manager_id") Long managerId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails user
     ) {
-        managerUseCase.delegateMaster(userDetails.getUserId(), managerId, petId);
+        managerUseCase.delegateMaster(user.getUserId(), managerId, petId);
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
@@ -104,7 +104,7 @@ public class MangerApi {
             @Parameter(name = "pet_id", description = "반려동물 ID", in = ParameterIn.PATH, required = true),
             @Parameter(name = "manager_id", description = "매니저 ID", in = ParameterIn.PATH, required = true)
     })
-    @DeleteMapping("/{manager_id}")
+    @DeleteMapping("/managers/{manager_id}")
     @PreAuthorize("isAuthenticated() and @managerAuthorize.isManager(#managerId, #petId) " +
             "and ((@managerAuthorize.isMaster(principal.userId, #petId) and not #managerId.equals(principal.userId)) " +
             "or (not @managerAuthorize.isMaster(principal.userId, #petId) and @managerAuthorize.isManager(principal.userId, #petId) and #managerId.equals(principal.userId)))")
