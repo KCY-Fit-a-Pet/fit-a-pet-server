@@ -12,6 +12,7 @@ import kr.co.fitapet.domain.domains.member.dto.MemberInfo;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Schema(description = "매니저 초대 정보 응답")
 public class InviteMemberInfoRes {
@@ -68,7 +69,7 @@ public class InviteMemberInfoRes {
             String profileImg
     ) {
         private static InvitationPetInfo from(Pet pet) {
-            return new InvitationPetInfo(pet.getId(), pet.getPetName(), pet.getPetProfileImg());
+            return new InvitationPetInfo(pet.getId(), pet.getPetName(), Objects.toString(pet.getPetProfileImg(), ""));
         }
     }
 

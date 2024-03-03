@@ -149,6 +149,14 @@ public class AccountApi {
         return ResponseEntity.ok(SuccessResponse.noContent());
     }
 
+    @Operation(summary = "관리자 초대 받은 리스트 조회")
+    @Parameter(name = "user_id", description = "조회할 프로필 ID", in = ParameterIn.PATH, required = true)
+    @GetMapping("/{user_id}/invitations")
+    @PreAuthorize("isAuthenticated() and #userId == principal.userId")
+    public ResponseEntity<?> getInvitations(@PathVariable("user_id") Long userId) {
+        return ResponseEntity.ok(SuccessResponse.from("invitations", memberAccountUseCase.findInvitations(userId)));
+    }
+
     @Operation(summary = "관리 중인 반려동물 날짜별 스케줄 전체 조회")
     @GetMapping("/{user_id}/schedules")
     @PreAuthorize("isAuthenticated() and #userId == principal.userId")

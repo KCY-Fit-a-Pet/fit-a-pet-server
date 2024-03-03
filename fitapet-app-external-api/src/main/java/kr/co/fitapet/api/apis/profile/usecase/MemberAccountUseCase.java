@@ -1,6 +1,7 @@
 package kr.co.fitapet.api.apis.profile.usecase;
 
 import kr.co.fitapet.api.apis.auth.mapper.SmsRedisMapper;
+import kr.co.fitapet.api.apis.manager.dto.InviteMemberInfoRes;
 import kr.co.fitapet.api.apis.profile.dto.AccountSearchReq;
 import kr.co.fitapet.api.apis.profile.dto.DeviceTokenReq;
 import kr.co.fitapet.api.apis.profile.dto.ProfilePatchReq;
@@ -11,6 +12,8 @@ import kr.co.fitapet.domain.common.redis.sms.type.SmsPrefix;
 import kr.co.fitapet.domain.domains.device.domain.DeviceToken;
 import kr.co.fitapet.domain.domains.device.service.DeviceTokenSaveService;
 import kr.co.fitapet.domain.domains.device.service.DeviceTokenSearchService;
+import kr.co.fitapet.domain.domains.invitation.domain.ManagerInvitation;
+import kr.co.fitapet.domain.domains.invitation.service.ManagerInvitationService;
 import kr.co.fitapet.domain.domains.manager.domain.Manager;
 import kr.co.fitapet.domain.domains.manager.service.ManagerSearchService;
 import kr.co.fitapet.domain.domains.member.domain.Member;
@@ -26,6 +29,7 @@ import kr.co.fitapet.domain.domains.memo.dto.MemoInfoDto;
 import kr.co.fitapet.domain.domains.memo.service.MemoSearchService;
 import kr.co.fitapet.domain.domains.notification.type.NotificationType;
 import kr.co.fitapet.domain.domains.pet.domain.Pet;
+import kr.co.fitapet.domain.domains.pet.service.PetSearchService;
 import kr.co.fitapet.domain.domains.schedule.dto.ScheduleInfoDto;
 import kr.co.fitapet.domain.domains.schedule.service.ScheduleSearchService;
 import kr.co.fitapet.infra.client.sms.snes.exception.SmsErrorCode;
@@ -39,6 +43,9 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @UseCase
 @RequiredArgsConstructor
@@ -47,9 +54,13 @@ public class MemberAccountUseCase {
     private final MemberSearchService memberSearchService;
     private final ManagerSearchService managerSearchService;
 
+    private final ManagerInvitationService managerInvitationService;
+
     private final DeviceTokenSearchService deviceTokenSearchService;
     private final DeviceTokenSaveService deviceTokenSaveService;
 
+
+    private final PetSearchService petSearchService;
     private final ScheduleSearchService scheduleSearchService;
     private final MemoSearchService memoSearchService;
 
@@ -140,6 +151,21 @@ public class MemberAccountUseCase {
             log.info("신규 별명 생성 from : {}, to : {}, nickname : {}", from, to, nickname);
             memberNickname = MemberNickname.of(fromMember, toMember, nickname);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<InviteMemberInfoRes.ToAspect> findInvitations(Long memberId) {
+        List<ManagerInvitation> invitations = managerInvitationService.findAllByToIdNotExpiredAndNotAccepted(memberId);
+
+        List<Member> from = invitations.stream().map(ManagerInvitation::getFrom).toList();
+        List<MemberInfo> memberInfos = memberSearchService.findMemberInfos(from.stream().map(Member::getId).toList(), memberId);
+        Map<Long, MemberInfo> memberInfoMap = memberInfos.stream().collect(Collectors.toMap(MemberInfo::id, Function.identity()));
+        Map<Long, Pet> petMap = invitations.stream().collect(Collectors.toMap(invitation -> invitation.getPet().getId(), ManagerInvitation::getPet));
+
+
+        return invitations.stream()
+                .map(invitation -> InviteMemberInfoRes.ToAspect.valueOf(invitation, petMap.get(invitation.getPet().getId()), memberInfoMap.get(invitation.getFrom().getId())))
+                .toList();
     }
 
     @Transactional(readOnly = true)

@@ -49,6 +49,7 @@ public class ManagerUseCase {
         managerInvitationMapper.addManager(memberId, pet, invitationId);
     }
 
+    @Transactional
     public void cancelInvite(Long invitationId) {
         managerInvitationMapper.cancel(invitationId);
     }
